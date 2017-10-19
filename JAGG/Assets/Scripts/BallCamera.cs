@@ -1,16 +1,82 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
+ 
+public class BallCamera : MonoBehaviour
+{
 
-public class NewBehaviourScript : MonoBehaviour {
+    public Transform target;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public float distance = 5.0f;
+
+    public float xSpeed = 120.0f;
+    public float ySpeed = 120.0f;
+    public float wheelSpeed = 5f;
+
+    public float yMinLimit = -20f;
+    public float yMaxLimit = 80f;
+
+    public float distanceMin = .5f;
+    public float distanceMax = 15f;
+
+    float x = 0.0f;
+    float y = 0.0f;
+    float wheel = 0.0f;
+    float lastWheelDistance;
+
+    // Use this for initialization
+    void Start()
+    {
+        Vector3 angles = transform.eulerAngles;
+        x = angles.y;
+        y = angles.x;
+
+        lastWheelDistance = distance;
+    }
+
+    void LateUpdate()
+    {
+        if (target)
+        {
+            x += Input.GetAxis("Mouse X") * xSpeed * distance * Time.deltaTime;
+            y -= Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
+
+            y = ClampAngle(y, yMinLimit, yMaxLimit);
+
+            Quaternion rotation = Quaternion.Euler(y, x, 0);
+
+            wheel = Input.GetAxis("Mouse ScrollWheel") * wheelSpeed;
+
+            distance = Mathf.Clamp(distance - wheel, distanceMin, distanceMax);
+            if (wheel != 0f)
+                lastWheelDistance = distance;
+
+            RaycastHit hit;
+            if (Physics.Linecast(target.position, transform.position, out hit))
+            {
+                distance -= hit.distance;
+                distance = (distance < distanceMin ? distanceMin : distance);
+            }
+            else if(distance != lastWheelDistance)
+            {
+                Vector3 ndist = new Vector3(0.0f, 0.0f, -lastWheelDistance);
+                Vector3 pos = rotation * ndist + new Vector3(target.position.x, target.position.y + 0.2f, target.position.z);
+                if (!Physics.Linecast(target.position,pos))
+                    distance = lastWheelDistance;
+            }
+            Vector3 negDistance = new Vector3(0.0f, 0.0f, -distance);
+            Vector3 position = rotation * negDistance + new Vector3(target.position.x, target.position.y + 0.2f, target.position.z);
+
+            transform.rotation = rotation;
+            transform.position = position;
+        }
+    }
+
+    public static float ClampAngle(float angle, float min, float max)
+    {
+        if (angle < -360F)
+            angle += 360F;
+        if (angle > 360F)
+            angle -= 360F;
+        return Mathf.Clamp(angle, min, max);
+    }
 }
