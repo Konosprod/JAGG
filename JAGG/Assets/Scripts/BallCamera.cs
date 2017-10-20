@@ -37,7 +37,7 @@ public class BallCamera : MonoBehaviour
     {
         if (target)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * distance * Time.deltaTime;
+            x += Input.GetAxis("Mouse X") * xSpeed * Mathf.Pow(Mathf.Clamp(distance,1f,distanceMax), 1f / 3f) * Time.deltaTime;
             y -= Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
 
             y = ClampAngle(y, yMinLimit, yMaxLimit);
@@ -46,8 +46,13 @@ public class BallCamera : MonoBehaviour
 
             wheel = Input.GetAxis("Mouse ScrollWheel") * wheelSpeed;
 
-            distance = Mathf.Clamp(distance - wheel, distanceMin, distanceMax);
-            if (wheel != 0f)
+            Vector3 wdist = new Vector3(0.0f, 0.0f, -lastWheelDistance);
+            Vector3 wpos = rotation * wdist + new Vector3(target.position.x, target.position.y + 0.2f, target.position.z);
+            bool canWheel = !Physics.Linecast(target.position, wpos);
+            if (canWheel)
+                distance = Mathf.Clamp(distance - wheel, distanceMin, distanceMax);
+
+            if (wheel != 0f && canWheel)
                 lastWheelDistance = distance;
 
             RaycastHit hit;
