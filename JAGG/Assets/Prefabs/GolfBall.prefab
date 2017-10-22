@@ -58,6 +58,9 @@ GameObject:
   - component: {fileID: 120931385830116146}
   - component: {fileID: 114654452898048182}
   - component: {fileID: 114496698666130348}
+  - component: {fileID: 114349475646307686}
+  - component: {fileID: 114722614623788162}
+  - component: {fileID: 114197979233916866}
   m_Layer: 0
   m_Name: GolfBall
   m_TagString: Untagged
@@ -347,7 +350,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &114496698666130348
+--- !u!114 &114197979233916866
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -355,11 +358,43 @@ MonoBehaviour:
   m_GameObject: {fileID: 1609307025121866}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 3
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.01
+  m_VelocityThreshold: 0.001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 2
+--- !u!114 &114349475646307686
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1609307025121866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ce2586820367e9418d1cee988c7b0f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  force: 400
+--- !u!114 &114496698666130348
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1609307025121866}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8681ca2a29a20e4a98b3b7beaad1d8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 54807834420778778}
-  cam: {fileID: 0}
   minForce: 100
   force: 400
   maxForce: 1500
@@ -369,21 +404,52 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1609307025121866}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b910c982cd06cc4286dcbfa0e2e96a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 54807834420778778}
-  cam: {fileID: 0}
   line: {fileID: 120931385830116146}
+--- !u!114 &114722614623788162
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1609307025121866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 6
+    i1: 20
+    i2: 172
+    i3: 26
+    i4: 244
+    i5: 153
+    i6: 120
+    i7: 100
+    i8: 136
+    i9: 227
+    i10: 228
+    i11: 79
+    i12: 228
+    i13: 15
+    i14: 151
+    i15: 188
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 1
 --- !u!120 &120931385830116146
 LineRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1609307025121866}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 0
   m_DynamicOccludee: 0
