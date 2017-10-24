@@ -23,7 +23,7 @@ public class ShootBall : MonoBehaviour {
 	void Update () {
         if (rb != null)
         {
-            if (Mathf.Approximately(rb.velocity.magnitude,0f))
+            if (rb.velocity.magnitude < 0.001f)
             {
                 Vector3 dir = transform.position - Camera.main.transform.position;
                 dir = new Vector3(dir.x, 0f, dir.z).normalized;

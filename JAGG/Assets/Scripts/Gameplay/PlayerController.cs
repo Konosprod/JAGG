@@ -11,6 +11,8 @@ public class PlayerController : NetworkBehaviour {
     public int shots = 0;
     public Text timerText;
 
+    public Slider slider;
+
     private float timer = 0f;
     private bool isStarted = false;
     LevelProperties levelProperties;
@@ -24,6 +26,8 @@ public class PlayerController : NetworkBehaviour {
         //Find better way to do this
         levelProperties = GameObject.Find("Level Properties").GetComponent<LevelProperties>();
         timerText = GameObject.Find("TimerText").GetComponent<Text>();
+
+        slider = GameObject.Find("Slider").GetComponent<Slider>();
 
         this.timer = levelProperties.maxTime;
     }
