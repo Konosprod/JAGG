@@ -11,7 +11,7 @@ public class PlayerController : NetworkBehaviour {
     public int shots = 0;
     public Text timerText;
 
-    public Slider slider;
+    //public Slider slider;
 
     private float timer = 0f;
     private bool isStarted = false;
@@ -27,7 +27,7 @@ public class PlayerController : NetworkBehaviour {
         levelProperties = GameObject.Find("Level Properties").GetComponent<LevelProperties>();
         timerText = GameObject.Find("TimerText").GetComponent<Text>();
 
-        slider = GameObject.Find("Slider").GetComponent<Slider>();
+        //slider = GameObject.Find("Slider").GetComponent<Slider>();
 
         this.timer = levelProperties.maxTime;
     }
@@ -43,7 +43,7 @@ public class PlayerController : NetworkBehaviour {
 
         Rigidbody rb = GetComponent<Rigidbody>();
 
-        if (Mathf.Approximately(rb.velocity.magnitude, 0f))
+        if (rb.velocity.magnitude < 0.001f)
         {
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir = new Vector3(dir.x, 0f, dir.z).normalized;
@@ -83,7 +83,7 @@ public class PlayerController : NetworkBehaviour {
     public void Shoot(Vector3 dir, Rigidbody rb)
     {
         rb.AddForce(dir * force);
-        Debug.Log("dir = " + dir.ToString() + ", ball pos = " + transform.position.ToString() + ", cam pos = " + Camera.main.transform.position.ToString());
+        //Debug.Log("dir = " + dir.ToString() + ", ball pos = " + transform.position.ToString() + ", cam pos = " + Camera.main.transform.position.ToString());
 
         shots++;
 

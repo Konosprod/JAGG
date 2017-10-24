@@ -2,25 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PreviewLine : MonoBehaviour {
+public class PreviewLine : MonoBehaviour
+{
 
     public Rigidbody rb;
     public LineRenderer line;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start()
     {
         if (rb == null)
             Debug.Log("PAS DE RIGIDBODY WTF BRO");
         if (line == null)
             Debug.Log("ELLE EST OU LA LINE ???");
     }
-	
-	// Update is called once per frame
-	void Update () {
-		if (rb != null && line != null)
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (rb != null && line != null)
         {
-            if (Mathf.Approximately(rb.velocity.magnitude, 0f))
+            if (rb.velocity.magnitude < 0.001f)
             {
                 if (!line.enabled)
                     line.enabled = true;
@@ -35,5 +37,5 @@ public class PreviewLine : MonoBehaviour {
                 line.enabled = false;
             }
         }
-	}
+    }
 }
