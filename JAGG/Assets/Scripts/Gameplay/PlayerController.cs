@@ -9,27 +9,20 @@ public class PlayerController : NetworkBehaviour {
     public float force;
     public bool canShoot = true;
     public int shots = 0;
-    public Text timerText;
 
     //public Slider slider;
 
-    private float timer = 0f;
-    private bool isStarted = false;
-    LevelProperties levelProperties;
+    private LevelProperties levelProperties;
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
 
-
-        //Find better way to do this
-        levelProperties = GameObject.Find("Level Properties").GetComponent<LevelProperties>();
-        timerText = GameObject.Find("TimerText").GetComponent<Text>();
-
         //slider = GameObject.Find("Slider").GetComponent<Slider>();
 
-        this.timer = levelProperties.maxTime;
+        levelProperties = GameObject.FindObjectOfType<LevelProperties>();
+
     }
 
     private void Update()
@@ -38,8 +31,6 @@ public class PlayerController : NetworkBehaviour {
         {
             return;
         }
-
-        //Debug.Log("Started : " + isStarted.ToString() + " Timer : " + timer.ToString());
 
         Rigidbody rb = GetComponent<Rigidbody>();
 
@@ -54,30 +45,12 @@ public class PlayerController : NetworkBehaviour {
             }
         }
 
-        if (isStarted)
-        {
-            timer -= Time.deltaTime;
-
-            if (timer > 0)
-            {
-                timerText.text = timer.ToString("Time: 0 s");
-            }
-            else
-            {
-                //send timer finished to the server
-
-                DisablePlayer();
-            }
-        }
     }
 
     public override void OnStartLocalPlayer()
     {
         Camera.main.GetComponent<BallCamera>().target = GetComponent<Transform>();
         GetComponent<PreviewLine>().enabled = true;
-
-        isStarted = true;
-
     }
 
     public void Shoot(Vector3 dir, Rigidbody rb)
@@ -87,19 +60,25 @@ public class PlayerController : NetworkBehaviour {
 
         shots++;
 
+        Debug.Log(levelProperties.maxShot);
+
         if(shots >= levelProperties.maxShot)
         {
-            //send max shot reached
-
-            DisablePlayer();
+            //if(hasAuthority)
+                CmdDisablePlayer();
         }
     }
 
-    private void DisablePlayer()
+    [Command]
+    private void CmdDisablePlayer()
     {
-        canShoot = false;
-        GetComponent<PreviewLine>().enabled = false;
-        GetComponent<LineRenderer>().enabled = false;
-        GetComponent<Rigidbody>().velocity = Vector3.zero;
+        if (isLocalPlayer)
+        {
+            Debug.Log("Here");
+            canShoot = false;
+            GetComponent<PreviewLine>().enabled = false;
+            GetComponent<LineRenderer>().enabled = false;
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
+        }
     }
 }

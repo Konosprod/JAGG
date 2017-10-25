@@ -61,6 +61,7 @@ public class CustomPhysics : MonoBehaviour {
         // Find all unique walls collided
         if (collision)
         {
+            /*
             if (forward)
                 Debug.Log("Frame = " + i + ", hit forward");
             if (left)
@@ -71,7 +72,7 @@ public class CustomPhysics : MonoBehaviour {
                 Debug.Log("Frame = " + i + ", hit topRight");
             if(topLeft)
                 Debug.Log("Frame = " + i + ", hit topLeft");
-
+            */
             int nbWallsHit = 0;
             RaycastHit[] walls = new RaycastHit[5];
             if (forward)
@@ -81,7 +82,7 @@ public class CustomPhysics : MonoBehaviour {
             }
             if (right)
             {
-                Debug.Log("NbWallsHit = " + nbWallsHit + ", right");
+                //Debug.Log("NbWallsHit = " + nbWallsHit + ", right");
 
                 if ((nbWallsHit == 0) || (hitRight.transform.position != walls[nbWallsHit - 1].transform.position && hitRight.normal != walls[nbWallsHit - 1].normal))
                 {
@@ -91,7 +92,7 @@ public class CustomPhysics : MonoBehaviour {
             }
             if (left)
             {
-                Debug.Log("NbWallsHit = " + nbWallsHit + ", left");
+                //Debug.Log("NbWallsHit = " + nbWallsHit + ", left");
 
                 if (nbWallsHit == 0)
                 {
@@ -122,7 +123,7 @@ public class CustomPhysics : MonoBehaviour {
             }
             if (topRight)
             {
-                Debug.Log("NbWallsHit = " + nbWallsHit + ", topRight");
+                //Debug.Log("NbWallsHit = " + nbWallsHit + ", topRight");
 
                 if (nbWallsHit == 0)
                 {
@@ -153,7 +154,7 @@ public class CustomPhysics : MonoBehaviour {
             }
             if (topLeft)
             {
-                Debug.Log("NbWallsHit = " + nbWallsHit + ", topLeft");
+                //Debug.Log("NbWallsHit = " + nbWallsHit + ", topLeft");
 
                 if (nbWallsHit == 0)
                 {
@@ -193,7 +194,7 @@ public class CustomPhysics : MonoBehaviour {
 
                     Vector3 res = dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir);
 
-                    Debug.Log("Frame = " + i + ",Dir = " + dir + ", WallDir = " + wallDir + ", res = " + res);
+                    //Debug.Log("Frame = " + i + ",Dir = " + dir + ", WallDir = " + wallDir + ", res = " + res);
 
                     rb.velocity = res;
 
