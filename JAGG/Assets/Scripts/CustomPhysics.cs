@@ -31,7 +31,7 @@ public class CustomPhysics : MonoBehaviour {
         Vector3 topRightPos = new Vector3(bestForwardCheck.x + (rb.velocity.normalized.z / 20f), 0, bestForwardCheck.z - (rb.velocity.normalized.x / 20f));
         Vector3 topLeftPos = new Vector3(bestForwardCheck.x - (rb.velocity.normalized.z / 20f), 0, bestForwardCheck.z + (rb.velocity.normalized.x / 20f));
 
-        // Forward
+        /*// Forward
         Debug.DrawLine(transform.position, transform.position + bestForwardCheck, Color.red, 10f);
         // Right
         Debug.DrawLine(transform.position, transform.position + (new Vector3(rb.velocity.normalized.z, 0, -rb.velocity.normalized.x)) / 20f, Color.blue, 10f);
@@ -40,7 +40,7 @@ public class CustomPhysics : MonoBehaviour {
         // TopRight
         Debug.DrawLine(transform.position, transform.position + topRightPos, Color.green, 10f);
         // TopLeft
-        Debug.DrawLine(transform.position, transform.position + topLeftPos, Color.grey, 10f);
+        Debug.DrawLine(transform.position, transform.position + topLeftPos, Color.grey, 10f);*/
 
         
         RaycastHit hitForward; 

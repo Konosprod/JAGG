@@ -10,16 +10,25 @@ public class PlayerController : NetworkBehaviour {
     public bool canShoot = true;
     public int shots = 0;
 
-    //public Slider slider;
+    public int minSliderVal = 10;
+    public int maxSliderVal = 150;
+
+    private Slider slider;
 
     private LevelProperties levelProperties;
+
+    private bool isShooting = false;
+    private bool slideUp = true;
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
 
-        //slider = GameObject.Find("Slider").GetComponent<Slider>();
+        slider = GameObject.Find("Slider").GetComponent<Slider>();
+
+        slider.minValue = minSliderVal;
+        slider.maxValue = maxSliderVal;
 
         levelProperties = GameObject.FindObjectOfType<LevelProperties>();
 
@@ -41,10 +50,20 @@ public class PlayerController : NetworkBehaviour {
 
             if (Input.GetMouseButtonDown(0) && canShoot)
             {
-                Shoot(dir, rb);
+                if (isShooting)
+                {
+                    Shoot(dir, rb);
+                    isShooting = false;
+                    slideUp = true;
+                    slider.value = minSliderVal;
+                }
+                else
+                    isShooting = true;
             }
         }
 
+        if (isShooting)
+            updateSlider();
     }
 
     public override void OnStartLocalPlayer()
@@ -55,7 +74,10 @@ public class PlayerController : NetworkBehaviour {
 
     public void Shoot(Vector3 dir, Rigidbody rb)
     {
-        rb.AddForce(dir * force);
+        //rb.AddForce(dir * force);
+
+        rb.AddForce(dir * slider.value * 10f);
+
         //Debug.Log("dir = " + dir.ToString() + ", ball pos = " + transform.position.ToString() + ", cam pos = " + Camera.main.transform.position.ToString());
 
         shots++;
@@ -67,6 +89,19 @@ public class PlayerController : NetworkBehaviour {
             //if(hasAuthority)
                 CmdDisablePlayer();
         }
+    }
+
+
+    private void updateSlider()
+    {
+        if (slideUp)
+            slider.value += 2;
+        else
+            slider.value -= 2;
+
+
+        // Start moving the other way when we reach either end otherwise keep moving
+        slideUp = (slider.value == maxSliderVal) ? false : (slider.value == minSliderVal) ? true : slideUp;
     }
 
     [Command]
