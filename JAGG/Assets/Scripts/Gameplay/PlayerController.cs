@@ -101,7 +101,7 @@ public class PlayerController : NetworkBehaviour {
 
 
         // Start moving the other way when we reach either end otherwise keep moving
-        slideUp = (slider.value == maxSliderVal) ? false : (slider.value == minSliderVal) ? true : slideUp;
+        slideUp = (slider.value >= maxSliderVal) ? false : (slider.value <= minSliderVal) ? true : slideUp;
     }
 
     [Command]

@@ -5,6 +5,7 @@ using UnityEngine;
 public class CustomPhysics : MonoBehaviour {
 
     public Rigidbody rb;
+    public Transform sphere;
 
     private int i;
     private Vector3 lastWallHit;
@@ -18,7 +19,13 @@ public class CustomPhysics : MonoBehaviour {
 
     void Update()
     {
-        //Debug.Log("Velocity = " + rb.velocity + ", magnitude = " + rb.velocity.magnitude);
+        Debug.Log("Velocity = " + rb.velocity + ", magnitude = " + rb.velocity.magnitude);
+
+        // Rotate the ball if we are moving
+        if(rb.velocity.magnitude > 0.005f)
+        {
+            sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
+        }
     }
 	
 	void FixedUpdate()
@@ -27,6 +34,12 @@ public class CustomPhysics : MonoBehaviour {
         Vector3 nextPosForward = new Vector3(rb.velocity.x, 0f, rb.velocity.z) * Time.fixedDeltaTime;
 
         Vector3 bestForwardCheck = (nextPosForward.magnitude > forwardBallSize.magnitude) ? nextPosForward : forwardBallSize;
+
+        Vector3 downwardBallSize = new Vector3(0f, rb.velocity.normalized.y, 0f) / 20f;
+        Vector3 nextPosDownward = new Vector3(0f, rb.velocity.y, 0f) * Time.fixedDeltaTime;
+
+        Vector3 bestDownwardCheck = (nextPosForward.magnitude > forwardBallSize.magnitude) ? nextPosDownward : downwardBallSize;
+
 
         Vector3 topRightPos = new Vector3(bestForwardCheck.x + (rb.velocity.normalized.z / 20f), 0, bestForwardCheck.z - (rb.velocity.normalized.x / 20f));
         Vector3 topLeftPos = new Vector3(bestForwardCheck.x - (rb.velocity.normalized.z / 20f), 0, bestForwardCheck.z + (rb.velocity.normalized.x / 20f));
@@ -201,6 +214,26 @@ public class CustomPhysics : MonoBehaviour {
                     lastWallHit = walls[k].transform.position;
                     frameHit = i;
                 }
+            }
+        }
+        else // We check downward collisions only if we don't have any other collisions
+        {
+            // Downward
+            //Debug.DrawLine(transform.position, transform.position + bestDownwardCheck, Color.black, 10f);
+
+            RaycastHit hitDownward;
+            bool downward = Physics.Linecast(transform.position, transform.position + bestDownwardCheck, out hitDownward, 1 << 8);
+
+            if(downward)
+            {
+                Vector3 dir = rb.velocity;
+                Vector3 wallDir = hitDownward.normal;
+
+                Vector3 res = dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir);
+
+                //Debug.Log("Frame = " + i + ",Dir = " + dir + ", WallDir = " + wallDir + ", res = " + res);
+
+                rb.velocity = res;
             }
         }
 
