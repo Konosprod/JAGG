@@ -8,6 +8,7 @@ public class PlayerController : NetworkBehaviour {
     
     [SyncVar]
     bool canShoot = true;
+
     public int shots = 0;
 
     public int minSliderVal = 10;
@@ -114,9 +115,12 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     private void RpcDisablePlayer()
     {
-        GetComponent<PreviewLine>().enabled = false;
-        GetComponent<LineRenderer>().enabled = false;
-        GetComponent<Rigidbody>().velocity = Vector3.zero;
+        if (isLocalPlayer)
+        {
+            GetComponent<PreviewLine>().enabled = false;
+            GetComponent<LineRenderer>().enabled = false;
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
+        }
     }
 
 
