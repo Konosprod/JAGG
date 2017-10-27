@@ -9,22 +9,33 @@ public class PlayerController : NetworkBehaviour {
     [SyncVar]
     bool canShoot = true;
 
-    public int shots = 0;
+    [SyncVar]
+    int shots = 0;
+
+    [SyncVar]
+    public bool isMoving = false;
 
     public int minSliderVal = 10;
     public int maxSliderVal = 150;
 
     private Slider slider;
+    private Rigidbody rb;
+    private LineRenderer line;
 
     private LevelProperties levelProperties;
 
     private bool isShooting = false;
     private bool slideUp = true;
 
+
+
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        rb = GetComponent<Rigidbody>();
+        line = GetComponent<LineRenderer>();
 
         slider = GameObject.Find("Slider").GetComponent<Slider>();
 
@@ -35,16 +46,21 @@ public class PlayerController : NetworkBehaviour {
 
     }
 
+
     private void Update()
     {
+        if(isServer)
+        {
+            RpcUpdatePosition(transform.position);
+            isMoving = rb.velocity.magnitude >= 0.001f;
+        }
+
         if (!isLocalPlayer)
         {
             return;
         }
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-
-        if (rb.velocity.magnitude < 0.001f)
+        if (!isMoving)
         {
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir = new Vector3(dir.x, 0f, dir.z).normalized;
@@ -53,14 +69,30 @@ public class PlayerController : NetworkBehaviour {
             {
                 if (isShooting)
                 {
-                    Shoot(dir, rb);
+                    CmdShoot(dir, slider.value);
                     isShooting = false;
+                    isMoving = true;
                     slideUp = true;
                     slider.value = minSliderVal;
                 }
                 else
                     isShooting = true;
             }
+        }
+
+        if (!isMoving)
+        {
+            if (!line.enabled)
+                line.enabled = true;
+
+            Vector3 dir = transform.position - Camera.main.transform.position;
+            dir = new Vector3(dir.x, 0f, dir.z).normalized;
+            line.SetPosition(0, transform.position);
+            line.SetPosition(1, dir / 1.3f + transform.position);
+        }
+        else
+        {
+            line.enabled = false;
         }
 
         if (isShooting)
@@ -73,7 +105,21 @@ public class PlayerController : NetworkBehaviour {
         GetComponent<PreviewLine>().enabled = true;
     }
 
-    public void Shoot(Vector3 dir, Rigidbody rb)
+
+    [ClientRpc]
+    void RpcUpdatePosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+
+    [Command]
+    void CmdShoot(Vector3 dir, float sliderVal)
+    {
+        rb.AddForce(dir * sliderVal * 10f);
+        shots++;
+    }
+
+    /*public void Shoot(Vector3 dir)
     {
         //rb.AddForce(dir * force);
 
@@ -89,7 +135,7 @@ public class PlayerController : NetworkBehaviour {
         {
             CmdDisablePlayer();
         }
-    }
+    }*/
 
 
     private void updateSlider()
@@ -119,7 +165,7 @@ public class PlayerController : NetworkBehaviour {
         {
             GetComponent<PreviewLine>().enabled = false;
             GetComponent<LineRenderer>().enabled = false;
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
+            rb.velocity = Vector3.zero;
         }
     }
 
