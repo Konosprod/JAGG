@@ -5,9 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerController : NetworkBehaviour {
-
-    public float force;
-    public bool canShoot = true;
+    
+    [SyncVar]
+    bool canShoot = true;
     public int shots = 0;
 
     public int minSliderVal = 10;
@@ -68,7 +68,7 @@ public class PlayerController : NetworkBehaviour {
 
     public override void OnStartLocalPlayer()
     {
-        Camera.main.GetComponent<BallCamera>().target = GetComponent<Transform>();
+        Camera.main.GetComponent<BallCamera>().target = transform;
         GetComponent<PreviewLine>().enabled = true;
     }
 
@@ -86,8 +86,7 @@ public class PlayerController : NetworkBehaviour {
 
         if(shots >= levelProperties.maxShot)
         {
-            //if(hasAuthority)
-                CmdDisablePlayer();
+            CmdDisablePlayer();
         }
     }
 
@@ -100,20 +99,37 @@ public class PlayerController : NetworkBehaviour {
             slider.value -= 2;
 
 
-        // Start moving the other way when we reach either end otherwise keep moving
+        // Start moving the other way when we reach either end otherwise keep moving in the same direction
         slideUp = (slider.value >= maxSliderVal) ? false : (slider.value <= minSliderVal) ? true : slideUp;
     }
 
     [Command]
     private void CmdDisablePlayer()
     {
-        if (isLocalPlayer)
+        Debug.Log("Here");
+        canShoot = false;
+        RpcDisablePlayer();
+    }
+
+    [ClientRpc]
+    private void RpcDisablePlayer()
+    {
+        GetComponent<PreviewLine>().enabled = false;
+        GetComponent<LineRenderer>().enabled = false;
+        GetComponent<Rigidbody>().velocity = Vector3.zero;
+    }
+
+
+
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("Hole"))
         {
-            Debug.Log("Here");
-            canShoot = false;
-            GetComponent<PreviewLine>().enabled = false;
-            GetComponent<LineRenderer>().enabled = false;
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
+            if (isLocalPlayer)
+            {
+                CmdDisablePlayer();
+                Debug.Log("GG WP");
+            }
         }
     }
 }

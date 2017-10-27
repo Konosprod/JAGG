@@ -19,7 +19,7 @@ public class CustomPhysics : MonoBehaviour {
 
     void Update()
     {
-        Debug.Log("Velocity = " + rb.velocity + ", magnitude = " + rb.velocity.magnitude);
+        //Debug.Log("Velocity = " + rb.velocity + ", magnitude = " + rb.velocity.magnitude);
 
         // Rotate the ball if we are moving
         if(rb.velocity.magnitude > 0.005f)
