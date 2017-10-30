@@ -73,6 +73,8 @@ public class BallCamera : MonoBehaviour
 
             transform.rotation = rotation;
             transform.position = position;
+            // Cameraman en difficulte
+            //transform.position = Vector3.Lerp(transform.position, position, 5f * Time.deltaTime);
         }
     }
 

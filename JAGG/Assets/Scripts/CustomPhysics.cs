@@ -12,7 +12,8 @@ public class CustomPhysics : NetworkBehaviour {
     private Vector3 lastWallHit;
     private int frameHit;
 
-    private static float gravity = 9.81f;
+    Quaternion serverRota = Quaternion.identity;
+
 
 	// Use this for initialization
 	void Start () {
@@ -37,14 +38,18 @@ public class CustomPhysics : NetworkBehaviour {
     [ClientRpc]
     void RpcRotateBall(Quaternion rota)
     {
-        sphere.transform.rotation = rota;
+        //sphere.transform.rotation = rota;
+        serverRota = rota;
     }
 
 	
 	void FixedUpdate()
     {
         if (!isServer)
+        {
+            sphere.transform.rotation = Quaternion.Slerp(sphere.transform.rotation, serverRota, 15f * Time.deltaTime);
             return;
+        }
 
         Vector3 forwardBallSize = new Vector3(rb.velocity.normalized.x, 0f, rb.velocity.normalized.z) / 20f;
         Vector3 nextPosForward = new Vector3(rb.velocity.x, 0f, rb.velocity.z) * Time.fixedDeltaTime;
