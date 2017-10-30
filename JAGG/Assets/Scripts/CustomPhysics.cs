@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine;
 
-public class CustomPhysics : MonoBehaviour {
+public class CustomPhysics : NetworkBehaviour {
 
     public Rigidbody rb;
     public Transform sphere;
@@ -10,6 +11,8 @@ public class CustomPhysics : MonoBehaviour {
     private int i;
     private Vector3 lastWallHit;
     private int frameHit;
+
+    private static float gravity = 9.81f;
 
 	// Use this for initialization
 	void Start () {
@@ -22,14 +25,27 @@ public class CustomPhysics : MonoBehaviour {
         //Debug.Log("Velocity = " + rb.velocity + ", magnitude = " + rb.velocity.magnitude);
 
         // Rotate the ball if we are moving
-        if(rb.velocity.magnitude > 0.005f)
+        if (isServer)
         {
-            sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
+            if (rb.velocity.magnitude > 0.005f)
+                sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
+            RpcRotateBall(sphere.rotation);
         }
     }
+
+
+    [ClientRpc]
+    void RpcRotateBall(Quaternion rota)
+    {
+        sphere.transform.rotation = rota;
+    }
+
 	
 	void FixedUpdate()
     {
+        if (!isServer)
+            return;
+
         Vector3 forwardBallSize = new Vector3(rb.velocity.normalized.x, 0f, rb.velocity.normalized.z) / 20f;
         Vector3 nextPosForward = new Vector3(rb.velocity.x, 0f, rb.velocity.z) * Time.fixedDeltaTime;
 
@@ -237,10 +253,11 @@ public class CustomPhysics : MonoBehaviour {
             }
         }
 
-
         if (rb.velocity.magnitude < 0.005f)
             rb.velocity = Vector3.zero;
         rb.velocity = rb.velocity * 0.99f;
+
+        rb.AddForce(Physics.gravity);
 
         if(frameHit < i)
             lastWallHit = new Vector3(-Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);

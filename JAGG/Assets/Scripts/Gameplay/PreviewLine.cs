@@ -1,28 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine;
 
-public class PreviewLine : MonoBehaviour
+public class PreviewLine : NetworkBehaviour
 {
-
-    public Rigidbody rb;
-    public LineRenderer line;
+    PlayerController pc;
+    LineRenderer line;
 
     // Use this for initialization
     void Start()
     {
-        if (rb == null)
-            Debug.Log("PAS DE RIGIDBODY WTF BRO");
-        if (line == null)
-            Debug.Log("ELLE EST OU LA LINE ???");
+        pc = GetComponent<PlayerController>();
+        line = GetComponent<LineRenderer>();
     }
+    
 
     // Update is called once per frame
     void Update()
     {
-        if (rb != null && line != null)
+        if (!isLocalPlayer)
         {
-            if (rb.velocity.magnitude < 0.001f)
+            return;
+        }
+
+        if (pc != null && line != null)
+        {
+            if (!pc.isMoving)
             {
                 if (!line.enabled)
                     line.enabled = true;
