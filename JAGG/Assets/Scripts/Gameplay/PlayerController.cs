@@ -107,7 +107,15 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdDisablePlayer()
     {
-        Debug.Log("Here");
+        canShoot = false;
+        RpcDisablePlayer();
+    }
+
+    [Command]
+    private void CmdPlayerInHole()
+    {
+        //PlayerStatus ps = LobbyManager.Instance.players.Find(p => p.connectionId == this.connectionToClient.connectionId);
+        //Debug.Log(ps.connectionId);
         canShoot = false;
         RpcDisablePlayer();
     }
@@ -124,14 +132,13 @@ public class PlayerController : NetworkBehaviour {
     }
 
 
-
     void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.CompareTag("Hole"))
         {
             if (isLocalPlayer)
             {
-                CmdDisablePlayer();
+                CmdPlayerInHole();
                 Debug.Log("GG WP");
             }
         }
