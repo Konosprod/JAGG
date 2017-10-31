@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 using UnityEngine;
 using UnityEngine.UI;
 
+[NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour {
     
     [SyncVar]
@@ -26,6 +27,11 @@ public class PlayerController : NetworkBehaviour {
     private bool slideUp = true;
 
     private LobbyManager lobbyManager;
+    private bool isOver = false;
+
+    private Vector3 serverPos = Vector3.zero;
+
+    private Queue<Vector3> serverPositions = new Queue<Vector3>();
 
     private void Start()
     {
@@ -41,6 +47,9 @@ public class PlayerController : NetworkBehaviour {
         slider.minValue = minSliderVal;
         slider.maxValue = maxSliderVal;
 
+        if (!isServer)
+            rb.isKinematic = true;
+
     }
 
 
@@ -48,11 +57,12 @@ public class PlayerController : NetworkBehaviour {
     {
         if(isServer)
         {
-            RpcUpdatePosition(transform.position);
             isMoving = rb.velocity.magnitude >= 0.001f;
+            if(isMoving)
+                RpcUpdatePosition(transform.position);
         }
 
-        if (!isLocalPlayer)
+        if (!isLocalPlayer || isOver)
         {
             return;
         }
@@ -102,11 +112,34 @@ public class PlayerController : NetworkBehaviour {
         GetComponent<PreviewLine>().enabled = true;
     }
 
+    private void FixedUpdate()
+    {
+        if (!isServer)
+        {
+            if ((transform.position - serverPos).magnitude < 0.1f && serverPositions.Count > 0)
+            {
+                serverPos = serverPositions.Dequeue();
+            }
+
+            float lerpRate = 0.5f;
+
+            if (serverPos != Vector3.zero)
+            {
+                transform.position = Vector3.Lerp(transform.position, serverPos, lerpRate);
+            }
+        }
+    }
+
 
     [ClientRpc]
     void RpcUpdatePosition(Vector3 position)
     {
-        transform.position = position;
+        //transform.position = position;
+        //serverPos = position;
+        if (serverPos == Vector3.zero)
+            serverPos = position;
+        else
+            serverPositions.Enqueue(position);
     }
 
     [Command]
@@ -174,6 +207,7 @@ public class PlayerController : NetworkBehaviour {
     {
         if (isLocalPlayer)
         {
+            isOver = true;
             GetComponent<PreviewLine>().enabled = false;
             GetComponent<LineRenderer>().enabled = false;
             rb.velocity = Vector3.zero;
@@ -185,6 +219,7 @@ public class PlayerController : NetworkBehaviour {
     {
         if (isLocalPlayer)
         {
+            isOver = false;
             GetComponent<PreviewLine>().enabled = false;
             GetComponent<LineRenderer>().enabled = false;
             rb.velocity = Vector3.zero;
