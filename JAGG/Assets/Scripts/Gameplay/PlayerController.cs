@@ -22,12 +22,10 @@ public class PlayerController : NetworkBehaviour {
     private Rigidbody rb;
     private LineRenderer line;
 
-    private LevelProperties levelProperties;
-
     private bool isShooting = false;
     private bool slideUp = true;
 
-
+    private LobbyManager lobbyManager;
 
     private void Start()
     {
@@ -38,11 +36,10 @@ public class PlayerController : NetworkBehaviour {
         line = GetComponent<LineRenderer>();
 
         slider = GameObject.Find("Slider").GetComponent<Slider>();
+        lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
 
         slider.minValue = minSliderVal;
         slider.maxValue = maxSliderVal;
-
-        levelProperties = GameObject.FindObjectOfType<LevelProperties>();
 
     }
 
@@ -160,8 +157,14 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdPlayerInHole()
     {
-        //PlayerStatus ps = LobbyManager.Instance.players.Find(p => p.connectionId == this.connectionToClient.connectionId);
-        //Debug.Log(ps.connectionId);
+        for(int i = 0; i < lobbyManager.players.Count; i++)
+        {
+            if(lobbyManager.players[i].connectionId == this.connectionToClient.connectionId)
+            {
+                lobbyManager.players[i].done = true;
+            }
+        }
+
         canShoot = false;
         RpcDisablePlayer();
     }
@@ -177,6 +180,28 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
+    [ClientRpc]
+    private void RpcEnablePlayer()
+    {
+        if (isLocalPlayer)
+        {
+            GetComponent<PreviewLine>().enabled = false;
+            GetComponent<LineRenderer>().enabled = false;
+            rb.velocity = Vector3.zero;
+        }
+    }
+
+    [Command]
+    private void CmdEnablePlayer()
+    {
+        canShoot = true;
+        RpcEnablePlayer();
+    }
+
+    public void EnablePlayer()
+    {
+        CmdEnablePlayer();
+    }
 
     void OnTriggerEnter(Collider other)
     {

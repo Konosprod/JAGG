@@ -12,7 +12,7 @@ public class CustomPhysics : NetworkBehaviour {
     private Vector3 lastWallHit;
     private int frameHit;
 
-    private static float gravity = 9.81f;
+    //private static float gravity = 9.81f;
 
 	// Use this for initialization
 	void Start () {

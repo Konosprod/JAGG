@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 public class LevelProperties : NetworkBehaviour {
 
-    public Transform NextLevel;
+    public Transform nextSpawnPoint;
     public int par;
     public int maxShot;
     public float maxTime;
