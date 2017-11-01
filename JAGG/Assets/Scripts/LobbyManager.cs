@@ -5,18 +5,6 @@ using UnityEngine.Networking.Match;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerStatus
-{
-    public int connectionId;
-    public bool done;
-
-    public PlayerStatus(int connectionId)
-    {
-        this.connectionId = connectionId;
-        done = false;
-    }
-}
-
 public class LobbyManager : NetworkLobbyManager
 {
 
@@ -27,20 +15,18 @@ public class LobbyManager : NetworkLobbyManager
     public InputField InputIP;
 
     [HideInInspector]
-    public List<PlayerStatus> players;
-    [HideInInspector]
     public bool isStarted = false;
 
-    private bool allDone = true;
     private GameObject hole;
     private int currentHole = 1;
 
+    private PlayerManager playerManager;
     private GameTimer gameTimer;
 
     // Use this for initialization
     void Start()
     {
-        players = new List<PlayerStatus>();
+        playerManager = PlayerManager.Instance;
 
         if (EndOfGamePos == null)
             Debug.Log("NEED ENDOFGAMEPREFAB");
@@ -51,21 +37,13 @@ public class LobbyManager : NetworkLobbyManager
     {
         if (isStarted)
         {
-            if (players.Count <= 0)
+            if (!playerManager.HasPlayer())
                 return;
 
-            for (int i = 0; i < players.Count; i++)
-            {
-                if (!players[i].done)
-                    allDone = false;
-            }
-
-            if (allDone)
+            if(playerManager.AllPlayersDone())
             {
                 SpawnNextPoint();
             }
-
-            allDone = true;
         }
     }
 
@@ -81,10 +59,7 @@ public class LobbyManager : NetworkLobbyManager
 
         if (nextPosition.position != EndOfGamePos.position)
         {
-            for (int i = 0; i < players.Count; i++)
-            {
-                players[i].done = false;
-            }
+            playerManager.ResetAllPlayers();
 
             GameObject[] balls = GameObject.FindGameObjectsWithTag("Player");
 
@@ -143,20 +118,14 @@ public class LobbyManager : NetworkLobbyManager
 
     public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
     {
-        players.Add(new PlayerStatus(conn.connectionId));
+        playerManager.AddPlayer(conn.connectionId);
         return base.OnLobbyServerCreateGamePlayer(conn, playerControllerId);
     }
 
-    public override void OnClientConnect(NetworkConnection conn)
+    public override void OnClientDisconnect(NetworkConnection conn)
     {
-        for(int i = 0; i < players.Count; i++)
-        {
-            if(players[i].connectionId == conn.connectionId)
-            {
-                players.RemoveAt(i);
-            }
-        }
-        base.OnClientConnect(conn);
+        playerManager.RemovePlayer(conn.connectionId);
+        base.OnClientDisconnect(conn);
     }
 
     public void CreateRoom()

@@ -26,7 +26,7 @@ public class PlayerController : NetworkBehaviour {
     private bool isShooting = false;
     private bool slideUp = true;
 
-    private LobbyManager lobbyManager;
+    private PlayerManager playerManager;
     private bool isOver = false;
 
     private Vector3 serverPos = Vector3.zero;
@@ -42,7 +42,7 @@ public class PlayerController : NetworkBehaviour {
         line = GetComponent<LineRenderer>();
 
         slider = GameObject.Find("Slider").GetComponent<Slider>();
-        lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
+        playerManager = PlayerManager.Instance;
 
         slider.minValue = minSliderVal;
         slider.maxValue = maxSliderVal;
@@ -149,25 +149,6 @@ public class PlayerController : NetworkBehaviour {
         shots++;
     }
 
-    /*public void Shoot(Vector3 dir)
-    {
-        //rb.AddForce(dir * force);
-
-        rb.AddForce(dir * slider.value * 10f);
-
-        //Debug.Log("dir = " + dir.ToString() + ", ball pos = " + transform.position.ToString() + ", cam pos = " + Camera.main.transform.position.ToString());
-
-        shots++;
-
-        Debug.Log(levelProperties.maxShot);
-
-        if(shots >= levelProperties.maxShot)
-        {
-            CmdDisablePlayer();
-        }
-    }*/
-
-
     private void updateSlider()
     {
         if (slideUp)
@@ -190,14 +171,7 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdPlayerInHole()
     {
-        for(int i = 0; i < lobbyManager.players.Count; i++)
-        {
-            if(lobbyManager.players[i].connectionId == this.connectionToClient.connectionId)
-            {
-                lobbyManager.players[i].done = true;
-            }
-        }
-
+        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
         canShoot = false;
         RpcDisablePlayer();
     }
