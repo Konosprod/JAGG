@@ -35,6 +35,8 @@ public class LobbyManager : NetworkLobbyManager
     private GameObject hole;
     private int currentHole = 1;
 
+    private GameTimer gameTimer;
+
     // Use this for initialization
     void Start()
     {
@@ -60,14 +62,20 @@ public class LobbyManager : NetworkLobbyManager
 
             if (allDone)
             {
-                spawnNextPoint();
+                SpawnNextPoint();
             }
 
             allDone = true;
         }
     }
 
-    private void spawnNextPoint()
+    public void TriggerTimeout()
+    {
+        //Show recap here
+        SpawnNextPoint();
+    }
+
+    private void SpawnNextPoint()
     {
         Transform nextPosition = hole.GetComponentInChildren<LevelProperties>().nextSpawnPoint;
 
@@ -88,10 +96,14 @@ public class LobbyManager : NetworkLobbyManager
 
             currentHole++;
             hole = GameObject.Find("Hole " + currentHole.ToString());
+
+            gameTimer.StartTimer(hole.GetComponentInChildren<LevelProperties>().maxTime);
         }
         else
         {
             isStarted = false;
+            gameTimer.StopTimer();
+
             Debug.Log("End of game, return to lobby in 3sec");
             StartCoroutine(WaitAndReturnToLobby());
         }
@@ -109,6 +121,10 @@ public class LobbyManager : NetworkLobbyManager
         if (sceneName != "Lobby")
         {
             isStarted = true;
+            gameTimer = GameObject.Find("GameTimer").GetComponent<GameTimer>();
+
+            gameTimer.StartTimer(hole.GetComponentInChildren<LevelProperties>().maxTime);
+
         }
         else
         {
@@ -121,6 +137,7 @@ public class LobbyManager : NetworkLobbyManager
     public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
     {
         hole = GameObject.Find("Hole " + currentHole.ToString());
+
         return base.OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer);
     }
 
@@ -150,6 +167,7 @@ public class LobbyManager : NetworkLobbyManager
     public void JoinRoom()
     {
         this.networkAddress = InputIP.text;
+        Debug.Log("here");
         this.StartClient();
     }
 }

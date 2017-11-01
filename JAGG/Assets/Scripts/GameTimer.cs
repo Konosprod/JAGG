@@ -9,18 +9,61 @@ public class GameTimer : NetworkBehaviour
     [SyncVar] public float timer;
     [SyncVar] public bool masterTimer = false;
 
-
-    public LevelProperties levelProperties;
     public Text timerText;
 
-    GameTimer serverTimer;
+    private bool isStarted = false;
+
+    private GameTimer serverTimer;
+    private LobbyManager lobbyManager;
 
     void Start()
     {
-        if (levelProperties == null)
-            Debug.Log("NEED LEVEL PROPERTIES");
+        lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
+    }
 
-        timer = levelProperties.maxTime;
+    void Update()
+    {
+        if (isStarted)
+        {
+            if (masterTimer)
+            {
+                timer -= Time.deltaTime;
+
+                if (timer <= 0)
+                {
+                    isStarted = false;
+                    timer = 0;
+                    lobbyManager.TriggerTimeout();
+                    //Next Point
+                }
+            }
+
+            if (isLocalPlayer)
+            {
+                if (serverTimer)
+                {
+                    timer = serverTimer.timer;
+                }
+                else
+                {
+                    GameTimer[] timers = FindObjectsOfType<GameTimer>();
+                    for (int i = 0; i < timers.Length; i++)
+                    {
+                        if (timers[i].masterTimer)
+                        {
+                            serverTimer = timers[i];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void StartTimer(float timer)
+    {
+        isStarted = true;
+
+        this.timer = timer;
 
         if (isServer)
         {
@@ -43,34 +86,18 @@ public class GameTimer : NetworkBehaviour
         }
     }
 
-    void Update()
+    public void StopTimer()
     {
-        if (masterTimer)
-        {
-            timer -= Time.deltaTime;
+        isStarted = false;
 
-            if (timer <= 0)
-            {
-                //end of game
-            }
-        }
+        timer = 0;
 
-        if (isLocalPlayer)
+        GameTimer[] timers = FindObjectsOfType<GameTimer>();
+        for (int i = 0; i < timers.Length; i++)
         {
-            if (serverTimer)
+            if (timers[i].masterTimer)
             {
-                timer = serverTimer.timer;
-            }
-            else
-            {
-                GameTimer[] timers = FindObjectsOfType<GameTimer>();
-                for (int i = 0; i < timers.Length; i++)
-                {
-                    if (timers[i].masterTimer)
-                    {
-                        serverTimer = timers[i];
-                    }
-                }
+                serverTimer = timers[i];
             }
         }
     }
