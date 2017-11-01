@@ -167,7 +167,6 @@ public class LobbyManager : NetworkLobbyManager
     public void JoinRoom()
     {
         this.networkAddress = InputIP.text;
-        Debug.Log("here");
         this.StartClient();
     }
 }
