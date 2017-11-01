@@ -23,6 +23,8 @@ public class PlayerController : NetworkBehaviour {
     private Rigidbody rb;
     private LineRenderer line;
 
+    private Text textShots;
+
     private bool isShooting = false;
     private bool slideUp = true;
 
@@ -42,6 +44,7 @@ public class PlayerController : NetworkBehaviour {
         line = GetComponent<LineRenderer>();
 
         slider = GameObject.Find("Slider").GetComponent<Slider>();
+        textShots = GameObject.Find("PlayerShots").GetComponent<Text>();
         playerManager = PlayerManager.Instance;
 
         slider.minValue = minSliderVal;
@@ -147,6 +150,7 @@ public class PlayerController : NetworkBehaviour {
     {
         rb.AddForce(dir * sliderVal * 10f);
         shots++;
+        playerManager.SetPlayerShots(this.connectionToClient.connectionId, shots);
     }
 
     private void updateSlider()
@@ -172,6 +176,7 @@ public class PlayerController : NetworkBehaviour {
     private void CmdPlayerInHole()
     {
         playerManager.SetPlayerDone(this.connectionToClient.connectionId);
+        shots = 0;
         canShoot = false;
         RpcDisablePlayer();
     }
@@ -222,5 +227,11 @@ public class PlayerController : NetworkBehaviour {
                 Debug.Log("GG WP");
             }
         }
+    }
+
+    void OnGUI()
+    {
+        if(isLocalPlayer)
+            textShots.text = "Shots: " + shots.ToString();
     }
 }
