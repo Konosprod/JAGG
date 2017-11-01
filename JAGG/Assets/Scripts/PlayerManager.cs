@@ -38,7 +38,7 @@ public sealed class PlayerManager {
 
     public void AddPlayer(int connId)
     {
-        players.Add(connId, new PlayerStatus());
+        players[connId] = new PlayerStatus();
     }
 
     public void RemovePlayer(int connId)
