@@ -35,6 +35,10 @@ public class PlayerController : NetworkBehaviour {
 
     private Queue<Vector3> serverPositions = new Queue<Vector3>();
 
+
+    private const int FirstLayer = 9;
+
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -92,6 +96,10 @@ public class PlayerController : NetworkBehaviour {
 
         if (!isMoving)
         {
+            if (shots == 1)
+                CmdEnableMyCollisionLayers();
+
+
             if (!line.enabled)
                 line.enabled = true;
 
@@ -175,10 +183,11 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdPlayerInHole()
     {
-        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
         shots = 0;
         canShoot = false;
+        rb.velocity = Vector3.zero;
         RpcDisablePlayer();
+        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
     }
 
     [ClientRpc]
@@ -188,8 +197,7 @@ public class PlayerController : NetworkBehaviour {
         {
             isOver = true;
             GetComponent<PreviewLine>().enabled = false;
-            GetComponent<LineRenderer>().enabled = false;
-            rb.velocity = Vector3.zero;
+            line.enabled = false;
         }
     }
 
@@ -200,8 +208,7 @@ public class PlayerController : NetworkBehaviour {
         {
             isOver = false;
             GetComponent<PreviewLine>().enabled = false;
-            GetComponent<LineRenderer>().enabled = false;
-            rb.velocity = Vector3.zero;
+            line.enabled = false;
         }
     }
 
@@ -215,6 +222,15 @@ public class PlayerController : NetworkBehaviour {
     public void EnablePlayer()
     {
         CmdEnablePlayer();
+    }
+
+    [Command]
+    private void CmdEnableMyCollisionLayers()
+    {
+        for(int i=FirstLayer; i<FirstLayer+4; i++)
+        {
+            Physics.IgnoreLayerCollision(gameObject.layer, i, false);
+        }
     }
 
     void OnTriggerEnter(Collider other)

@@ -5,6 +5,7 @@ using UnityEngine.Networking.Match;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class LobbyManager : NetworkLobbyManager
 {
 
@@ -22,6 +23,9 @@ public class LobbyManager : NetworkLobbyManager
 
     private PlayerManager playerManager;
     private GameTimer gameTimer;
+
+    private const int FirstLayer = 9;
+    private bool[] layers = new bool[4];
 
     // Use this for initialization
     void Start()
@@ -60,6 +64,8 @@ public class LobbyManager : NetworkLobbyManager
         if (nextPosition.position != EndOfGamePos.position)
         {
             playerManager.ResetAllPlayers();
+
+            disableAllBallsCollisions();
 
             GameObject[] balls = GameObject.FindGameObjectsWithTag("Player");
 
@@ -112,7 +118,7 @@ public class LobbyManager : NetworkLobbyManager
     public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
     {
         hole = GameObject.Find("Hole " + currentHole.ToString());
-
+        gamePlayer.layer = getNextLayer();
         return base.OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer);
     }
 
@@ -137,5 +143,24 @@ public class LobbyManager : NetworkLobbyManager
     {
         this.networkAddress = InputIP.text;
         this.StartClient();
+    }
+
+
+    private int getNextLayer()
+    {
+        int l;
+        for (l = FirstLayer; layers[l-FirstLayer]; l++) ;
+        layers[l-FirstLayer] = true;
+        return l;
+    }
+
+    private void disableAllBallsCollisions()
+    {
+        Physics.IgnoreLayerCollision(FirstLayer, FirstLayer + 1, true);
+        Physics.IgnoreLayerCollision(FirstLayer, FirstLayer + 2, true);
+        Physics.IgnoreLayerCollision(FirstLayer, FirstLayer + 3, true);
+        Physics.IgnoreLayerCollision(FirstLayer + 1, FirstLayer + 2, true);
+        Physics.IgnoreLayerCollision(FirstLayer + 1, FirstLayer + 3, true);
+        Physics.IgnoreLayerCollision(FirstLayer + 2, FirstLayer + 3, true);
     }
 }
