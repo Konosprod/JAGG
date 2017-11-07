@@ -61,6 +61,8 @@ public class LobbyManager : NetworkLobbyManager
     {
         Transform nextPosition = hole.GetComponentInChildren<LevelProperties>().nextSpawnPoint;
 
+        Debug.Log(nextPosition.position);
+
         if (nextPosition.position != EndOfGamePos.position)
         {
             playerManager.ResetAllPlayers();
@@ -84,6 +86,8 @@ public class LobbyManager : NetworkLobbyManager
         {
             isStarted = false;
             gameTimer.StopTimer();
+            playerManager.ResetAllPlayers();
+            currentHole = 1;
 
             Debug.Log("End of game, return to lobby in 3sec");
             StartCoroutine(WaitAndReturnToLobby());
