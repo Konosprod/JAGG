@@ -24,6 +24,7 @@ public class PlayerController : NetworkBehaviour {
     private LineRenderer line;
 
     private Text textShots;
+    private Text notificationText;
 
     private bool isShooting = false;
     private bool slideUp = true;
@@ -48,6 +49,7 @@ public class PlayerController : NetworkBehaviour {
 
         slider = GameObject.Find("Slider").GetComponent<Slider>();
         textShots = GameObject.Find("PlayerShots").GetComponent<Text>();
+        notificationText = GameObject.Find("NotificationText").GetComponent<Text>();
         playerManager = PlayerManager.Instance;
 
         slider.minValue = minSliderVal;
@@ -140,26 +142,6 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-
-    [ClientRpc]
-    void RpcUpdatePosition(Vector3 position)
-    {
-        //transform.position = position;
-        //serverPos = position;
-        if (serverPos == Vector3.zero)
-            serverPos = position;
-        else
-            serverPositions.Enqueue(position);
-    }
-
-    [Command]
-    void CmdShoot(Vector3 dir, float sliderVal)
-    {
-        rb.AddForce(dir * sliderVal * 10f);
-        shots++;
-        playerManager.SetPlayerShots(this.connectionToClient.connectionId, shots);
-    }
-
     private void updateSlider()
     {
         if (slideUp)
@@ -170,6 +152,63 @@ public class PlayerController : NetworkBehaviour {
 
         // Start moving the other way when we reach either end otherwise keep moving in the same direction
         slideUp = (slider.value >= maxSliderVal) ? false : (slider.value <= minSliderVal) ? true : slideUp;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Hole"))
+        {
+            if (isLocalPlayer)
+            {
+                CmdPlayerInHole();
+                Debug.Log("GG WP");
+            }
+        }
+    }
+
+    void OnGUI()
+    {
+        if (isLocalPlayer)
+            textShots.text = "Shots: " + shots.ToString();
+    }
+
+    IEnumerator ShowNotification(Text label, string message, float time)
+    {
+        label.text = message;
+        label.enabled = true;
+        yield return new WaitForSeconds(time);
+        label.enabled = false;
+    }
+
+    #region Command
+
+    [Command]
+    private void CmdEnablePlayer()
+    {
+        canShoot = true;
+        RpcEnablePlayer();
+    }
+
+    public void EnablePlayer()
+    {
+        CmdEnablePlayer();
+    }
+
+    [Command]
+    private void CmdEnableMyCollisionLayers()
+    {
+        for (int i = FirstLayer; i < FirstLayer + 4; i++)
+        {
+            Physics.IgnoreLayerCollision(gameObject.layer, i, false);
+        }
+    }
+
+    [Command]
+    void CmdShoot(Vector3 dir, float sliderVal)
+    {
+        rb.AddForce(dir * sliderVal * 10f);
+        shots++;
+        playerManager.SetPlayerShots(this.connectionToClient.connectionId, shots);
     }
 
     [Command]
@@ -224,12 +263,27 @@ public class PlayerController : NetworkBehaviour {
         RpcDisablePlayerInHole(type);
         playerManager.SetPlayerDone(this.connectionToClient.connectionId);
     }
+#endregion
+
+    #region ClientRpc
+
+    [ClientRpc]
+    void RpcUpdatePosition(Vector3 position)
+    {
+        //transform.position = position;
+        //serverPos = position;
+        if (serverPos == Vector3.zero)
+            serverPos = position;
+        else
+            serverPositions.Enqueue(position);
+    }
 
     [ClientRpc]
     private void RpcDisablePlayerInHole(int type)
     {
         if (isLocalPlayer)
         {
+            string message = "";
             isOver = true;
             GetComponent<PreviewLine>().enabled = false;
             line.enabled = false;
@@ -237,29 +291,31 @@ public class PlayerController : NetworkBehaviour {
             switch(type)
             {
                 case 0:
-                    Debug.Log("Hole in one");
+                    message = "Hole in one";
                     break;
 
                 case 1:
-                    Debug.Log("Eagle");
+                    message = "Eagle";
                     break;
 
                 case 2:
-                    Debug.Log("Birdie");
+                    message = "Birdie";
                     break;
 
                 case 3:
-                    Debug.Log("Par");
+                    message = "Par";
                     break;
 
                 case 4:
-                    Debug.Log("Bogey");
+                    message = "Bogey";
                     break;
 
                 case 5:
-                    Debug.Log("Double Bogey");
+                    message = "Double Bogey";
                     break;
             }
+
+            StartCoroutine(ShowNotification(notificationText, message, 1));
         }
     }
 
@@ -285,42 +341,5 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    [Command]
-    private void CmdEnablePlayer()
-    {
-        canShoot = true;
-        RpcEnablePlayer();
-    }
-
-    public void EnablePlayer()
-    {
-        CmdEnablePlayer();
-    }
-
-    [Command]
-    private void CmdEnableMyCollisionLayers()
-    {
-        for(int i=FirstLayer; i<FirstLayer+4; i++)
-        {
-            Physics.IgnoreLayerCollision(gameObject.layer, i, false);
-        }
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if(other.gameObject.CompareTag("Hole"))
-        {
-            if (isLocalPlayer)
-            {
-                CmdPlayerInHole();
-                Debug.Log("GG WP");
-            }
-        }
-    }
-
-    void OnGUI()
-    {
-        if(isLocalPlayer)
-            textShots.text = "Shots: " + shots.ToString();
-    }
+#endregion
 }
