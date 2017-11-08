@@ -35,7 +35,6 @@ public class PlayerController : NetworkBehaviour {
 
     private Queue<Vector3> serverPositions = new Queue<Vector3>();
 
-
     private const int FirstLayer = 9;
 
 
@@ -183,11 +182,85 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdPlayerInHole()
     {
-        shots = 0;
+        int type = 0;
         canShoot = false;
         rb.velocity = Vector3.zero;
-        RpcDisablePlayer();
+
+        int par = GameObject.FindObjectOfType<LobbyManager>().GetPar();
+
+        if(shots == 1)
+        {
+            type = 0;
+        }
+        else
+        {
+            int diff = par - shots;
+
+            switch(diff)
+            {
+                case -2:
+                    type = 5;
+                    break;
+
+                case -1:
+                    type = 4;
+                    break;
+
+                case 0:
+                    type = 3;
+                    break;
+
+                case 1:
+                    type = 2;
+                    break;
+
+                case 2:
+                    type = 1;
+                    break;
+            }
+        }
+
+        shots = 0;
+        RpcDisablePlayerInHole(type);
         playerManager.SetPlayerDone(this.connectionToClient.connectionId);
+    }
+
+    [ClientRpc]
+    private void RpcDisablePlayerInHole(int type)
+    {
+        if (isLocalPlayer)
+        {
+            isOver = true;
+            GetComponent<PreviewLine>().enabled = false;
+            line.enabled = false;
+
+            switch(type)
+            {
+                case 0:
+                    Debug.Log("Hole in one");
+                    break;
+
+                case 1:
+                    Debug.Log("Eagle");
+                    break;
+
+                case 2:
+                    Debug.Log("Birdie");
+                    break;
+
+                case 3:
+                    Debug.Log("Par");
+                    break;
+
+                case 4:
+                    Debug.Log("Bogey");
+                    break;
+
+                case 5:
+                    Debug.Log("Double Bogey");
+                    break;
+            }
+        }
     }
 
     [ClientRpc]
