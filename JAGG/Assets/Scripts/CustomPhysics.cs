@@ -262,7 +262,9 @@ public class CustomPhysics : NetworkBehaviour {
             rb.velocity = Vector3.zero;
         rb.velocity = rb.velocity * 0.99f;
 
-        rb.AddForce(Physics.gravity);
+        //Vector3 grav = new Vector3(0, -1.622f, 0);
+
+        rb.AddForce(Physics.gravity/*grav*/);
 
         if(frameHit < i)
             lastWallHit = new Vector3(-Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);

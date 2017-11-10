@@ -33,8 +33,9 @@ public class PlayerController : NetworkBehaviour {
     private bool isOver = false;
 
     private Vector3 serverPos = Vector3.zero;
-
     private Queue<Vector3> serverPositions = new Queue<Vector3>();
+
+    private Vector3 lastStopPos = Vector3.zero;
 
     private const int FirstLayer = 9;
 
@@ -77,9 +78,27 @@ public class PlayerController : NetworkBehaviour {
 
         if (!isMoving)
         {
+            // Enable collision with other players only after the end of the first shot
+            if (shots == 1)
+                CmdEnableMyCollisionLayers();
+
+            // Update the last position where the ball stopped
+            lastStopPos = transform.position;
+
+
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir = new Vector3(dir.x, 0f, dir.z).normalized;
 
+            
+            // Show and update the preview line
+            if (!line.enabled)
+                line.enabled = true;
+
+            line.SetPosition(0, transform.position);
+            line.SetPosition(1, dir / 1.3f + transform.position);
+
+            // Handle shooting
+            // Should likely be the last part of the if since the ball will start moving when calling CmdShoot so anything that's in this if(!isMoving) wouldn't be relevant past that point sometimes
             if (Input.GetMouseButtonDown(0) && canShoot)
             {
                 if (isShooting)
@@ -94,24 +113,16 @@ public class PlayerController : NetworkBehaviour {
                     isShooting = true;
             }
         }
-
-        if (!isMoving)
-        {
-            if (shots == 1)
-                CmdEnableMyCollisionLayers();
-
-
-            if (!line.enabled)
-                line.enabled = true;
-
-            Vector3 dir = transform.position - Camera.main.transform.position;
-            dir = new Vector3(dir.x, 0f, dir.z).normalized;
-            line.SetPosition(0, transform.position);
-            line.SetPosition(1, dir / 1.3f + transform.position);
-        }
         else
         {
+            // Disable the preview line during movement (looks pretty bad otherwise)
             line.enabled = false;
+
+            // Handle the reset button
+            if(Input.GetKeyDown(KeyCode.R))
+            {
+                CmdResetPosition(lastStopPos);
+            }
         }
 
         if (isShooting)
@@ -263,6 +274,15 @@ public class PlayerController : NetworkBehaviour {
         RpcDisablePlayerInHole(type);
         playerManager.SetPlayerDone(this.connectionToClient.connectionId);
     }
+
+
+    [Command]
+    private void CmdResetPosition(Vector3 lastPos)
+    {
+        transform.position = lastPos;
+        rb.velocity = Vector3.zero;
+        RpcForceUpdatePosition(lastPos);
+    }
 #endregion
 
     #region ClientRpc
@@ -276,6 +296,14 @@ public class PlayerController : NetworkBehaviour {
             serverPos = position;
         else
             serverPositions.Enqueue(position);
+    }
+
+    [ClientRpc]
+    void RpcForceUpdatePosition(Vector3 position)
+    {
+        serverPositions.Clear();
+        transform.position = position;
+        serverPos = position;
     }
 
     [ClientRpc]
