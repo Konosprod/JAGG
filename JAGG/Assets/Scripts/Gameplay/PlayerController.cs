@@ -270,6 +270,14 @@ public class PlayerController : NetworkBehaviour {
             }
         }
 
+        // Disable collisions with other balls while in the hole
+        for (int i = FirstLayer; i < FirstLayer + 4; i++)
+        {
+            if (i != gameObject.layer)
+                Physics.IgnoreLayerCollision(gameObject.layer, i, true);
+        }
+
+
         shots = 0;
         RpcDisablePlayerInHole(type);
         playerManager.SetPlayerDone(this.connectionToClient.connectionId);

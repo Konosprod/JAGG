@@ -99,6 +99,8 @@ public class LobbyManager : NetworkLobbyManager
         playerManager.ResetAllPlayers();
         currentHole = 1;
 
+        layers = new bool[4];
+
         Debug.Log("End of game, return to lobby in 3sec");
         StartCoroutine(WaitAndReturnToLobby());
         Cursor.lockState = CursorLockMode.None;
@@ -163,7 +165,11 @@ public class LobbyManager : NetworkLobbyManager
     private int getNextLayer()
     {
         int l;
-        for (l = FirstLayer; layers[l-FirstLayer]; l++) ;
+        for (l = FirstLayer; layers[l-FirstLayer] && l-FirstLayer<4; l++) ;
+
+        if (l - FirstLayer == 3 && layers[l - FirstLayer])
+            Debug.LogError("layers not reset");
+
         layers[l-FirstLayer] = true;
         return l;
     }
