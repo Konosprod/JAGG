@@ -10,14 +10,15 @@ public class MainMenuHandler : MonoBehaviour
     public Button btn_1280x720;
     public Button btn_Quit;
     public Button btn_Start;
-    public string sceneName;
+    public int sceneIndex;
 
     void Start()
     {
         btn_1280x720.onClick.AddListener(Set1280x720);
         btn_1920x1080.onClick.AddListener(Set1920x1080);
         btn_Quit.onClick.AddListener(Quit);
-        btn_Start.onClick.AddListener(LoadSceneByName);
+
+        SoundManager.PlayMusic(SoundType.MainMenu);
     }
 
     public void Quit()
@@ -39,8 +40,8 @@ public class MainMenuHandler : MonoBehaviour
         Screen.SetResolution(1920, 1080, Screen.fullScreen);
     }
 
-    public void LoadSceneByName()
+    public void LoadSceneByName(string name)
     {
-        SceneManager.LoadScene(sceneName);
+        SceneManager.LoadScene(name);
     }
 }
