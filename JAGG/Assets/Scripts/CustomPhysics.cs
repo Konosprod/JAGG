@@ -235,8 +235,6 @@ public class CustomPhysics : NetworkBehaviour {
                     lastWallHit = walls[k].transform.position;
                     frameHit = i;
                 }
-
-                SoundManager.PlaySFX(SFXType.WoodHit);
             }
         }
         else // We check downward collisions only if we don't have any other collisions

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 [NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour {
@@ -16,18 +17,12 @@ public class PlayerController : NetworkBehaviour {
     [SyncVar]
     public bool isMoving = false;
 
-    public int minSliderVal = 10;
-    public int maxSliderVal = 150;
-
-    private Slider slider;
     private Rigidbody rb;
     private LineRenderer line;
 
-    private Text textShots;
-    private Text notificationText;
+    private UIManager ui;
 
     private bool isShooting = false;
-    private bool slideUp = true;
 
     private PlayerManager playerManager;
     private bool isOver = false;
@@ -48,13 +43,9 @@ public class PlayerController : NetworkBehaviour {
         rb = GetComponent<Rigidbody>();
         line = GetComponent<LineRenderer>();
 
-        slider = GameObject.Find("Slider").GetComponent<Slider>();
-        textShots = GameObject.Find("PlayerShots").GetComponent<Text>();
-        notificationText = GameObject.Find("NotificationText").GetComponent<Text>();
-        playerManager = PlayerManager.Instance;
+        ui = FindObjectOfType<UIManager>();
 
-        slider.minValue = minSliderVal;
-        slider.maxValue = maxSliderVal;
+        playerManager = PlayerManager.Instance;
 
         if (!isServer)
             rb.isKinematic = true;
@@ -103,11 +94,10 @@ public class PlayerController : NetworkBehaviour {
             {
                 if (isShooting)
                 {
-                    CmdShoot(dir, slider.value);
+                    CmdShoot(dir, ui.GetSliderValue());
                     isShooting = false;
                     isMoving = true;
-                    slideUp = true;
-                    slider.value = minSliderVal;
+                    ui.ResetSlider();
                 }
                 else
                     isShooting = true;
@@ -126,7 +116,7 @@ public class PlayerController : NetworkBehaviour {
         }
 
         if (isShooting)
-            updateSlider();
+            ui.UpdateSlider();
     }
 
     public override void OnStartLocalPlayer()
@@ -153,18 +143,6 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    private void updateSlider()
-    {
-        if (slideUp)
-            slider.value += 2;
-        else
-            slider.value -= 2;
-
-
-        // Start moving the other way when we reach either end otherwise keep moving in the same direction
-        slideUp = (slider.value >= maxSliderVal) ? false : (slider.value <= minSliderVal) ? true : slideUp;
-    }
-
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Hole"))
@@ -180,15 +158,17 @@ public class PlayerController : NetworkBehaviour {
     void OnGUI()
     {
         if (isLocalPlayer)
-            textShots.text = "Shots: " + shots.ToString();
+            ui.SetTextShots("Shots: " + shots.ToString());
     }
 
-    IEnumerator ShowNotification(Text label, string message, float time)
+    private void SetDone()
     {
-        label.text = message;
-        label.enabled = true;
-        yield return new WaitForSeconds(time);
-        label.enabled = false;
+        CmdSetDone();
+    }
+
+    private void ShowScores()
+    {
+        StartCoroutine(ui.ShowScores(5, SetDone));
     }
 
     #region Command
@@ -280,7 +260,6 @@ public class PlayerController : NetworkBehaviour {
 
         shots = 0;
         RpcDisablePlayerInHole(type);
-        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
     }
 
 
@@ -290,6 +269,12 @@ public class PlayerController : NetworkBehaviour {
         transform.position = lastPos;
         rb.velocity = Vector3.zero;
         RpcForceUpdatePosition(lastPos);
+    }
+
+    [Command]
+    private void CmdSetDone()
+    {
+        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
     }
 #endregion
 
@@ -351,7 +336,7 @@ public class PlayerController : NetworkBehaviour {
                     break;
             }
 
-            StartCoroutine(ShowNotification(notificationText, message, 1));
+            StartCoroutine(ui.ShowNotification(message, 1, ShowScores));
         }
     }
 
