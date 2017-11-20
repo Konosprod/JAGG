@@ -57,6 +57,27 @@ public class UIManager : MonoBehaviour {
     public IEnumerator ShowScores(float time, Action callback = null)
     {
         panelScore.SetActive(true);
+
+        List<List<int>> scores = PlayerManager.Instance.GetPlayersScore();
+
+        for(int i = 0; i < scores.Count; i++)
+        {
+            if (!scorePlayers[i].activeSelf)
+                scorePlayers[i].SetActive(true);
+
+            string text = "";
+            int total = 0;
+
+            for(int j = 0; j < scores[i].Count; j++)
+            {
+                text += scores[i][j].ToString() + " ";
+                total += scores[i][j];
+            }
+
+            scorePlayers[i].GetComponentsInChildren<Text>()[1].text = text;
+            scorePlayers[i].GetComponentsInChildren<Text>()[2].text = total.ToString();
+        }
+
         yield return new WaitForSeconds(time);
         panelScore.SetActive(false);
 

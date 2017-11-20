@@ -150,7 +150,6 @@ public class PlayerController : NetworkBehaviour {
             if (isLocalPlayer)
             {
                 CmdPlayerInHole();
-                Debug.Log("GG WP");
             }
         }
     }
@@ -257,6 +256,7 @@ public class PlayerController : NetworkBehaviour {
                 Physics.IgnoreLayerCollision(gameObject.layer, i, true);
         }
 
+        playerManager.AddPlayerScore(this.connectionToClient.connectionId, shots);
 
         shots = 0;
         RpcDisablePlayerInHole(type);
@@ -274,7 +274,7 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdSetDone()
     {
-        playerManager.SetPlayerDone(this.connectionToClient.connectionId, shots);
+        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
     }
 #endregion
 

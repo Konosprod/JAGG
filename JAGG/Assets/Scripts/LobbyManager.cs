@@ -97,24 +97,20 @@ public class LobbyManager : NetworkLobbyManager
         isStarted = false;
         gameTimer.StopTimer();
         playerManager.ResetAllPlayers();
+        playerManager.ResetAllPlayersScore();
         currentHole = 1;
 
         layers = new bool[4];
 
-        Debug.Log("End of game, return to lobby in 3sec");
-        StartCoroutine(WaitAndReturnToLobby());
+        this.SendReturnToLobby();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    IEnumerator WaitAndReturnToLobby()
-    {
-        yield return new WaitForSeconds(3.0f);
-        this.SendReturnToLobby();
-    }
-
     public override void OnLobbyServerSceneChanged(string sceneName)
     {
+        base.OnLobbyServerSceneChanged(sceneName);
+
         if (sceneName != "Lobby")
         {
             isStarted = true;
@@ -128,7 +124,6 @@ public class LobbyManager : NetworkLobbyManager
             //disable mainpanel, only return to lobby
             GameObject.Find("PanelMain").SetActive(false);
         }
-        base.OnLobbyServerSceneChanged(sceneName);
     }
 
     public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
