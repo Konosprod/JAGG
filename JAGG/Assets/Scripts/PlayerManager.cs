@@ -51,8 +51,9 @@ public sealed class PlayerManager {
         players[connId].shots = shots;
     }
 
-    public void SetPlayerDone(int connId)
+    public void SetPlayerDone(int connId, int shots)
     {
+        players[connId].score.Add(shots);
         players[connId].done = true;
     }
 
@@ -75,6 +76,7 @@ public sealed class PlayerManager {
         {
             player.done = false;
             player.shots = 0;
+            player.score.Clear();
         }
     }
 }

@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour {
 
     [Header("Score")]
     public GameObject panelScore;
+    public GameObject[] scorePlayers;
 
     private bool slideUp = false;
 

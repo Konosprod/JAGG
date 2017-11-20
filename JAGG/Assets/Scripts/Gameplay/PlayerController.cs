@@ -274,7 +274,7 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdSetDone()
     {
-        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
+        playerManager.SetPlayerDone(this.connectionToClient.connectionId, shots);
     }
 #endregion
 
