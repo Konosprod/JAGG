@@ -46,17 +46,26 @@ public class LobbyManager : NetworkLobbyManager
             if (!gotAllPlayer)
             {
                 balls = GameObject.FindGameObjectsWithTag("Player");
-
+                Debug.Log(balls.Length);
                 for (int i = 0; i < balls.Length; i++)
                 {
+                    Debug.Log("Trying to add player");
                     playerManager.AddPlayer(balls[i]);
+                    Debug.Log("Added player");
                 }
                 gotAllPlayer = true;
 
                 playerManager.ui = GameObject.FindObjectOfType<UIManager>();
             }
+            else
+            {
+                if (GameObject.FindGameObjectsWithTag("Player").Length != balls.Length)
+                {
+                    gotAllPlayer = false;
+                    playerManager.ClearPlayers();
+                }
+            }
         }
-
     }
 
     public void TriggerTimeout()
