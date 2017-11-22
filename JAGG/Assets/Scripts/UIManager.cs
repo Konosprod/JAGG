@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class UIManager : MonoBehaviour {
 
@@ -19,11 +20,14 @@ public class UIManager : MonoBehaviour {
     public GameObject[] scorePlayers;
 
     private bool slideUp = false;
+    private PlayerManager playerManager;
 
     void Start()
     {
         slider.minValue = minSliderVal;
         slider.maxValue = maxSliderVal;
+
+        playerManager = FindObjectOfType<PlayerManager>();
     }
 
     public void UpdateSlider()
@@ -54,11 +58,18 @@ public class UIManager : MonoBehaviour {
         textShots.text = text;
     }
 
-    public IEnumerator ShowScores(float time, Action callback = null)
+    public void HideScores()
+    {
+        panelScore.SetActive(false);
+    }
+
+    public void ShowScores()
     {
         panelScore.SetActive(true);
 
-        List<List<int>> scores = PlayerManager.Instance.GetPlayersScore();
+        List<SyncListInt> scores = playerManager.GetPlayersScore();
+
+        Debug.Log(scores.Count);
 
         for(int i = 0; i < scores.Count; i++)
         {
@@ -77,13 +88,6 @@ public class UIManager : MonoBehaviour {
             scorePlayers[i].GetComponentsInChildren<Text>()[1].text = text;
             scorePlayers[i].GetComponentsInChildren<Text>()[2].text = total.ToString();
         }
-
-        yield return new WaitForSeconds(time);
-        panelScore.SetActive(false);
-
-
-        if (callback != null)
-            callback();
     }
 
     public IEnumerator ShowNotification(string message, float time, Action callback = null)

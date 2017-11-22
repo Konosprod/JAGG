@@ -17,6 +17,11 @@ public class PlayerController : NetworkBehaviour {
     [SyncVar]
     public bool isMoving = false;
 
+    [SyncVar]
+    public bool done = false;
+
+    public SyncListInt score;
+
     private Rigidbody rb;
     private LineRenderer line;
 
@@ -24,7 +29,6 @@ public class PlayerController : NetworkBehaviour {
 
     private bool isShooting = false;
 
-    private PlayerManager playerManager;
     private bool isOver = false;
 
     private Vector3 serverPos = Vector3.zero;
@@ -44,8 +48,6 @@ public class PlayerController : NetworkBehaviour {
         line = GetComponent<LineRenderer>();
 
         ui = FindObjectOfType<UIManager>();
-
-        playerManager = PlayerManager.Instance;
 
         if (!isServer)
             rb.isKinematic = true;
@@ -160,14 +162,19 @@ public class PlayerController : NetworkBehaviour {
             ui.SetTextShots("Shots: " + shots.ToString());
     }
 
-    private void SetDone()
+    public void SetDone()
     {
         CmdSetDone();
     }
 
-    private void ShowScores()
+    public void ResetPlayer()
     {
-        StartCoroutine(ui.ShowScores(5, SetDone));
+        CmdResetPlayer();
+    }
+
+    public void ShowScores()
+    {
+        RpcShowScores();
     }
 
     #region Command
@@ -177,6 +184,13 @@ public class PlayerController : NetworkBehaviour {
     {
         canShoot = true;
         RpcEnablePlayer();
+    }
+
+    [Command]
+    private void CmdResetPlayer()
+    {
+        done = false;
+        shots = 0;
     }
 
     public void EnablePlayer()
@@ -198,7 +212,6 @@ public class PlayerController : NetworkBehaviour {
     {
         rb.AddForce(dir * sliderVal * 10f);
         shots++;
-        playerManager.SetPlayerShots(this.connectionToClient.connectionId, shots);
     }
 
     [Command]
@@ -256,8 +269,7 @@ public class PlayerController : NetworkBehaviour {
                 Physics.IgnoreLayerCollision(gameObject.layer, i, true);
         }
 
-        playerManager.AddPlayerScore(this.connectionToClient.connectionId, shots);
-
+        score.Add(shots);
         shots = 0;
         RpcDisablePlayerInHole(type);
     }
@@ -274,11 +286,24 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdSetDone()
     {
-        playerManager.SetPlayerDone(this.connectionToClient.connectionId);
+        done = true;
     }
 #endregion
 
     #region ClientRpc
+
+    [ClientRpc]
+    void RpcShowScores()
+    {
+        StartCoroutine(test());
+    }
+
+    private IEnumerator test()
+    {
+        ui.ShowScores();
+        yield return new WaitForSeconds(5);
+        ui.HideScores();
+    }
 
     [ClientRpc]
     void RpcUpdatePosition(Vector3 position)
@@ -336,7 +361,7 @@ public class PlayerController : NetworkBehaviour {
                     break;
             }
 
-            StartCoroutine(ui.ShowNotification(message, 1, ShowScores));
+            StartCoroutine(ui.ShowNotification(message, 1, SetDone));
         }
     }
 
@@ -348,6 +373,16 @@ public class PlayerController : NetworkBehaviour {
             isOver = true;
             GetComponent<PreviewLine>().enabled = false;
             line.enabled = false;
+        }
+    }
+
+    [ClientRpc]
+    private void RpcResetPlayer()
+    {
+        if(isLocalPlayer)
+        {
+            done = false;
+            shots = 0;
         }
     }
 

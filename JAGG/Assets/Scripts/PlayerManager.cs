@@ -1,44 +1,56 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
 
-public sealed class PlayerManager {
+public class PlayerManager : NetworkBehaviour {
 
-    private static volatile PlayerManager instance;
-    private static object padLock = new object();
-    private Dictionary<int, PlayerStatus> players;
+    public LobbyManager lobbyManager;
+    public UIManager ui;
+    private Dictionary<int, GameObject> players;
 
-    PlayerManager()
+    [HideInInspector]
+    public bool isStarted;
+
+    void Start()
     {
-        players = new Dictionary<int, PlayerStatus>();
-    }
-
-    public static PlayerManager Instance
-    {
-        get
-        {
-            if(instance == null)
-            {
-                lock(padLock)
-                {
-                    if(instance == null)
-                    {
-                        instance = new PlayerManager();
-                    }
-                }
-            }
-
-            return instance;
-        }
+        players = new Dictionary<int, GameObject>();
     }
 	
+    void Update()
+    {
+        if (isStarted)
+        {
+            if (players.Count > 0)
+            {
+                if (AllPlayersDone())
+                {
+                    ResetAllPlayers();
+                    foreach(GameObject o in players.Values)
+                    {
+                        o.GetComponent<PlayerController>().ShowScores();
+                    }
+                    TriggerSpawn();
+                    //StartCoroutine(ui.ShowScores(5, TriggerSpawn));
+                }
+            }
+        }
+    }
+
+    private void TriggerSpawn()
+    {
+        lobbyManager.SpawnNextPoint();
+    }
+
     public bool HasPlayer()
     {
         return (players.Count > 0);
     }
 
-    public void AddPlayer(int connId)
+    public void AddPlayer(GameObject o)
     {
-        players[connId] = new PlayerStatus();
+        int connId = o.GetComponent<NetworkIdentity>().connectionToClient.connectionId;
+        players[connId] = o;
     }
 
     public void RemovePlayer(int connId)
@@ -46,28 +58,13 @@ public sealed class PlayerManager {
         players.Remove(connId);
     }
 
-    public void SetPlayerShots(int connId, int shots)
-    {
-        players[connId].shots = shots;
-    }
-
-    public void SetPlayerDone(int connId)
-    {
-        players[connId].done = true;
-    }
-
-    public void AddPlayerScore(int connId, int shots)
-    {
-        players[connId].score.Add(shots);
-    }
-
     public bool AllPlayersDone()
     {
         bool allDone = true;
 
-        foreach(PlayerStatus player in players.Values)
+        foreach(GameObject player in players.Values)
         {
-            if (!player.done)
+            if (!player.GetComponent<PlayerController>().done)
                 allDone = false;
         }
 
@@ -76,28 +73,27 @@ public sealed class PlayerManager {
 
     public void ResetAllPlayers()
     {
-        foreach (PlayerStatus player in players.Values)
+        foreach (GameObject player in players.Values)
         {
-            player.done = false;
-            player.shots = 0;
+            player.GetComponent<PlayerController>().ResetPlayer();
         }
     }
 
     public void ResetAllPlayersScore()
     {
-        foreach(PlayerStatus p in players.Values)
+        foreach(GameObject p in players.Values)
         {
-            p.score.Clear();
+            p.GetComponent<PlayerController>().score.Clear();
         }
     }
 
-    public List<List<int>> GetPlayersScore()
+    public List<SyncListInt> GetPlayersScore()
     {
-        List<List<int>> scores = new List<List<int>>();
+        List<SyncListInt> scores = new List<SyncListInt>();
 
-        foreach(PlayerStatus p in players.Values)
+        foreach(GameObject p in players.Values)
         {
-            scores.Add(p.score);
+            scores.Add(p.GetComponent<PlayerController>().score);
         }
 
         return scores;

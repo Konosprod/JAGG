@@ -8,21 +8,22 @@ using UnityEngine.UI;
 
 public class LobbyManager : NetworkLobbyManager
 {
-
     [Header("Game Logic")]
     public Transform EndOfGamePos;
+    public PlayerManager playerManager;
 
     [Header("UI")]
     public InputField InputIP;
 
-    [HideInInspector]
-    public bool isStarted = false;
-
     private GameObject hole;
     private int currentHole = 1;
 
-    private PlayerManager playerManager;
     private GameTimer gameTimer;
+    private GameObject[] balls;
+
+
+    private bool gotAllPlayer = false;
+    private bool isStarted = false;
 
     private const int FirstLayer = 9;
     private bool[] layers = new bool[4];
@@ -30,7 +31,8 @@ public class LobbyManager : NetworkLobbyManager
     // Use this for initialization
     void Start()
     {
-        playerManager = PlayerManager.Instance;
+        if (playerManager == null)
+            Debug.Log("need playermanager");
 
         if (EndOfGamePos == null)
             Debug.Log("NEED ENDOFGAMEPREFAB");
@@ -41,14 +43,20 @@ public class LobbyManager : NetworkLobbyManager
     {
         if (isStarted)
         {
-            if (!playerManager.HasPlayer())
-                return;
-
-            if(playerManager.AllPlayersDone())
+            if (!gotAllPlayer)
             {
-                SpawnNextPoint();
+                balls = GameObject.FindGameObjectsWithTag("Player");
+
+                for (int i = 0; i < balls.Length; i++)
+                {
+                    playerManager.AddPlayer(balls[i]);
+                }
+                gotAllPlayer = true;
+
+                playerManager.ui = GameObject.FindObjectOfType<UIManager>();
             }
         }
+
     }
 
     public void TriggerTimeout()
@@ -57,17 +65,13 @@ public class LobbyManager : NetworkLobbyManager
         SpawnNextPoint();
     }
 
-    private void SpawnNextPoint()
+    public void SpawnNextPoint()
     {
         Transform nextPosition = hole.GetComponentInChildren<LevelProperties>().nextSpawnPoint;
 
         if (nextPosition.position != EndOfGamePos.position)
         {
-            playerManager.ResetAllPlayers();
-
             disableAllBallsCollisions();
-
-            GameObject[] balls = GameObject.FindGameObjectsWithTag("Player");
 
             for (int i = 0; i < balls.Length; i++)
             {
@@ -94,12 +98,13 @@ public class LobbyManager : NetworkLobbyManager
 
     private void EndOfGame()
     {
+        playerManager.isStarted = false;
         isStarted = false;
         gameTimer.StopTimer();
         playerManager.ResetAllPlayers();
         playerManager.ResetAllPlayersScore();
         currentHole = 1;
-
+        gotAllPlayer = false;
         layers = new bool[4];
 
         this.SendReturnToLobby();
@@ -113,6 +118,7 @@ public class LobbyManager : NetworkLobbyManager
 
         if (sceneName != "Lobby")
         {
+            playerManager.isStarted = true;
             isStarted = true;
             gameTimer = GameObject.Find("GameTimer").GetComponent<GameTimer>();
 
@@ -135,7 +141,6 @@ public class LobbyManager : NetworkLobbyManager
 
     public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
     {
-        playerManager.AddPlayer(conn.connectionId);
         return base.OnLobbyServerCreateGamePlayer(conn, playerControllerId);
     }
 
