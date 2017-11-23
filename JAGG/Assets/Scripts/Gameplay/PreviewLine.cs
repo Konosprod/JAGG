@@ -5,14 +5,13 @@ using UnityEngine;
 
 public class PreviewLine : NetworkBehaviour
 {
-    PlayerController pc;
-    LineRenderer line;
+    public PlayerController pc;
+    public LineRenderer line;
 
     // Use this for initialization
     void Start()
     {
-        pc = GetComponent<PlayerController>();
-        line = GetComponent<LineRenderer>();
+
     }
     
 
