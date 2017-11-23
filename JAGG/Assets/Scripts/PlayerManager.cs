@@ -8,7 +8,7 @@ public class PlayerManager : NetworkBehaviour {
     public LobbyManager lobbyManager;
     public UIManager ui;
     private Dictionary<int, GameObject> players;
-    
+
     private SyncListInt scoreP1 = new SyncListInt();
     private SyncListInt scoreP2 = new SyncListInt();
     private SyncListInt scoreP3 = new SyncListInt();
@@ -177,6 +177,7 @@ public class PlayerManager : NetworkBehaviour {
 
     public List<SyncListInt> GetPlayersScore()
     {
+
         List<SyncListInt> sc = new List<SyncListInt>();
 
         if (nbPlayers >= 1)
