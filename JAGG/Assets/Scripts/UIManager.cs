@@ -69,8 +69,6 @@ public class UIManager : MonoBehaviour {
 
         List<SyncListInt> scores = playerManager.GetPlayersScore();
 
-        Debug.Log(scores.Count);
-
         for(int i = 0; i < scores.Count; i++)
         {
             if (!scorePlayers[i].activeSelf)

@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System;
 
 public class LobbyManager : NetworkLobbyManager
 {
@@ -19,10 +19,8 @@ public class LobbyManager : NetworkLobbyManager
     private int currentHole = 1;
 
     private GameTimer gameTimer;
-    private GameObject[] balls;
 
-
-    private bool gotAllPlayer = false;
+    private bool setUi = false;
     private bool isStarted = false;
 
     private const int FirstLayer = 9;
@@ -43,25 +41,10 @@ public class LobbyManager : NetworkLobbyManager
     {
         if (isStarted)
         {
-            if (!gotAllPlayer)
+            if (!setUi)
             {
-                balls = GameObject.FindGameObjectsWithTag("Player");
-                for (int i = 0; i < balls.Length; i++)
-                {
-                    playerManager.AddPlayer(balls[i]);
-                }
-                gotAllPlayer = true;
-
                 playerManager.ui = GameObject.FindObjectOfType<UIManager>();
-            }
-            else
-            {
-                if (GameObject.FindGameObjectsWithTag("Player").Length != balls.Length)
-                {
-                    gotAllPlayer = false;
-                    Debug.Log("Wrong number of players on the first attempt to add them to player manager");
-                    playerManager.ClearPlayers();
-                }
+                setUi = true;
             }
         }
     }
@@ -80,11 +63,7 @@ public class LobbyManager : NetworkLobbyManager
         {
             disableAllBallsCollisions();
 
-            for (int i = 0; i < balls.Length; i++)
-            {
-                balls[i].transform.position = nextPosition.position;
-                balls[i].GetComponent<PlayerController>().EnablePlayer();
-            }
+            playerManager.MovePlayersTo(nextPosition);
 
             currentHole++;
             hole = GameObject.Find("Hole " + currentHole.ToString());
@@ -111,12 +90,20 @@ public class LobbyManager : NetworkLobbyManager
         playerManager.ResetAllPlayers();
         playerManager.ResetAllPlayersScore();
         currentHole = 1;
-        gotAllPlayer = false;
+        setUi = false;
         layers = new bool[4];
 
-        this.SendReturnToLobby();
+        StartCoroutine(WaitBeforeExec(5, SendReturnToLobby));
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    private IEnumerator WaitBeforeExec(float time, Func<bool> callback = null)
+    {
+        yield return new WaitForSeconds(time);
+
+        if (callback != null)
+            callback();
     }
 
     public override void OnLobbyServerSceneChanged(string sceneName)
@@ -142,7 +129,10 @@ public class LobbyManager : NetworkLobbyManager
     public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
     {
         hole = GameObject.Find("Hole " + currentHole.ToString());
+
+        playerManager.AddPlayer(gamePlayer, lobbyPlayer.GetComponent<NetworkIdentity>().connectionToClient.connectionId);
         gamePlayer.layer = getNextLayer();
+
         return base.OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer);
     }
 

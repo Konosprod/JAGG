@@ -106,6 +106,16 @@ public class PlayerManager : NetworkBehaviour {
         lobbyManager.SpawnNextPoint();
     }
 
+    public void MovePlayersTo(Transform nextPosition)
+    {
+
+        foreach(GameObject o in players.Values)
+        {
+            o.transform.position = nextPosition.position;
+            o.GetComponent<PlayerController>().EnablePlayer();
+        }
+    }
+
     public bool HasPlayer()
     {
         return (players.Count > 0);
@@ -121,9 +131,11 @@ public class PlayerManager : NetworkBehaviour {
         nbPlayers = 0;
     }
 
-    public void AddPlayer(GameObject o)
+    public void AddPlayer(GameObject o, int connId = -1)
     {
-        int connId = o.GetComponent<NetworkIdentity>().connectionToClient.connectionId;
+        if(connId == -1)
+            connId = o.GetComponent<NetworkIdentity>().connectionToClient.connectionId;
+
         players[connId] = o;
 
         nbPlayers++;
