@@ -104,6 +104,12 @@ public class PlayerController : NetworkBehaviour {
                 else
                     isShooting = true;
             }
+
+            if(Input.GetMouseButtonDown(1) && isShooting)
+            {
+                isShooting = false;
+                ui.ResetSlider();
+            }
         }
         else
         {
@@ -224,7 +230,7 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdPlayerInHole()
     {
-        int type = 0;
+        int type = -1;
         canShoot = false;
         rb.velocity = Vector3.zero;
 
@@ -336,6 +342,10 @@ public class PlayerController : NetworkBehaviour {
 
             switch(type)
             {
+                case -1:
+                    message = "NOT SURE WHAT I'M SUPPOSED TO WRITE FOR SUCH A BAD PLAY. LOL";
+                    break;
+
                 case 0:
                     message = "Hole in one";
                     break;
