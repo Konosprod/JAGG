@@ -87,8 +87,7 @@ public class LobbyManager : NetworkLobbyManager
         playerManager.isStarted = false;
         isStarted = false;
         gameTimer.StopTimer();
-        playerManager.ResetAllPlayers();
-        playerManager.ResetAllPlayersScore();
+        playerManager.ClearPlayers();
         currentHole = 1;
         setUi = false;
         layers = new bool[4];
