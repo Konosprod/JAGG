@@ -7,7 +7,7 @@ using System;
 
 [NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour {
-    
+
     [SyncVar]
     bool canShoot = true;
 
@@ -23,7 +23,7 @@ public class PlayerController : NetworkBehaviour {
     public SyncListInt score;
 
     private Rigidbody rb;
-    private LineRenderer line;
+    private PreviewLine line;
 
     private UIManager ui;
 
@@ -45,7 +45,7 @@ public class PlayerController : NetworkBehaviour {
         Cursor.visible = false;
 
         rb = GetComponent<Rigidbody>();
-        line = GetComponent<LineRenderer>();
+        line = GetComponent<PreviewLine>();
 
         ui = FindObjectOfType<UIManager>();
 
@@ -82,13 +82,6 @@ public class PlayerController : NetworkBehaviour {
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir = new Vector3(dir.x, 0f, dir.z).normalized;
 
-            
-            // Show and update the preview line
-            if (!line.enabled)
-                line.enabled = true;
-
-            line.SetPosition(0, transform.position);
-            line.SetPosition(1, dir / 1.3f + transform.position);
 
             // Handle shooting
             // Should likely be the last part of the if since the ball will start moving when calling CmdShoot so anything that's in this if(!isMoving) wouldn't be relevant past that point sometimes
@@ -113,9 +106,6 @@ public class PlayerController : NetworkBehaviour {
         }
         else
         {
-            // Disable the preview line during movement (looks pretty bad otherwise)
-            line.enabled = false;
-
             // Handle the reset button
             if(Input.GetKeyDown(KeyCode.R))
             {
@@ -129,8 +119,11 @@ public class PlayerController : NetworkBehaviour {
 
     public override void OnStartLocalPlayer()
     {
+        GameObject guiCam = GameObject.FindWithTag("GUICamera");
+        guiCam.GetComponent<BallCamera>().target = transform;
         Camera.main.GetComponent<BallCamera>().target = transform;
-        GetComponent<PreviewLine>().enabled = true;
+        line = GetComponent<PreviewLine>();
+        line.enabled = true;
     }
 
     private void FixedUpdate()
@@ -337,7 +330,7 @@ public class PlayerController : NetworkBehaviour {
         {
             string message = "";
             isOver = true;
-            GetComponent<PreviewLine>().enabled = false;
+            line.SetEnabled(false);
             line.enabled = false;
 
             switch(type)
@@ -381,7 +374,7 @@ public class PlayerController : NetworkBehaviour {
         if (isLocalPlayer)
         {
             isOver = true;
-            GetComponent<PreviewLine>().enabled = false;
+            line.SetEnabled(false);
             line.enabled = false;
         }
     }
@@ -402,8 +395,7 @@ public class PlayerController : NetworkBehaviour {
         if (isLocalPlayer)
         {
             isOver = false;
-            GetComponent<PreviewLine>().enabled = false;
-            line.enabled = false;
+            line.enabled = true;
         }
     }
 

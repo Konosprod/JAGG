@@ -41,4 +41,9 @@ public class PreviewLine : NetworkBehaviour
             }
         }
     }
+
+    public void SetEnabled(bool enable)
+    {
+        line.enabled = enable;
+    }
 }
