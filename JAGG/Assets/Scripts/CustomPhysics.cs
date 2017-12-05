@@ -95,7 +95,7 @@ public class CustomPhysics : NetworkBehaviour {
         // Find all unique walls collided
         if (collision)
         {
-            /*
+            
             if (forward)
                 Debug.Log("Frame = " + i + ", hit forward");
             if (left)
@@ -106,7 +106,7 @@ public class CustomPhysics : NetworkBehaviour {
                 Debug.Log("Frame = " + i + ", hit topRight");
             if(topLeft)
                 Debug.Log("Frame = " + i + ", hit topLeft");
-            */
+            
             int nbWallsHit = 0;
             RaycastHit[] walls = new RaycastHit[5];
             if (forward)
