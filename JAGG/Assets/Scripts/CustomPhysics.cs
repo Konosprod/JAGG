@@ -34,6 +34,14 @@ public class CustomPhysics : NetworkBehaviour {
         }
     }
 
+    /*void OnCollisionEnter(Collision collision)
+    {
+        if (LayerMask.LayerToName(collision.gameObject.layer) ==  "Wall")
+        {
+            Debug.Log("We hit a wall through our collider");
+        }
+    }*/
+
 
     [ClientRpc]
     void RpcRotateBall(Quaternion rota)
@@ -65,18 +73,20 @@ public class CustomPhysics : NetworkBehaviour {
         Vector3 topRightPos = new Vector3(bestForwardCheck.x + (rb.velocity.normalized.z / 20f), 0, bestForwardCheck.z - (rb.velocity.normalized.x / 20f));
         Vector3 topLeftPos = new Vector3(bestForwardCheck.x - (rb.velocity.normalized.z / 20f), 0, bestForwardCheck.z + (rb.velocity.normalized.x / 20f));
 
-        /*// Forward
-        Debug.DrawLine(transform.position, transform.position + bestForwardCheck, Color.red, 10f);
+        // Forward
+        //Debug.DrawLine(transform.position, transform.position + bestForwardCheck, Color.red, 10f);
         // Right
-        Debug.DrawLine(transform.position, transform.position + (new Vector3(rb.velocity.normalized.z, 0, -rb.velocity.normalized.x)) / 20f, Color.blue, 10f);
+        //Debug.DrawLine(transform.position, transform.position + (new Vector3(rb.velocity.normalized.z, 0, -rb.velocity.normalized.x)) / 20f, Color.blue, 10f);
         // Left
-        Debug.DrawLine(transform.position, transform.position + (new Vector3(-rb.velocity.normalized.z, 0, rb.velocity.normalized.x)) / 20f, Color.yellow, 10f);
+        //Debug.DrawLine(transform.position, transform.position + (new Vector3(-rb.velocity.normalized.z, 0, rb.velocity.normalized.x)) / 20f, Color.yellow, 10f);
         // TopRight
-        Debug.DrawLine(transform.position, transform.position + topRightPos, Color.green, 10f);
+        //Debug.DrawLine(transform.position, transform.position + topRightPos, Color.green, 10f);
         // TopLeft
-        Debug.DrawLine(transform.position, transform.position + topLeftPos, Color.grey, 10f);*/
+        //Debug.DrawLine(transform.position, transform.position + topLeftPos, Color.grey, 10f);
+        // Downward
+        //Debug.DrawLine(transform.position, transform.position + bestDownwardCheck, Color.red, 10f);
 
-        
+
         RaycastHit hitForward; 
         RaycastHit hitRight;
         RaycastHit hitLeft;
@@ -96,7 +106,7 @@ public class CustomPhysics : NetworkBehaviour {
         if (collision)
         {
             
-            if (forward)
+            /*if (forward)
                 Debug.Log("Frame = " + i + ", hit forward");
             if (left)
                 Debug.Log("Frame = " + i + ", hit left");
@@ -105,7 +115,7 @@ public class CustomPhysics : NetworkBehaviour {
             if (topRight)
                 Debug.Log("Frame = " + i + ", hit topRight");
             if(topLeft)
-                Debug.Log("Frame = " + i + ", hit topLeft");
+                Debug.Log("Frame = " + i + ", hit topLeft");*/
             
             int nbWallsHit = 0;
             RaycastHit[] walls = new RaycastHit[5];
