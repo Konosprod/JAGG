@@ -87,7 +87,6 @@ public class LobbyManager : NetworkLobbyManager
         playerManager.isStarted = false;
         isStarted = false;
         gameTimer.StopTimer();
-        playerManager.ClearPlayers();
         currentHole = 1;
         setUi = false;
         layers = new bool[4];
@@ -102,7 +101,10 @@ public class LobbyManager : NetworkLobbyManager
         yield return new WaitForSeconds(time);
 
         if (callback != null)
+        {
+            playerManager.ClearPlayers();
             callback();
+        }
     }
 
     public override void OnLobbyServerSceneChanged(string sceneName)
