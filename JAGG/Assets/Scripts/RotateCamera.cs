@@ -28,6 +28,6 @@ public class RotateCamera : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         transform.LookAt(pivot);
-        transform.RotateAround(target.transform.position, Vector3.up, speed * angle * Time.deltaTime);
+        transform.RotateAround(pivot, Vector3.up, speed * angle * Time.deltaTime);
 	}
 }
