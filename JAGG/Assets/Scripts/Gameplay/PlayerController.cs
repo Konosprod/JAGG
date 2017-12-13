@@ -308,7 +308,8 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdBoost(Vector3 dir, float multFactor, float addFactor)
     {
-        rb.velocity *= multFactor;
+        float angle = Vector3.Angle(rb.velocity, dir);
+        rb.velocity *= multFactor * (angle>90f?0f:1f);
         rb.AddForce(dir * addFactor);
     }
 #endregion
