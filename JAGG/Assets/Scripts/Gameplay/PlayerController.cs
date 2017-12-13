@@ -146,12 +146,28 @@ public class PlayerController : NetworkBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Hole"))
+        GameObject otherGO = other.gameObject;
+        if (otherGO.CompareTag("Hole"))
         {
             if (isLocalPlayer)
             {
                 CmdPlayerInHole();
             }
+        }
+        else if(LayerMask.LayerToName(otherGO.layer) == "BoosterPad")
+        {
+            Vector3 dir = otherGO.transform.forward.normalized;
+            BoosterPad bp = otherGO.GetComponent<BoosterPad>();
+            float multFactor = bp.multFactor;
+            float addFactor = bp.addFactor;
+            if(isLocalPlayer)
+            {
+                CmdBoost(dir,multFactor, addFactor);
+            }
+        }
+        else
+        {
+            Debug.LogError("Ball entered unexpected trigger : " + other.gameObject.name);
         }
     }
 
@@ -286,6 +302,14 @@ public class PlayerController : NetworkBehaviour {
     private void CmdSetDone()
     {
         done = true;
+    }
+
+
+    [Command]
+    private void CmdBoost(Vector3 dir, float multFactor, float addFactor)
+    {
+        rb.velocity *= multFactor;
+        rb.AddForce(dir * addFactor);
     }
 #endregion
 
