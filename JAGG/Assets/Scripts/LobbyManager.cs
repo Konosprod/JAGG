@@ -5,14 +5,21 @@ using UnityEngine.Networking.Match;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using UnityEngine.SceneManagement;
 
 public class LobbyManager : NetworkLobbyManager
 {
+    static public LobbyManager _instance;
+
     [Header("Game Logic")]
     public Transform EndOfGamePos;
     public PlayerManager playerManager;
 
     [Header("UI")]
+    public GameObject mainPanel;
+    public GameObject joinPanel;
+    public GameObject lobbyPanel;
+    public GameObject controlPanel;
     public InputField InputIP;
 
     private GameObject hole;
@@ -29,6 +36,8 @@ public class LobbyManager : NetworkLobbyManager
     // Use this for initialization
     void Start()
     {
+        _instance = this;
+
         if (playerManager == null)
             Debug.Log("need playermanager");
 
@@ -111,7 +120,7 @@ public class LobbyManager : NetworkLobbyManager
     {
         base.OnLobbyServerSceneChanged(sceneName);
 
-        if (sceneName != "Lobby")
+        if (sceneName != lobbyScene)
         {
             playerManager.isStarted = true;
             isStarted = true;
@@ -122,8 +131,31 @@ public class LobbyManager : NetworkLobbyManager
         }
         else
         {
-            //disable mainpanel, only return to lobby
-            GameObject.Find("PanelMain").SetActive(false);
+
+        }
+    }
+
+    public override void OnLobbyClientSceneChanged(NetworkConnection conn)
+    {
+        base.OnLobbyClientSceneChanged(conn);
+
+        if (SceneManager.GetSceneAt(0).name == lobbyScene)
+        {
+            lobbyPanel.SetActive(true);
+            
+            for(int i = 0; i < lobbySlots.Length; i++)
+            {
+                if(lobbySlots[i] != null)
+                    (lobbySlots[i] as LobbyPlayer).CmdResetStatus();
+            }
+        }
+        else
+        {
+            mainPanel.SetActive(false);
+            lobbyPanel.SetActive(false);
+            joinPanel.SetActive(false);
+            controlPanel.SetActive(false);
+
         }
     }
 
@@ -140,6 +172,13 @@ public class LobbyManager : NetworkLobbyManager
     public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
     {
         return base.OnLobbyServerCreateGamePlayer(conn, playerControllerId);
+    }
+
+    public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
+    {
+        GameObject o = Instantiate(lobbyPlayerPrefab.gameObject) as GameObject;
+
+        return o;
     }
 
     public override void OnClientDisconnect(NetworkConnection conn)

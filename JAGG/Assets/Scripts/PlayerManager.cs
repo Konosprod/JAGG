@@ -5,7 +5,6 @@ using UnityEngine.Networking;
 
 public class PlayerManager : NetworkBehaviour {
 
-    public LobbyManager lobbyManager;
     public UIManager ui;
     private Dictionary<int, GameObject> players;
 
@@ -14,12 +13,28 @@ public class PlayerManager : NetworkBehaviour {
     private SyncListInt scoreP3 = new SyncListInt();
     private SyncListInt scoreP4 = new SyncListInt();
 
+    private static PlayerManager _instance;
+
     [SyncVar]
     private int nbPlayers = 0;
 
 
     [HideInInspector]
     public bool isStarted;
+
+    void Awake()
+    {
+        if(_instance == null)
+        {
+            _instance = this;
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
+        DontDestroyOnLoad(this.gameObject);
+    }
 
     void Start()
     {
@@ -103,7 +118,7 @@ public class PlayerManager : NetworkBehaviour {
 
     private void TriggerSpawn()
     {
-        lobbyManager.SpawnNextPoint();
+        LobbyManager._instance.SpawnNextPoint();
     }
 
     public void MovePlayersTo(Transform nextPosition)
