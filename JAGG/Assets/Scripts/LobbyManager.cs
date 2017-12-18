@@ -195,6 +195,7 @@ public class LobbyManager : NetworkLobbyManager
     public void JoinRoom()
     {
         this.networkAddress = InputIP.text;
+        this.networkPort = 33333;
         this.StartClient();
     }
 
