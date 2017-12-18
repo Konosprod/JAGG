@@ -52,6 +52,11 @@ public class PlayerController : NetworkBehaviour {
         if (!isServer)
             rb.isKinematic = true;
 
+        if (isLocalPlayer)
+        {
+            if (gameObject.layer == 0)
+                CmdGetLayer();
+        }
     }
 
 
@@ -160,6 +165,7 @@ public class PlayerController : NetworkBehaviour {
             BoosterPad bp = otherGO.GetComponent<BoosterPad>();
             float multFactor = bp.multFactor;
             float addFactor = bp.addFactor;
+            Debug.Log("BoosterPad : multFactor : " + multFactor + " , addFactor : " + addFactor);
             if(isLocalPlayer)
             {
                 CmdBoost(dir,multFactor, addFactor);
@@ -312,6 +318,13 @@ public class PlayerController : NetworkBehaviour {
         rb.velocity *= multFactor * (angle>90f?-0.1f:1f);
         rb.AddForce(dir * addFactor);
     }
+
+
+    [Command]
+    private void CmdGetLayer()
+    {
+        RpcSetLayer(gameObject.layer);
+    }
 #endregion
 
     #region ClientRpc
@@ -422,6 +435,13 @@ public class PlayerController : NetworkBehaviour {
             isOver = false;
             line.enabled = true;
         }
+    }
+
+    [ClientRpc]
+    private void RpcSetLayer(int layer)
+    {
+        Debug.Log("NewLayer  =" + layer);
+        gameObject.layer = layer;
     }
 
 #endregion
