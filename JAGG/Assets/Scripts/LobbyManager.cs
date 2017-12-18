@@ -189,6 +189,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void CreateRoom()
     {
+        this.networkPort = 33333;
         this.StartHost();
     }
 
