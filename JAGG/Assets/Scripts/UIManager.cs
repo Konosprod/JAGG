@@ -33,9 +33,9 @@ public class UIManager : MonoBehaviour {
     public void UpdateSlider()
     {
         if (slideUp)
-            slider.value += 2;
+            slider.value += 1;
         else
-            slider.value -= 2;
+            slider.value -= 1;
 
 
         // Start moving the other way when we reach either end otherwise keep moving in the same direction

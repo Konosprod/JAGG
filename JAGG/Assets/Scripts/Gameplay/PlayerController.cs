@@ -117,9 +117,6 @@ public class PlayerController : NetworkBehaviour {
                 CmdResetPosition(lastStopPos);
             }
         }
-
-        if (isShooting)
-            ui.UpdateSlider();
     }
 
     public override void OnStartLocalPlayer()
@@ -147,6 +144,12 @@ public class PlayerController : NetworkBehaviour {
                 transform.position = Vector3.Lerp(transform.position, serverPos, lerpRate);
             }
         }
+
+        if(isLocalPlayer)
+        {
+            if (isShooting)
+                ui.UpdateSlider();
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -165,7 +168,6 @@ public class PlayerController : NetworkBehaviour {
             BoosterPad bp = otherGO.GetComponent<BoosterPad>();
             float multFactor = bp.multFactor;
             float addFactor = bp.addFactor;
-            Debug.Log("BoosterPad : multFactor : " + multFactor + " , addFactor : " + addFactor);
             if(isLocalPlayer)
             {
                 CmdBoost(dir,multFactor, addFactor);
@@ -440,7 +442,6 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     private void RpcSetLayer(int layer)
     {
-        Debug.Log("NewLayer  =" + layer);
         gameObject.layer = layer;
     }
 
