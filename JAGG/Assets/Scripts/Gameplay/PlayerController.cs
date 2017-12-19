@@ -12,7 +12,7 @@ public class PlayerController : NetworkBehaviour {
     bool canShoot = true;
 
     [SyncVar]
-    int shots = 0;
+    public int shots = 0;
 
     [SyncVar]
     public bool isMoving = false;
@@ -334,10 +334,10 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     void RpcShowScores()
     {
-        StartCoroutine(test());
+        StartCoroutine(ShowScoresRoutine());
     }
 
-    private IEnumerator test()
+    private IEnumerator ShowScoresRoutine()
     {
         ui.ShowScores();
         yield return new WaitForSeconds(5);

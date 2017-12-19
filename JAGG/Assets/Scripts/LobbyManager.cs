@@ -60,7 +60,8 @@ public class LobbyManager : NetworkLobbyManager
 
     public void TriggerTimeout()
     {
-        //Show recap here
+        playerManager.TriggerTimeout(hole.GetComponentInChildren<LevelProperties>().maxShot);
+        playerManager.ShowPlayersScores();
         SpawnNextPoint();
     }
 
@@ -84,6 +85,11 @@ public class LobbyManager : NetworkLobbyManager
             EndOfGame();
         }
 
+    }
+
+    public void StopTimer()
+    {
+        gameTimer.StopTimer();
     }
 
     public int GetPar()

@@ -51,69 +51,91 @@ public class PlayerManager : NetworkBehaviour {
                 {
                     ResetAllPlayers();
 
-                    // Update scores
-                    int i = 0;
-                    foreach (GameObject p in players.Values)
-                    {
-                        SyncListInt scp = p.GetComponent<PlayerController>().score;
-                        if (i == 0)
-                        {
-                            if (scoreP1.Count < scp.Count)
-                            {
-                                for (int k = scoreP1.Count; k < scp.Count; k++)
-                                {
-                                    scoreP1.Add(scp[k]);
-                                }
-                            }
-                        }
-                        else if (i == 1)
-                        {
-                            if (scoreP2.Count < scp.Count)
-                            {
-                                for (int k = scoreP2.Count; k < scp.Count; k++)
-                                {
-                                    scoreP2.Add(scp[k]);
-                                }
-                            }
-                        }
-                        else if(i == 2)
-                        {
-                            if (scoreP3.Count < scp.Count)
-                            {
-                                for (int k = scoreP3.Count; k < scp.Count; k++)
-                                {
-                                    scoreP3.Add(scp[k]);
-                                }
-                            }
-                        }
-                        else if(i == 3)
-                        {
-                            if (scoreP4.Count < scp.Count)
-                            {
-                                for (int k = scoreP4.Count; k < scp.Count; k++)
-                                {
-                                    scoreP4.Add(scp[k]);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogError("Plus de 4 joueurs ? NANI ?!");
-                        }
+                    LobbyManager._instance.StopTimer();
 
-                        i++;
-                    }
+                    ShowPlayersScores();
 
-
-                    foreach (GameObject o in players.Values)
-                    {
-                        o.GetComponent<PlayerController>().ShowScores();
-                    }
                     TriggerSpawn();
                     //StartCoroutine(ui.ShowScores(5, TriggerSpawn));
                 }
             }
         }
+    }
+
+    public void ShowPlayersScores()
+    {
+        // Update scores
+        int i = 0;
+        foreach (GameObject p in players.Values)
+        {
+            SyncListInt scp = p.GetComponent<PlayerController>().score;
+            if (i == 0)
+            {
+                if (scoreP1.Count < scp.Count)
+                {
+                    for (int k = scoreP1.Count; k < scp.Count; k++)
+                    {
+                        scoreP1.Add(scp[k]);
+                    }
+                }
+            }
+            else if (i == 1)
+            {
+                if (scoreP2.Count < scp.Count)
+                {
+                    for (int k = scoreP2.Count; k < scp.Count; k++)
+                    {
+                        scoreP2.Add(scp[k]);
+                    }
+                }
+            }
+            else if (i == 2)
+            {
+                if (scoreP3.Count < scp.Count)
+                {
+                    for (int k = scoreP3.Count; k < scp.Count; k++)
+                    {
+                        scoreP3.Add(scp[k]);
+                    }
+                }
+            }
+            else if (i == 3)
+            {
+                if (scoreP4.Count < scp.Count)
+                {
+                    for (int k = scoreP4.Count; k < scp.Count; k++)
+                    {
+                        scoreP4.Add(scp[k]);
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogError("Plus de 4 joueurs ? NANI ?!");
+            }
+
+            i++;
+        }
+
+        foreach (GameObject o in players.Values)
+        {
+            o.GetComponent<PlayerController>().ShowScores();
+        }
+    }
+
+    public void TriggerTimeout(int maxShot)
+    {
+        foreach(GameObject o in players.Values)
+        {
+            PlayerController pc = o.GetComponent<PlayerController>();
+            if (pc.done != true)
+            {
+                pc.score.Add(maxShot + 2);
+                pc.shots = 0;
+            }
+        }
+
+        ResetAllPlayers();
     }
 
     private void TriggerSpawn()
