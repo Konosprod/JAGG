@@ -21,6 +21,8 @@ public class LobbyManager : NetworkLobbyManager
     public GameObject lobbyPanel;
     public GameObject controlPanel;
     public InputField InputIP;
+    public InputField joinPort;
+    public InputField createPort;
 
     private GameObject hole;
     private int currentHole = 1;
@@ -195,14 +197,14 @@ public class LobbyManager : NetworkLobbyManager
 
     public void CreateRoom()
     {
-        this.networkPort = 33333;
+        this.networkPort = createPort.text == "" ? 33333 : int.Parse(createPort.text);
         this.StartHost();
     }
 
     public void JoinRoom()
     {
         this.networkAddress = InputIP.text;
-        this.networkPort = 33333;
+        this.networkPort = joinPort.text == "" ? 33333 : int.Parse(joinPort.text); ;
         this.StartClient();
     }
 
