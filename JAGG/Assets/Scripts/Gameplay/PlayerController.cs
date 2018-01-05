@@ -46,6 +46,11 @@ public class PlayerController : NetworkBehaviour {
         ui = FindObjectOfType<UIManager>();
     }
 
+    private void Awake()
+    {
+        ui = FindObjectOfType<UIManager>();
+    }
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
