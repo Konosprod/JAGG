@@ -26,16 +26,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
             SetupOtherPlayer();
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-    public override void OnStartLocalPlayer()
-    {
-        //Set buttons interactable
-    }
 
     public override void OnClientEnterLobby()
     {
