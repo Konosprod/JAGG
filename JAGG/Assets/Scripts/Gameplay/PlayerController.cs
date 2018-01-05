@@ -116,7 +116,7 @@ public class PlayerController : NetworkBehaviour {
         else
         {
             // Handle the reset button
-            if(Input.GetKeyDown(KeyCode.R))
+            if(Input.GetKeyDown(KeyCode.R) && lastStopPos != Vector3.zero)
             {
                 CmdResetPosition(lastStopPos);
             }
@@ -376,8 +376,9 @@ public class PlayerController : NetworkBehaviour {
             isOver = true;
             line.SetEnabled(false);
             line.enabled = false;
+            lastStopPos = Vector3.zero;
 
-            switch(type)
+            switch (type)
             {
                 case -1:
                     message = "NOT SURE WHAT I'M SUPPOSED TO WRITE FOR SUCH A BAD PLAY. LOL";

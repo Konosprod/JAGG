@@ -268,7 +268,7 @@ public class CustomPhysics : NetworkBehaviour {
             }
         }
 
-        if (rb.velocity.magnitude < 0.005f)
+        if (rb.velocity.magnitude < 0.01f)
             rb.velocity = Vector3.zero;
         rb.velocity = rb.velocity * 0.99f;
 
