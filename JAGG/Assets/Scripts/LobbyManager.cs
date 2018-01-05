@@ -189,6 +189,13 @@ public class LobbyManager : NetworkLobbyManager
         return o;
     }
 
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        playerManager.RemovePlayer(conn.connectionId);
+        base.OnServerDisconnect(conn);
+    }
+
+
     public override void OnClientDisconnect(NetworkConnection conn)
     {
         playerManager.RemovePlayer(conn.connectionId);

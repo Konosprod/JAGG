@@ -41,6 +41,11 @@ public class PlayerController : NetworkBehaviour {
 
     private bool flagEnableParticle = false;
 
+    private void Awake()
+    {
+        ui = FindObjectOfType<UIManager>();
+    }
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -49,7 +54,6 @@ public class PlayerController : NetworkBehaviour {
         rb = GetComponent<Rigidbody>();
         line = GetComponent<PreviewLine>();
 
-        ui = FindObjectOfType<UIManager>();
 
         if (!isServer)
             rb.isKinematic = true;
