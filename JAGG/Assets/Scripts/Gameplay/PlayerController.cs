@@ -24,6 +24,7 @@ public class PlayerController : NetworkBehaviour {
 
     private Rigidbody rb;
     private PreviewLine line;
+    public ParticleSystem particleSys;
 
     private UIManager ui;
 
@@ -38,6 +39,7 @@ public class PlayerController : NetworkBehaviour {
 
     private const int FirstLayer = 9;
 
+    private bool flagEnableParticle = false;
 
     private void Start()
     {
@@ -67,6 +69,15 @@ public class PlayerController : NetworkBehaviour {
             isMoving = rb.velocity.magnitude >= 0.001f;
             if(isMoving)
                 RpcUpdatePosition(transform.position);
+        }
+        else
+        {
+            if (flagEnableParticle)
+            {
+                ParticleSystem.EmissionModule em = particleSys.emission;
+                em.enabled = true;
+                flagEnableParticle = false;
+            }
         }
 
         if (!isLocalPlayer || isOver)
@@ -111,6 +122,13 @@ public class PlayerController : NetworkBehaviour {
         }
         else
         {
+            // If we get put in motion while trying to shoot we stop and reset the slider
+            if(isShooting)
+            {
+                isShooting = false;
+                ui.ResetSlider();
+            }
+
             // Handle the reset button
             if(Input.GetKeyDown(KeyCode.R) && lastStopPos != Vector3.zero)
             {
@@ -301,10 +319,11 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdResetPosition(Vector3 lastPos)
     {
-        transform.position = lastPos;
         rb.velocity = Vector3.zero;
+        transform.position = lastPos;
         RpcForceUpdatePosition(lastPos);
     }
+
 
     [Command]
     private void CmdSetDone()
@@ -358,9 +377,16 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     void RpcForceUpdatePosition(Vector3 position)
     {
+        ParticleSystem.EmissionModule em = particleSys.emission;
+        if (!isServer)
+            em.enabled = false;
+        
         serverPositions.Clear();
         transform.position = position;
         serverPos = position;
+
+        if (!isServer)
+            flagEnableParticle = true;
     }
 
     [ClientRpc]
