@@ -5,5 +5,6 @@
     public int Antialiasing;
     public int VSync;
     public int Resolution;
-    public float AudioVolume;
+    public float BGMAudioVolume;
+    public float SFXAudioVolume;
 }

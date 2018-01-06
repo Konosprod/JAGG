@@ -12,12 +12,31 @@ public class SettingsManager : MonoBehaviour {
     public Dropdown textureQualityDropdown;
     public Dropdown antialiasingDropdown;
     public Dropdown vsyncDropdown;
-    public Slider volumeSlider;
+    public Slider BGMvolumeSlider;
+    public Slider SFXvolumeSlider;
 
     private Resolution[] resolutions;
     private GameSettings gameSettings;
 
-    void OnEnable()
+    private SoundManager soundManager;
+
+    public static SettingsManager _instance;
+
+    void Awake()
+    {
+        if (_instance == null)
+        {
+            _instance = this;
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
+        soundManager = SoundManager._instance;
+    }
+
+    void Start()
     {
         resolutions = Screen.resolutions;
 
@@ -38,12 +57,15 @@ public class SettingsManager : MonoBehaviour {
         vsyncDropdown.onValueChanged.RemoveAllListeners();
         vsyncDropdown.onValueChanged.AddListener(OnVsyncChange);
 
-        volumeSlider.onValueChanged.RemoveAllListeners();
-        volumeSlider.onValueChanged.AddListener(OnVolumeChange);
+        BGMvolumeSlider.onValueChanged.RemoveAllListeners();
+        BGMvolumeSlider.onValueChanged.AddListener(OnBGMVolumeChange);
+
+        SFXvolumeSlider.onValueChanged.RemoveAllListeners();
+        SFXvolumeSlider.onValueChanged.AddListener(OnSFXVolumeChange);
 
         resolutionsDropdown.ClearOptions();
 
-        foreach(Resolution r in resolutions)
+        foreach (Resolution r in resolutions)
         {
             resolutionsDropdown.options.Add(new Dropdown.OptionData(r.ToString()));
         }
@@ -79,11 +101,16 @@ public class SettingsManager : MonoBehaviour {
         gameSettings.VSync = QualitySettings.vSyncCount = newVsync;
     }
 
-    public void OnVolumeChange(float newVolume)
+    public void OnBGMVolumeChange(float newVolume)
     {
-        //Set volume here
-        //SoundManager.setMasterVolume();
-        gameSettings.AudioVolume = newVolume;
+        gameSettings.BGMAudioVolume = newVolume;
+        soundManager.SetBGMVolume(newVolume);
+    }
+
+    public void OnSFXVolumeChange(float newVolume)
+    {
+        gameSettings.SFXAudioVolume = newVolume;
+        soundManager.SetSFXVolume(newVolume);
     }
 
     public void LoadSettings()
@@ -97,17 +124,18 @@ public class SettingsManager : MonoBehaviour {
             textureQualityDropdown.value = gameSettings.TextureQuality;
             antialiasingDropdown.value = gameSettings.Antialiasing;
             vsyncDropdown.value = gameSettings.VSync;
-            volumeSlider.value = gameSettings.AudioVolume;
+            BGMvolumeSlider.value = gameSettings.BGMAudioVolume;
+            SFXvolumeSlider.value = gameSettings.SFXAudioVolume;
         }
         catch(Exception e)
         {
-            Debug.Log(e);
             fullscreenToggle.isOn = false;
             resolutionsDropdown.value = 0;
             textureQualityDropdown.value = 0;
             antialiasingDropdown.value = 0;
             vsyncDropdown.value = 0;
-            volumeSlider.value = 1f;
+            BGMvolumeSlider.value = 1f;
+            SFXvolumeSlider.value = 1f;
 
         }
     }

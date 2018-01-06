@@ -11,11 +11,16 @@ public class MainMenuHandler : MonoBehaviour
 
     public int sceneIndex;
 
+    private SoundManager soundManager;
+
+
     void Start()
     {
         btn_Quit.onClick.AddListener(Quit);
+        soundManager = SoundManager._instance;
 
-        SoundManager.PlayMusic(SoundType.MainMenu);
+        soundManager.PlayMusic(SoundType.MainMenu);
+
     }
 
     public void Quit()
