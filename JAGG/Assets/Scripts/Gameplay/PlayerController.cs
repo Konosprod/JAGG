@@ -24,6 +24,7 @@ public class PlayerController : NetworkBehaviour {
 
     private Rigidbody rb;
     private PreviewLine line;
+    private LobbyManager lobbyManager;
     public ParticleSystem particleSys;
 
     private UIManager ui;
@@ -53,6 +54,7 @@ public class PlayerController : NetworkBehaviour {
 
         rb = GetComponent<Rigidbody>();
         line = GetComponent<PreviewLine>();
+        lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
 
 
         if (!isServer)
@@ -91,6 +93,12 @@ public class PlayerController : NetworkBehaviour {
 
         if (!isMoving)
         {
+            int maxShot = lobbyManager.hole.GetComponentInChildren<LevelProperties>().maxShot;
+            if(shots == maxShot)
+            {
+                CmdOutOfStrokes();
+            }
+
             // Enable collision with other players only after the end of the first shot
             if (shots == 1)
                 CmdEnableMyCollisionLayers();
@@ -118,6 +126,7 @@ public class PlayerController : NetworkBehaviour {
                     isShooting = true;
             }
 
+            // Cancel the shooting attempt with right-click
             if(Input.GetMouseButtonDown(1) && isShooting)
             {
                 isShooting = false;
@@ -273,7 +282,7 @@ public class PlayerController : NetworkBehaviour {
         canShoot = false;
         rb.velocity = Vector3.zero;
 
-        int par = GameObject.FindObjectOfType<LobbyManager>().GetPar();
+        int par = lobbyManager.GetPar();
 
         if(shots == 1)
         {
@@ -317,6 +326,25 @@ public class PlayerController : NetworkBehaviour {
         score.Add(shots);
         shots = 0;
         RpcDisablePlayerInHole(type);
+    }
+
+
+    [Command]
+    private void CmdOutOfStrokes()
+    {
+        canShoot = false;
+        rb.velocity = Vector3.zero;
+
+        // Disable collisions with other balls while in the hole
+        for (int i = FirstLayer; i < FirstLayer + 4; i++)
+        {
+            if (i != gameObject.layer)
+                Physics.IgnoreLayerCollision(gameObject.layer, i, true);
+        }
+
+        score.Add(shots+2);
+        shots = 0;
+        RpcDisablePlayerInHole(-2);
     }
 
 
@@ -401,41 +429,52 @@ public class PlayerController : NetworkBehaviour {
             string message = "";
             isOver = true;
             line.SetEnabled(false);
-            line.enabled = false;
             lastStopPos = Vector3.zero;
 
             switch (type)
             {
+                /*case -3:
+                    message = "Out of time";
+                    break;*/
+
+                case -2:
+                    message = "If at first you don't succeed,\nTry, try, try again.\nOn the next hole that is.";
+                    break;
+
                 case -1:
-                    message = "NOT SURE WHAT I'M SUPPOSED TO WRITE FOR SUCH A BAD PLAY. LOL";
+                    message = "Better luck next time.";
                     break;
 
                 case 0:
-                    message = "Hole in one";
+                    message = "Hole in one.";
                     break;
 
                 case 1:
-                    message = "Eagle";
+                    message = "Eagle.";
                     break;
 
                 case 2:
-                    message = "Birdie";
+                    message = "Birdie.";
                     break;
 
                 case 3:
-                    message = "Par";
+                    message = "Par.";
                     break;
 
                 case 4:
-                    message = "Bogey";
+                    message = "Bogey.";
                     break;
 
                 case 5:
-                    message = "Double Bogey";
+                    message = "Double Bogey.";
+                    break;
+
+                default:
+                    message = "UNEXPECTED RESULT : " + type + ", PLEASE REPORT / SCREEN";
                     break;
             }
 
-            StartCoroutine(ui.ShowNotification(message, 1, SetDone));
+            StartCoroutine(ui.ShowNotification(message, 3, SetDone));
         }
     }
 
