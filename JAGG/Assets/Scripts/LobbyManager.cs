@@ -24,7 +24,8 @@ public class LobbyManager : NetworkLobbyManager
     public InputField joinPort;
     public InputField createPort;
 
-    private GameObject hole;
+    [HideInInspector]
+    public GameObject hole;
     private int currentHole = 1;
 
     private GameTimer gameTimer;
