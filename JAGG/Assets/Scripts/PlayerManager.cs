@@ -228,4 +228,19 @@ public class PlayerManager : NetworkBehaviour {
 
         return sc;
     }
+
+    public bool isPlayerOnLayerDone(int layer)
+    {
+        bool res = false;
+
+        foreach (GameObject p in players.Values)
+        {
+            if (p.layer == layer)
+            {
+                res = p.GetComponent<PlayerController>().done;
+            }
+        }
+
+        return res;
+    }
 }

@@ -259,7 +259,9 @@ public class PlayerController : NetworkBehaviour {
     {
         for (int i = FirstLayer; i < FirstLayer + 4; i++)
         {
-            Physics.IgnoreLayerCollision(gameObject.layer, i, false);
+            // We check if the player on that specific layer is done or not to avoid enabling collisions on a player already in the hole
+            if(!lobbyManager.playerManager.isPlayerOnLayerDone(i))
+                Physics.IgnoreLayerCollision(gameObject.layer, i, false);
         }
     }
 
