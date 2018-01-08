@@ -75,6 +75,14 @@ public class PlayerController : NetworkBehaviour {
             isMoving = rb.velocity.magnitude >= 0.001f;
             if(isMoving)
                 RpcUpdatePosition(transform.position);
+            else
+            {
+                int maxShot = lobbyManager.hole.GetComponentInChildren<LevelProperties>().maxShot;
+                if (shots == maxShot)
+                {
+                    CmdOutOfStrokes();
+                }
+            }
         }
         else
         {
@@ -93,12 +101,6 @@ public class PlayerController : NetworkBehaviour {
 
         if (!isMoving)
         {
-            int maxShot = lobbyManager.hole.GetComponentInChildren<LevelProperties>().maxShot;
-            if(shots == maxShot)
-            {
-                CmdOutOfStrokes();
-            }
-
             // Enable collision with other players only after the end of the first shot
             if (shots == 1)
                 CmdEnableMyCollisionLayers();
@@ -429,6 +431,7 @@ public class PlayerController : NetworkBehaviour {
             string message = "";
             isOver = true;
             line.SetEnabled(false);
+            line.enabled = false;
             lastStopPos = Vector3.zero;
 
             switch (type)
