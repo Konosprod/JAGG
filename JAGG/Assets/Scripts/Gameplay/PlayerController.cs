@@ -26,6 +26,7 @@ public class PlayerController : NetworkBehaviour {
     private PreviewLine line;
     private LobbyManager lobbyManager;
     public ParticleSystem particleSys;
+    public GameObject failSign;
 
     private UIManager ui;
 
@@ -247,6 +248,11 @@ public class PlayerController : NetworkBehaviour {
     {
         done = false;
         shots = 0;
+
+        if(failSign.activeSelf)
+        {
+            RpcChangeFailSignVisibility(false);
+        }
     }
 
     public void EnablePlayer()
@@ -349,6 +355,7 @@ public class PlayerController : NetworkBehaviour {
         score.Add(shots+2);
         shots = 0;
         RpcDisablePlayerInHole(-2);
+        RpcChangeFailSignVisibility(true);
     }
 
 
@@ -519,6 +526,20 @@ public class PlayerController : NetworkBehaviour {
     {
         gameObject.layer = layer;
     }
+
+    [ClientRpc]
+    private void RpcChangeFailSignVisibility(bool vis)
+    {
+        failSign.SetActive(vis);
+        if(vis)
+        {
+            Vector3 dir = transform.position - Camera.main.transform.position;
+            dir.y = 0;
+            failSign.transform.rotation = Quaternion.LookRotation(dir);
+        }
+    }
+
+
 
 #endregion
 }
