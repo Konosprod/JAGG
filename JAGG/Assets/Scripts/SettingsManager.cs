@@ -127,7 +127,7 @@ public class SettingsManager : MonoBehaviour {
             BGMvolumeSlider.value = gameSettings.BGMAudioVolume;
             SFXvolumeSlider.value = gameSettings.SFXAudioVolume;
         }
-        catch(Exception e)
+        catch(Exception)
         {
             fullscreenToggle.isOn = false;
             resolutionsDropdown.value = 0;
