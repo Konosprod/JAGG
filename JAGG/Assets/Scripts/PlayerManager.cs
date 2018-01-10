@@ -145,11 +145,11 @@ public class PlayerManager : NetworkBehaviour {
 
     public void MovePlayersTo(Transform nextPosition)
     {
-
         foreach(GameObject o in players.Values)
         {
-            o.transform.position = nextPosition.position;
-            o.GetComponent<PlayerController>().EnablePlayer();
+            PlayerController pc = o.GetComponent<PlayerController>();
+            pc.ForcedMoveTo(nextPosition.position);
+            pc.EnablePlayer();
         }
     }
 

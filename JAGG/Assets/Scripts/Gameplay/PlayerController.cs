@@ -389,6 +389,19 @@ public class PlayerController : NetworkBehaviour {
     {
         RpcSetLayer(gameObject.layer);
     }
+
+
+    public void ForcedMoveTo(Vector3 position)
+    {
+        CmdForcedMoveTo(position);
+    }
+
+    [Command]
+    private void CmdForcedMoveTo(Vector3 position)
+    {
+        transform.position = position;
+        RpcForceUpdatePosition(position);
+    }
 #endregion
 
     #region ClientRpc
@@ -486,7 +499,7 @@ public class PlayerController : NetworkBehaviour {
                     break;
             }
 
-            StartCoroutine(ui.ShowNotification(message, 3, SetDone));
+            StartCoroutine(ui.ShowNotification(message, 2, SetDone));
         }
     }
 
@@ -537,6 +550,12 @@ public class PlayerController : NetworkBehaviour {
             dir.y = 0;
             failSign.transform.rotation = Quaternion.LookRotation(dir);
         }
+    }
+
+    [ClientRpc]
+    private void RpcActivateParticles()
+    {
+        flagEnableParticle = true;
     }
 
 
