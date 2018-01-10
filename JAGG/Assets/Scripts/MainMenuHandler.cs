@@ -22,6 +22,13 @@ public class MainMenuHandler : MonoBehaviour
         soundManager.PlayMusic(SoundType.MainMenu);
     }
 
+    void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            Quit();
+        }
+    }
     public void Quit()
     {
 #if UNITY_EDITOR

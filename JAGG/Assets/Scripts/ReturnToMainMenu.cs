@@ -23,11 +23,6 @@ public class ReturnToMainMenu : MonoBehaviour {
             Destroy(toDestroy[i]);
         }
 
-        /*SoundManager go = GameObject.FindObjectOfType<SoundManager>();
-
-        if (go)
-            Destroy(go.gameObject);
-        */
         SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
     }
 }
