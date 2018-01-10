@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 222902251308539400}
   - component: {fileID: 114622533902587220}
   m_Layer: 5
-  m_Name: LevelName
+  m_Name: LabelLevelName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -558,6 +558,8 @@ GameObject:
   - component: {fileID: 224774547204206252}
   - component: {fileID: 222469131542884970}
   - component: {fileID: 114233677494623282}
+  - component: {fileID: 114671334516158932}
+  - component: {fileID: 114235270617929660}
   m_Layer: 5
   m_Name: PanelControl
   m_TagString: Untagged
@@ -751,7 +753,6 @@ GameObject:
   - component: {fileID: 224679472031411812}
   - component: {fileID: 222651400638478444}
   - component: {fileID: 114310971571610128}
-  - component: {fileID: 114294059640921904}
   m_Layer: 5
   m_Name: PanelSelectLevel
   m_TagString: Untagged
@@ -1290,6 +1291,38 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114235270617929660
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1693245733150978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 13
+    i1: 94
+    i2: 242
+    i3: 186
+    i4: 49
+    i5: 126
+    i6: 120
+    i7: 100
+    i8: 201
+    i9: 104
+    i10: 41
+    i11: 77
+    i12: 41
+    i13: 237
+    i14: 224
+    i15: 106
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 1
 --- !u!114 &114277122074743184
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1336,25 +1369,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &114294059640921904
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1862863257542050}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f3e74f4a76ca1845a06e00c87ce723d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  contentPanel: {fileID: 224119553898783204}
-  prefabButton: {fileID: 1786686125445562, guid: 1e897a195aef20344b8fe4c620731ea4,
-    type: 2}
-  selectButton: {fileID: 114494549682133248}
-  levelName: {fileID: 114622533902587220}
-  lobbyLevelName: {fileID: 114321064053259966}
-  selectedScene: 
-  lobbyManager: {fileID: 114839421058634028}
 --- !u!114 &114310971571610128
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1542,7 +1556,7 @@ MonoBehaviour:
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 114010397144904918}
   m_OnClick:
     m_PersistentCalls:
@@ -2307,6 +2321,27 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114671334516158932
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1693245733150978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f3e74f4a76ca1845a06e00c87ce723d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contentPanel: {fileID: 224119553898783204}
+  prefabButton: {fileID: 1786686125445562, guid: 1e897a195aef20344b8fe4c620731ea4,
+    type: 2}
+  editButton: {fileID: 114450583046959830}
+  selectButton: {fileID: 114494549682133248}
+  labelLevelName: {fileID: 114622533902587220}
+  lobbyLevelName: {fileID: 114321064053259966}
+  selectedScene: 
+  levelName: 
+  lobbyManager: {fileID: 114839421058634028}
 --- !u!114 &114676101988650418
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2654,6 +2689,7 @@ MonoBehaviour:
   InputIP: {fileID: 114642748496420668}
   joinPort: {fileID: 114982292362565556}
   createPort: {fileID: 114989950207989444}
+  hole: {fileID: 0}
 --- !u!114 &114841940721395162
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -3,10 +3,9 @@ using UnityEngine;
 
 public class SceneListEntry : MonoBehaviour {
 
-    public Text labelName;
+    public Text buttonName;
+    public Text labelLevelName;
     public Button buttonEntry;
-
-    public Text labelTitle;
 
     public LobbyControls lobbyControls;
 
@@ -17,17 +16,17 @@ public class SceneListEntry : MonoBehaviour {
 	}
 	
 
-    public void SetUp(string name, Text levelName, LobbyControls lobbyControls)
+    public void SetUp(string name, Text labelLevelName, LobbyControls lobbyControls)
     {
-        labelName.text = name;
-        labelTitle = levelName;
+        buttonName.text = name;
+        this.labelLevelName = labelLevelName;
         this.lobbyControls = lobbyControls;
     }
 
     public void Selected()
     {
-        labelTitle.text = labelName.text;
-
-        lobbyControls.selectedScene = labelName.text;
+        labelLevelName.text = buttonName.text;
+        lobbyControls.selectedScene = buttonName.text;
+        lobbyControls.levelName = buttonName.text;
     }
 }

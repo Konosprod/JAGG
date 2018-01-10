@@ -13,9 +13,13 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     [SyncVar(hook = "OnMyName")]
     public string playerName = "";
 
+    public LobbyControls lobbyControls;
+
 	// Use this for initialization
 	void Start () {
         LobbyPlayerList._instance.AddPlayer(this);
+
+        lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
 
         if (isLocalPlayer)
         {
@@ -39,6 +43,17 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
         if (playerName == "")
             CmdNameChanged("Player " + (LobbyPlayerList._instance.playerListContentTransform.childCount).ToString());
+
+        if (isServer)
+        {
+            lobbyControls.EnableEditButton(isServer);
+            lobbyControls.lobbyPlayer = this;
+        }
+    }
+
+    public void UpdateSelectedScene(string value)
+    {
+        CmdUpdateSelectedScene(value);
     }
 
     private void SetupOtherPlayer()
@@ -93,10 +108,26 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         playerName = name;
     }
 
+    [Command]
     public void CmdResetStatus()
     {
         toggleReady.isOn = false;
     }
 
+    [Command]
+    public void CmdUpdateSelectedScene(string value)
+    {
+        lobbyControls.labelLevelName.text = value;
+        lobbyControls.lobbyLevelName.text = value;
+        RpcUpdateSelectedScene(value);
+    }
+
 #endregion
+
+    [ClientRpc]
+    public void RpcUpdateSelectedScene(string value)
+    {
+        lobbyControls.labelLevelName.text = value;
+        lobbyControls.lobbyLevelName.text = value;
+    }
 }

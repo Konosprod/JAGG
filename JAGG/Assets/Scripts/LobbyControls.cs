@@ -1,20 +1,27 @@
 ﻿using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class LobbyControls : MonoBehaviour {
+public class LobbyControls : NetworkBehaviour {
 
     public Transform contentPanel;
     public GameObject prefabButton;
 
 
+    public Button editButton;
     public Button selectButton;
-    public Text levelName;
+    public Text labelLevelName;
     public Text lobbyLevelName;
 
     public string selectedScene;
 
+    [SyncVar(hook ="OnSelectedSceneChange")]
+    public string levelName;
+
     public LobbyManager lobbyManager;
+
+    public LobbyPlayer lobbyPlayer;
 
     void Start()
     {
@@ -40,13 +47,27 @@ public class LobbyControls : MonoBehaviour {
                 GameObject newButton = GameObject.Instantiate(prefabButton, contentPanel);
 
                 SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-                entry.SetUp(System.IO.Path.GetFileNameWithoutExtension(path), levelName, this);
+                entry.SetUp(System.IO.Path.GetFileNameWithoutExtension(path), labelLevelName, this);
             }
         }
     }
 
+    public void OnSelectedSceneChange(string newValue)
+    {
+        selectedScene = newValue;
+        levelName = newValue;
+        lobbyLevelName.text = newValue;
+    }
+
+
+    public void EnableEditButton(bool enable)
+    {
+        editButton.interactable = enable;
+    }
+
     public void SetSelectedScene()
     {
+        lobbyPlayer.UpdateSelectedScene(selectedScene);
         lobbyManager.playScene = selectedScene;
         lobbyLevelName.text = selectedScene;
     }
