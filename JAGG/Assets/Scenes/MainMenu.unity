@@ -1060,7 +1060,6 @@ GameObject:
   - component: {fileID: 285962101}
   - component: {fileID: 285962100}
   - component: {fileID: 285962099}
-  - component: {fileID: 285962098}
   - component: {fileID: 285962102}
   m_Layer: 5
   m_Name: Btn_Quit
@@ -1088,20 +1087,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &285962098
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 285962096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1056bad1f47e8743a4936c001fe1b92, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  btn_Quit: {fileID: 285962099}
-  btn_Start: {fileID: 554357249}
-  sceneIndex: 0
 --- !u!114 &285962099
 MonoBehaviour:
   m_ObjectHideFlags: 0

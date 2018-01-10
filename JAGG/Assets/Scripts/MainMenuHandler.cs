@@ -20,7 +20,6 @@ public class MainMenuHandler : MonoBehaviour
         soundManager = SoundManager._instance;
 
         soundManager.PlayMusic(SoundType.MainMenu);
-
     }
 
     public void Quit()

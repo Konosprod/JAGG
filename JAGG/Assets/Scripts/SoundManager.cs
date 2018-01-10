@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 
 public enum SoundType {
+    None,
     MainMenu,
     TestLevel,
     ButtonHover
@@ -27,6 +28,8 @@ public class SoundManager : MonoBehaviour {
 
     public static SoundManager _instance;
 
+    private SoundType actuallyPlaying;
+
 	// Use this for initialization
 	void Awake () {
 
@@ -44,7 +47,8 @@ public class SoundManager : MonoBehaviour {
 
         foreach(SoundType t in Enum.GetValues(typeof(SoundType)))
         {
-            audioClips[t] = Resources.Load<AudioClip>("Sounds/" + t.ToString());
+            if(t != SoundType.None)
+                audioClips[t] = Resources.Load<AudioClip>("Sounds/" + t.ToString());
         }
 
         foreach(SFXType t in Enum.GetValues(typeof(SFXType)))   
@@ -59,10 +63,23 @@ public class SoundManager : MonoBehaviour {
 		
 	}
 
-    public void PlayMusic(SoundType type)
+    public void PlayMusic(SoundType type, bool forceReplay = false)
     {
+        if (forceReplay && type == actuallyPlaying)
+        {
+            bgmSource.Stop();
+            bgmSource.loop = true;
+            bgmSource.PlayOneShot(audioClips[type]);
+        }
+
+        if (!forceReplay && type == actuallyPlaying)
+            return;
+
+        bgmSource.Stop();
         bgmSource.loop = true;
         bgmSource.PlayOneShot(audioClips[type]);
+
+        actuallyPlaying = type;
     }
 
     public void PlayMusic(string name)
