@@ -205,14 +205,38 @@ public class LobbyManager : NetworkLobbyManager
 
     public void CreateRoom()
     {
-        this.networkPort = createPort.text == "" ? 33333 : int.Parse(createPort.text);
+        this.networkPort = 33333;
+        try
+        {
+            this.networkPort = createPort.text == "" ? this.networkPort : int.Parse(createPort.text);
+        }
+        catch (FormatException)
+        {
+            Debug.LogError("Format exception");
+        }
+        catch (OverflowException)
+        {
+            Debug.LogError("Overflow exception");
+        }
         this.StartHost();
     }
 
     public void JoinRoom()
     {
         this.networkAddress = InputIP.text;
-        this.networkPort = joinPort.text == "" ? 33333 : int.Parse(joinPort.text); ;
+        this.networkPort = 33333;
+        try
+        { 
+            this.networkPort = joinPort.text == "" ? this.networkPort : int.Parse(joinPort.text);
+        }
+        catch (FormatException)
+        {
+            Debug.LogError("Format exception");
+        }
+        catch (OverflowException)
+        {
+            Debug.LogError("Overflow exception");
+        }
         this.StartClient();
     }
 
