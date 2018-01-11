@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
@@ -19,6 +20,13 @@ public class UIManager : MonoBehaviour {
     public GameObject panelScore;
     public GameObject[] scorePlayers;
 
+    [Header("Pause")]
+    public GameObject panelPause;
+    public Button buttonQuit;
+    public Button buttonReturn;
+
+    private UnityAction returnCallback;
+
     private bool slideUp = false;
     private PlayerManager playerManager;
 
@@ -28,6 +36,17 @@ public class UIManager : MonoBehaviour {
         slider.maxValue = maxSliderVal;
 
         playerManager = FindObjectOfType<PlayerManager>();
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyUp(KeyCode.Escape))
+        {
+            if (returnCallback != null)
+                returnCallback.Invoke();
+
+            HidePauseMenu();
+        }
     }
 
     public void UpdateSlider()
@@ -86,6 +105,33 @@ public class UIManager : MonoBehaviour {
             scorePlayers[i].GetComponentsInChildren<Text>()[1].text = text;
             scorePlayers[i].GetComponentsInChildren<Text>()[2].text = total.ToString();
         }
+    }
+
+    public void HidePauseMenu()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        panelPause.SetActive(false);
+    }
+
+    public void ShowPause(UnityAction returnCallback = null, UnityAction quitCallback = null)
+    {
+        panelPause.SetActive(true);
+        this.returnCallback = returnCallback;
+
+        SettingsManager._instance.SetBackSettings(panelPause);
+
+        buttonReturn.onClick.RemoveAllListeners();
+        buttonReturn.onClick.AddListener(returnCallback);
+        buttonReturn.onClick.AddListener(HidePauseMenu);
+
+        buttonQuit.onClick.RemoveAllListeners();
+        buttonQuit.onClick.AddListener(HidePauseMenu);
+        buttonQuit.onClick.AddListener(quitCallback);
+
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
     }
 
     public IEnumerator ShowNotification(string message, float time, Action callback = null)

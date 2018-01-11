@@ -61,6 +61,14 @@ public class LobbyManager : NetworkLobbyManager
         }
     }
 
+    public void ReturnToLobby()
+    {
+        SceneManager.LoadScene("Lobby");
+        mainPanel.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
     public void TriggerTimeout()
     {
         playerManager.TriggerTimeout(hole.GetComponentInChildren<LevelProperties>().maxShot);
@@ -140,7 +148,7 @@ public class LobbyManager : NetworkLobbyManager
         }
         else
         {
-
+            Debug.Log("here");
         }
     }
 
@@ -150,7 +158,7 @@ public class LobbyManager : NetworkLobbyManager
 
         if (SceneManager.GetSceneAt(0).name == lobbyScene)
         {
-            lobbyPanel.SetActive(true);
+            mainPanel.SetActive(true);
             
             for(int i = 0; i < lobbySlots.Length; i++)
             {
@@ -200,6 +208,11 @@ public class LobbyManager : NetworkLobbyManager
     public override void OnClientDisconnect(NetworkConnection conn)
     {
         playerManager.RemovePlayer(conn.connectionId);
+        mainPanel.SetActive(true);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         base.OnClientDisconnect(conn);
     }
 

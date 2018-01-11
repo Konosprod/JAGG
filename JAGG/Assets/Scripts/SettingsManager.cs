@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.Events;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +18,7 @@ public class SettingsManager : MonoBehaviour {
 
     public Button backButton;
     private GameObject returnPanel;
+    private UnityAction backCallback;
 
     private Resolution[] resolutions;
     private GameSettings gameSettings;
@@ -78,6 +78,14 @@ public class SettingsManager : MonoBehaviour {
         LoadSettings();
 
         resolutionsDropdown.RefreshShownValue();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            ShowReturnPanel();
+        }
     }
 
     public void OnFullscreenToggle(bool newFullscreen)
@@ -155,9 +163,10 @@ public class SettingsManager : MonoBehaviour {
         optionsPanel.SetActive(show);
     }
 
-    public void SetBackSettings(GameObject returnPanel)
+    public void SetBackSettings(GameObject returnPanel, UnityAction callback = null)
     {
         this.returnPanel = returnPanel;
+        this.backCallback = callback;
 
         backButton.onClick.RemoveAllListeners();
         backButton.onClick.AddListener(ShowReturnPanel);
@@ -166,6 +175,11 @@ public class SettingsManager : MonoBehaviour {
     private void ShowReturnPanel()
     {
         optionsPanel.SetActive(false);
-        returnPanel.SetActive(true);
+
+        if (backCallback != null)
+            backCallback.Invoke();
+
+        if (returnPanel != null)
+            returnPanel.SetActive(true);
     }
 }
