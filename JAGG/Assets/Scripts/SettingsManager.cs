@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour {
 
+    public GameObject optionsPanel;
+
     public Toggle fullscreenToggle;
     public Dropdown resolutionsDropdown;
     public Dropdown textureQualityDropdown;
@@ -14,6 +16,9 @@ public class SettingsManager : MonoBehaviour {
     public Dropdown vsyncDropdown;
     public Slider BGMvolumeSlider;
     public Slider SFXvolumeSlider;
+
+    public Button backButton;
+    private GameObject returnPanel;
 
     private Resolution[] resolutions;
     private GameSettings gameSettings;
@@ -143,5 +148,24 @@ public class SettingsManager : MonoBehaviour {
     public void SaveSettings()
     {
         File.WriteAllText(Application.persistentDataPath + "/gamesettings.json", JsonUtility.ToJson(gameSettings, true));
+    }
+
+    public void ShowOptionsMenu(bool show)
+    {
+        optionsPanel.SetActive(show);
+    }
+
+    public void SetBackSettings(GameObject returnPanel)
+    {
+        this.returnPanel = returnPanel;
+
+        backButton.onClick.RemoveAllListeners();
+        backButton.onClick.AddListener(ShowReturnPanel);
+    }
+
+    private void ShowReturnPanel()
+    {
+        optionsPanel.SetActive(false);
+        returnPanel.SetActive(true);
     }
 }
