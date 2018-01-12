@@ -90,6 +90,7 @@ public class PlayerController : NetworkBehaviour {
             );
         }
 
+
         if(isServer)
         {
             isMoving = rb.velocity.magnitude >= 0.001f;
@@ -104,14 +105,12 @@ public class PlayerController : NetworkBehaviour {
                 }
             }
         }
-        else
+
+        if (flagEnableParticle)
         {
-            if (flagEnableParticle)
-            {
-                ParticleSystem.EmissionModule em = particleSys.emission;
-                em.enabled = true;
-                flagEnableParticle = false;
-            }
+            ParticleSystem.EmissionModule em = particleSys.emission;
+            em.enabled = true;
+            flagEnableParticle = false;
         }
 
         if (!isLocalPlayer || isOver)
@@ -462,15 +461,13 @@ public class PlayerController : NetworkBehaviour {
     void RpcForceUpdatePosition(Vector3 position)
     {
         ParticleSystem.EmissionModule em = particleSys.emission;
-        if (!isServer)
-            em.enabled = false;
+        em.enabled = false;
         
         serverPositions.Clear();
         transform.position = position;
         serverPos = position;
-
-        if (!isServer)
-            flagEnableParticle = true;
+        
+        flagEnableParticle = true;
     }
 
     [ClientRpc]
@@ -579,14 +576,5 @@ public class PlayerController : NetworkBehaviour {
             failSign.transform.rotation = Quaternion.LookRotation(dir);
         }
     }
-
-    [ClientRpc]
-    private void RpcActivateParticles()
-    {
-        flagEnableParticle = true;
-    }
-
-
-
-#endregion
+    #endregion
 }
