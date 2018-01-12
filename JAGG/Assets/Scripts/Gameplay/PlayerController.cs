@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
-using UnityEngine.UI;
-using System;
+using UnityEngine.SceneManagement; 
 
 [NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour {
@@ -42,6 +41,7 @@ public class PlayerController : NetworkBehaviour {
     private const int FirstLayer = 9;
 
     private bool flagEnableParticle = false;
+    private PauseMenu panelPause;
 
     private void Awake()
     {
@@ -56,7 +56,7 @@ public class PlayerController : NetworkBehaviour {
         rb = GetComponent<Rigidbody>();
         line = GetComponent<PreviewLine>();
         lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
-
+        panelPause = GameObject.FindObjectOfType<PauseMenu>();
 
         if (!isServer)
             rb.isKinematic = true;
@@ -71,6 +71,25 @@ public class PlayerController : NetworkBehaviour {
 
     private void Update()
     {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            canShoot = false;
+            ui.ShowPause(delegate ()
+            {
+                canShoot = true;
+            },
+            delegate ()
+            {
+                if (isServer)
+                    NetworkManager.singleton.StopHost();
+                else
+                    NetworkManager.singleton.StopClient();
+
+                lobbyManager.ReturnToLobby();
+            }
+            );
+        }
+
         if(isServer)
         {
             isMoving = rb.velocity.magnitude >= 0.001f;

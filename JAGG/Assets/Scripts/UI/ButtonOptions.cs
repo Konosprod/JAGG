@@ -5,6 +5,7 @@ public class ButtonOptions : MonoBehaviour {
 
     private SettingsManager settingsManager;
     public Button optionsButton;
+    public GameObject panelReturn;
 
 	// Use this for initialization
 	void Start () {
@@ -13,7 +14,10 @@ public class ButtonOptions : MonoBehaviour {
         optionsButton.onClick.RemoveListener(ShowOptionsMenu);
         optionsButton.onClick.AddListener(ShowOptionsMenu);
 
-        settingsManager.SetBackSettings(optionsButton.transform.parent.gameObject);
+        if (panelReturn)
+            settingsManager.SetBackSettings(panelReturn);
+        else
+            settingsManager.SetBackSettings(null);
     }
 
     private void ShowOptionsMenu()

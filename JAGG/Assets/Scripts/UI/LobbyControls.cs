@@ -62,7 +62,7 @@ public class LobbyControls : NetworkBehaviour {
 
     public void EnableEditButton(bool enable)
     {
-        editButton.interactable = enable;
+        editButton.gameObject.SetActive(enable);
     }
 
     public void SetSelectedScene()
