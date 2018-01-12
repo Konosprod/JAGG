@@ -213,6 +213,15 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        GameObject collided = collision.gameObject;
+        if (collided.CompareTag("Player"))
+        {
+            Debug.Log("BALLZ");
+        }
+    }
+
     void OnGUI()
     {
         if (isLocalPlayer)
