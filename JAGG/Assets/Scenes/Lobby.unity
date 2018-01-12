@@ -276,6 +276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 36809276}
+  isValid: 0
 --- !u!1 &68612307
 GameObject:
   m_ObjectHideFlags: 0
@@ -1216,6 +1217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 199265119}
+  isValid: 0
 --- !u!1 &250132342
 GameObject:
   m_ObjectHideFlags: 0
@@ -1715,6 +1717,7 @@ GameObject:
   - component: {fileID: 478052419}
   - component: {fileID: 478052421}
   - component: {fileID: 478052420}
+  - component: {fileID: 478052422}
   m_Layer: 5
   m_Name: PanelJoin
   m_TagString: Untagged
@@ -1779,6 +1782,20 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 478052418}
+--- !u!114 &478052422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 478052418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17f3f50aeb4722c469623007cdd9d891, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonJoin: {fileID: 565623403}
+  ipInput: {fileID: 36809277}
+  portInput: {fileID: 199265123}
 --- !u!1 &528234358
 GameObject:
   m_ObjectHideFlags: 0
@@ -2434,7 +2451,7 @@ Prefab:
     - target: {fileID: 114574390917325080, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: onScreen
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224548894920106216, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
@@ -4093,6 +4110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 1216993228}
+  isValid: 0
 --- !u!1 &1230530951
 GameObject:
   m_ObjectHideFlags: 0
@@ -5902,6 +5920,7 @@ GameObject:
   - component: {fileID: 1661883278}
   - component: {fileID: 2043859234}
   - component: {fileID: 2043859233}
+  - component: {fileID: 2043859235}
   m_Layer: 5
   m_Name: PanelCreate
   m_TagString: Untagged
@@ -5944,3 +5963,16 @@ CanvasRenderer:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 2043859232}
+--- !u!114 &2043859235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2043859232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d69f43d6082318498dcf3ac9fc032b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonCreate: {fileID: 1335494470}
+  portInput: {fileID: 1216993232}
