@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 
 public class CombineMeshes : MonoBehaviour
 {
@@ -108,8 +107,6 @@ public class CombineMeshes : MonoBehaviour
             mesh.Clear();
             DestroyImmediate(mesh);
         }
-
-        MeshUtility.Optimize(meshFilterCombine.sharedMesh);
 
 
         // For MeshRenderer
