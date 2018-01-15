@@ -25,6 +25,8 @@ public class PlayerController : NetworkBehaviour {
     private PreviewLine line;
     private LobbyManager lobbyManager;
     public ParticleSystem particleSys;
+
+    public GameObject[] ball_parts;
     public GameObject failSign;
 
     private UIManager ui;
@@ -36,12 +38,18 @@ public class PlayerController : NetworkBehaviour {
     private Vector3 serverPos = Vector3.zero;
     private Queue<Vector3> serverPositions = new Queue<Vector3>();
 
+
     private Vector3 lastStopPos = Vector3.zero;
 
     private const int FirstLayer = 9;
 
     private bool flagEnableParticle = false;
     private PauseMenu panelPause;
+
+
+    private Vector3 save_velocity = Vector3.zero;
+    private bool hasDestroyedPlayer = false;
+    private Vector3 restore_velocity = Vector3.zero;
 
     private void Awake()
     {
@@ -98,14 +106,20 @@ public class PlayerController : NetworkBehaviour {
                 RpcUpdatePosition(transform.position);
             else
             {
+                // Update the last position where the ball stopped
+                lastStopPos = transform.position;
+
                 int maxShot = lobbyManager.hole.GetComponentInChildren<LevelProperties>().maxShot;
                 if (shots == maxShot)
                 {
                     CmdOutOfStrokes();
                 }
             }
+            
+            save_velocity = rb.velocity;
         }
 
+        // Enables the particles at the next frame (when resetting / moving to the next hole) to avoid weird trails effects
         if (flagEnableParticle)
         {
             ParticleSystem.EmissionModule em = particleSys.emission;
@@ -126,7 +140,6 @@ public class PlayerController : NetworkBehaviour {
 
             // Update the last position where the ball stopped
             lastStopPos = transform.position;
-
 
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir = new Vector3(dir.x, 0f, dir.z).normalized;
@@ -233,12 +246,44 @@ public class PlayerController : NetworkBehaviour {
 
     void OnCollisionEnter(Collision collision)
     {
-        GameObject collided = collision.gameObject;
-        if (collided.CompareTag("Player"))
+        if (isServer)
         {
-            Debug.Log("BALLZ");
+            GameObject collided = collision.gameObject;
+            if (collided.CompareTag("Player"))
+            {
+                PlayerController pc_col = collided.GetComponent<PlayerController>();
+                Vector3 other_vel = pc_col.save_velocity;
+
+                //Debug.Log(Time.frameCount + "fr, BALLZ : " + LayerMask.LayerToName(collided.layer) + " , my vel : " + save_velocity + ", his vel : " + other_vel);
+                
+
+                if ((save_velocity.magnitude > other_vel.magnitude + 3f) && !hasDestroyedPlayer)
+                {
+                    // Disable collisions with other balls while destroyed
+                    for (int i = FirstLayer; i < FirstLayer + 4; i++)
+                    {
+                        if (i != collided.layer)
+                            Physics.IgnoreLayerCollision(collided.layer, i, true);
+                    }
+
+                    CmdDestroyBall(collided);
+                    hasDestroyedPlayer = true;
+                    restore_velocity = save_velocity;
+                }
+            }
         }
     }
+
+
+    void OnCollisionExit(Collision collisionInfo)
+    {
+        if(collisionInfo.gameObject.CompareTag("Player") && hasDestroyedPlayer)
+        {
+            hasDestroyedPlayer = false;
+            rb.velocity = restore_velocity;
+        }
+    }
+    
 
     void OnGUI()
     {
@@ -287,6 +332,12 @@ public class PlayerController : NetworkBehaviour {
         CmdEnablePlayer();
     }
 
+
+    public void EnableMyCollisionLayers()
+    {
+        CmdEnableMyCollisionLayers();
+    }
+
     [Command]
     private void CmdEnableMyCollisionLayers()
     {
@@ -305,10 +356,16 @@ public class PlayerController : NetworkBehaviour {
         shots++;
     }
 
+    public void DisablePlayer()
+    {
+        CmdDisablePlayer();
+    }
+
     [Command]
     private void CmdDisablePlayer()
     {
         canShoot = false;
+        rb.velocity = Vector3.zero;
         RpcDisablePlayer();
     }
 
@@ -386,6 +443,12 @@ public class PlayerController : NetworkBehaviour {
     }
 
 
+    public void ResetPosition()
+    {
+        Debug.Log(lastStopPos);
+        CmdResetPosition(lastStopPos);
+    }
+
     [Command]
     private void CmdResetPosition(Vector3 lastPos)
     {
@@ -429,7 +492,40 @@ public class PlayerController : NetworkBehaviour {
         transform.position = position;
         RpcForceUpdatePosition(position);
     }
-#endregion
+
+
+    [Command]
+    private void CmdDestroyBall(GameObject ball)
+    {
+        PlayerController ball_pc = ball.GetComponent<PlayerController>();
+        ball_pc.DisablePlayer();
+        ball_pc.ChangeBallVisibility(false);
+        
+        StartCoroutine(RespawnRoutine(ball));
+    }
+
+    private IEnumerator RespawnRoutine(GameObject ball)
+    {
+        yield return new WaitForSeconds(3);
+        PlayerController ball_pc = ball.GetComponent<PlayerController>();
+        ball_pc.ResetPosition();
+        ball_pc.ChangeBallVisibility(true);
+        ball_pc.EnableMyCollisionLayers();
+        ball_pc.EnablePlayer();
+    }
+
+    public void ChangeBallVisibility(bool visi)
+    {
+        CmdChangeBallVisibility(visi);
+    }
+
+    [Command]
+    private void CmdChangeBallVisibility(bool visi)
+    {
+        RpcChangeBallVisibility(visi);
+    }
+
+    #endregion
 
     #region ClientRpc
 
@@ -566,15 +662,22 @@ public class PlayerController : NetworkBehaviour {
     }
 
     [ClientRpc]
-    private void RpcChangeFailSignVisibility(bool vis)
+    private void RpcChangeFailSignVisibility(bool visi)
     {
-        failSign.SetActive(vis);
-        if(vis)
+        failSign.SetActive(visi);
+        if(visi)
         {
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir.y = 0;
             failSign.transform.rotation = Quaternion.LookRotation(dir);
         }
+    }
+
+    [ClientRpc]
+    private void RpcChangeBallVisibility(bool visi)
+    {
+        foreach (GameObject go in ball_parts)
+            go.SetActive(visi);
     }
     #endregion
 }
