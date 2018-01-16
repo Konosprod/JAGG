@@ -139,5 +139,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     {
         lobbyControls.labelLevelName.text = value;
         lobbyControls.lobbyLevelName.text = value;
+        LobbyManager._instance.customMapFile = value;
     }
 }
