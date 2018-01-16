@@ -51,6 +51,8 @@ public class PlayerController : NetworkBehaviour {
     private bool hasDestroyedPlayer = false;
     private Vector3 restore_velocity = Vector3.zero;
 
+    private bool firstShotLayerActivated = false;
+
     private void Awake()
     {
         ui = FindObjectOfType<UIManager>();
@@ -135,8 +137,12 @@ public class PlayerController : NetworkBehaviour {
         if (!isMoving)
         {
             // Enable collision with other players only after the end of the first shot
-            if (shots == 1)
+            if (shots == 1 && !firstShotLayerActivated)
+            {
+                Debug.Log("Enabling collisions for " + LayerMask.LayerToName(gameObject.layer));
+                firstShotLayerActivated = true;
                 CmdEnableMyCollisionLayers();
+            }
 
             // Update the last position where the ball stopped
             lastStopPos = transform.position;
@@ -319,9 +325,10 @@ public class PlayerController : NetworkBehaviour {
     private void CmdResetPlayer()
     {
         done = false;
+        firstShotLayerActivated = false;
         shots = 0;
 
-        if(failSign.activeSelf)
+        if (failSign.activeSelf)
         {
             RpcChangeFailSignVisibility(false);
         }
@@ -433,7 +440,10 @@ public class PlayerController : NetworkBehaviour {
         for (int i = FirstLayer; i < FirstLayer + 4; i++)
         {
             if (i != gameObject.layer)
+            {
+                //Debug.Log("My layer : " + LayerMask.LayerToName(gameObject.layer) + ", other layer : " + LayerMask.LayerToName(i));
                 Physics.IgnoreLayerCollision(gameObject.layer, i, true);
+            }
         }
 
         score.Add(shots+2);
@@ -445,7 +455,6 @@ public class PlayerController : NetworkBehaviour {
 
     public void ResetPosition()
     {
-        Debug.Log(lastStopPos);
         CmdResetPosition(lastStopPos);
     }
 
@@ -641,6 +650,7 @@ public class PlayerController : NetworkBehaviour {
         if(isLocalPlayer)
         {
             done = false;
+            firstShotLayerActivated = false;
             shots = 0;
         }
     }
