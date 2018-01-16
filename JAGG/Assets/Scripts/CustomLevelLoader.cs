@@ -4,11 +4,11 @@ using UnityEngine.Networking;
 
 public class CustomLevelLoader : MonoBehaviour {
 
-    private string levelDirectory = Path.Combine(Application.persistentDataPath, "levels");
-
     // Use this for initialization
     void Awake()
     {
+        string levelDirectory = Path.Combine(Application.persistentDataPath, "levels");
+
         if(!Directory.Exists(levelDirectory))
         {
             Directory.CreateDirectory(levelDirectory);
