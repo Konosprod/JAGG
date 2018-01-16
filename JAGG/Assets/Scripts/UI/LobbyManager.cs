@@ -148,7 +148,10 @@ public class LobbyManager : NetworkLobbyManager
         }
         else
         {
-            Debug.Log("here");
+            mainPanel.SetActive(false);
+            lobbyPanel.SetActive(true);
+            joinPanel.SetActive(false);
+            controlPanel.SetActive(true);
         }
     }
 
