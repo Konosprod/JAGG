@@ -35,8 +35,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     {
         if (isLocalPlayer)
         {
-            Debug.Log("isLocalPlayer");
-            //toggleReady.isOn = false;
             SendNotReadyToBeginMessage();
             CmdResetStatus();
         }
@@ -99,7 +97,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     public override void OnClientReady(bool readyState)
     {
-        Debug.Log("Ready : " + readyState);
         if(readyState)
         {
             toggleReady.isOn = true;
@@ -123,7 +120,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     [Command]
     public void CmdResetStatus()
     {
-        Debug.Log("cmd");
         toggleReady.isOn = false;
         SendNotReadyToBeginMessage();
     }
@@ -143,13 +139,5 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     {
         lobbyControls.labelLevelName.text = value;
         lobbyControls.lobbyLevelName.text = value;
-    }
-
-    [ClientRpc]
-    public void RpcResetStatus()
-    {
-        Debug.Log("rpc");
-        toggleReady.isOn = false;
-        SendNotReadyToBeginMessage();
     }
 }
