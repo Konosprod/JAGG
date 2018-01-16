@@ -161,12 +161,13 @@ public class LobbyManager : NetworkLobbyManager
 
         if (SceneManager.GetSceneAt(0).name == lobbyScene)
         {
-            mainPanel.SetActive(true);
+            lobbyPanel.SetActive(true);
+            controlPanel.SetActive(true);
             
             for(int i = 0; i < lobbySlots.Length; i++)
             {
-                if(lobbySlots[i] != null)
-                    (lobbySlots[i] as LobbyPlayer).CmdResetStatus();
+                if (lobbySlots[i] != null)
+                    (lobbySlots[i] as LobbyPlayer).ResetStatus();
             }
         }
         else
