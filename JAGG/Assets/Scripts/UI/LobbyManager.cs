@@ -26,6 +26,9 @@ public class LobbyManager : NetworkLobbyManager
 
     [HideInInspector]
     public GameObject hole;
+
+    public string customMapFile = "";
+
     private int currentHole = 1;
 
     private GameTimer gameTimer;

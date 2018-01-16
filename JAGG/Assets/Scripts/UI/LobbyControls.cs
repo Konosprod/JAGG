@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.IO;
 
 public class LobbyControls : NetworkBehaviour {
 
@@ -44,11 +45,19 @@ public class LobbyControls : NetworkBehaviour {
 
             if(path.StartsWith("Assets/Scenes/Levels"))
             {
-                GameObject newButton = GameObject.Instantiate(prefabButton, contentPanel);
+                GameObject newButton = Instantiate(prefabButton, contentPanel);
 
                 SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-                entry.SetUp(System.IO.Path.GetFileNameWithoutExtension(path), labelLevelName, this);
+                entry.SetUp(Path.GetFileNameWithoutExtension(path), labelLevelName, this);
             }
+        }
+
+        foreach(string file in Directory.GetFiles(Path.Combine(Application.persistentDataPath, "levels"), "*.json"))
+        {
+            GameObject newButton = Instantiate(prefabButton, contentPanel);
+
+            SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
+            entry.SetUp(Path.GetFileNameWithoutExtension(file), labelLevelName, this);
         }
     }
 
@@ -68,7 +77,16 @@ public class LobbyControls : NetworkBehaviour {
     public void SetSelectedScene()
     {
         lobbyPlayer.UpdateSelectedScene(selectedScene);
-        lobbyManager.playScene = selectedScene;
+
+        if (SceneUtility.GetBuildIndexByScenePath(selectedScene) != -1)
+        {
+            lobbyManager.playScene = selectedScene;
+        }
+        else
+        {
+            lobbyManager.playScene = "Custom";
+            lobbyManager.customMapFile = selectedScene;
+        }
         lobbyLevelName.text = selectedScene;
     }
 }
