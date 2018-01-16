@@ -4,11 +4,17 @@ using UnityEngine.Networking;
 
 public class CustomLevelLoader : MonoBehaviour {
 
-	// Use this for initialization
+    private string levelDirectory = Path.Combine(Application.persistentDataPath, "levels");
+
+    // Use this for initialization
     void Awake()
     {
+        if(!Directory.Exists(levelDirectory))
+        {
+            Directory.CreateDirectory(levelDirectory);
+        }
 
-        string json = File.ReadAllText(Path.Combine(Path.Combine(Application.persistentDataPath, "levels"), LobbyManager._instance.customMapFile +".json"));
+        string json = File.ReadAllText(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile +".json"));
 
         GameObject endOfGame = Resources.Load("Prefabs/EndOfGamePosition") as GameObject;
 
