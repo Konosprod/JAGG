@@ -576,6 +576,11 @@ MonoBehaviour:
   isMoving: 0
   done: 0
   particleSys: {fileID: 198457286473044352}
+  ball_parts:
+  - {fileID: 1033379671107846}
+  - {fileID: 1726579345754050}
+  - {fileID: 1425080522990792}
+  - {fileID: 1931030841906622}
   failSign: {fileID: 1770767686008722}
 --- !u!114 &114351922675703174
 MonoBehaviour:
@@ -636,6 +641,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 54422430628677366}
   sphere: {fileID: 4430973037616502}
+  IsGrounded: 0
 --- !u!120 &120082819153058896
 LineRenderer:
   m_ObjectHideFlags: 1
@@ -751,7 +757,7 @@ ParticleSystem:
   playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
-  useRigidbodyForVelocity: 1
+  useRigidbodyForVelocity: 0
   startDelay:
     serializedVersion: 2
     minMaxState: 0

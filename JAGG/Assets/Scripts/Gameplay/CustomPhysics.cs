@@ -268,17 +268,55 @@ public class CustomPhysics : NetworkBehaviour {
             }
         }
 
-        if (rb.velocity.magnitude < 0.01f)
-            rb.velocity = Vector3.zero;
+        Vector3 position = transform.position;
+        position.y = GetComponent<Collider>().bounds.min.y + 0.02f;
+        float length = 0.03f;
+        Debug.DrawRay(position, Vector3.down * length);
+        RaycastHit test;
+        bool grounded = Physics.Linecast(position, position + (Vector3.down * length), out test);
+
+        bool onEvenGround = false;
+
+        if(grounded)
+            onEvenGround = test.normal == Vector3.up;
+
+        float stopSpeedThreshold = 0.1f;
+        float unevenGroundstopSpeedThreshold = 0.01f;
+
+        if (IsGrounded || grounded)
+        {
+            // Check if we should stop when grounded
+            if (rb.velocity.magnitude < (onEvenGround?stopSpeedThreshold:unevenGroundstopSpeedThreshold))
+                rb.velocity = Vector3.zero;
+        }
+        
+        // Slow down the ball
         rb.velocity = rb.velocity * 0.99f;
 
-        //Vector3 grav = new Vector3(0, -1.622f, 0);
+        if (!onEvenGround)
+        {
+            // Can use custom gravity to obtain various results
+            //Vector3 grav = new Vector3(0, -1.622f, 0);
 
-        rb.AddForce(Physics.gravity/*grav*/);
+            // Apply gravity when mid-air
+            rb.AddForce(Physics.gravity/*grav*/);
+        }
 
         if(frameHit < i)
             lastWallHit = new Vector3(-Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
 
         i++;
+    }
+
+    public bool IsGrounded;
+
+    void OnCollisionStay(Collision collisionInfo)
+    {
+        IsGrounded = true;
+    }
+
+    void OnCollisionExit(Collision collisionInfo)
+    {
+        IsGrounded = false;
     }
 }
