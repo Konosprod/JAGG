@@ -223,6 +223,12 @@ public class LobbyManager : NetworkLobbyManager
         base.OnClientDisconnect(conn);
     }
 
+    public override void OnStopHost()
+    {
+        playerManager.ClearPlayers();
+        base.OnStopHost();
+    }
+
     public void CreateRoom()
     {
         this.networkPort = 33333;

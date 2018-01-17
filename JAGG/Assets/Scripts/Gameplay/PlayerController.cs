@@ -44,7 +44,6 @@ public class PlayerController : NetworkBehaviour {
     private const int FirstLayer = 9;
 
     private bool flagEnableParticle = false;
-    private PauseMenu panelPause;
 
 
     private Vector3 save_velocity = Vector3.zero;
@@ -66,7 +65,6 @@ public class PlayerController : NetworkBehaviour {
         rb = GetComponent<Rigidbody>();
         line = GetComponent<PreviewLine>();
         lobbyManager = LobbyManager._instance;
-        panelPause = GameObject.FindObjectOfType<PauseMenu>();
 
         if (!isServer)
             rb.isKinematic = true;
@@ -93,9 +91,9 @@ public class PlayerController : NetworkBehaviour {
             delegate ()
             {
                 if (isServer)
-                    NetworkManager.singleton.StopHost();
+                    lobbyManager.StopHost();
                 else
-                    NetworkManager.singleton.StopClient();
+                    lobbyManager.StopClient();
 
                 lobbyManager.ReturnToLobby();
             }
