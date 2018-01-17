@@ -18,7 +18,8 @@ public class UIManager : MonoBehaviour {
 
     [Header("Score")]
     public GameObject panelScore;
-    public GameObject[] scorePlayers;
+    public GameObject holeEntry;
+    public PlayerScoreEntry[] scorePlayers;
 
     [Header("Pause")]
     public GameObject panelPause;
@@ -90,9 +91,22 @@ public class UIManager : MonoBehaviour {
 
         for(int i = 0; i < scores.Count; i++)
         {
-            if (!scorePlayers[i].activeSelf)
-                scorePlayers[i].SetActive(true);
+            if (!scorePlayers[i].gameObject.activeSelf)
+                scorePlayers[i].gameObject.SetActive(true);
 
+            scorePlayers[i].CleanScores();
+
+            int total = 0;
+
+            for(int j = 0; j < scores[i].Count; j++)
+            {
+                total += scores[i][j];
+                scorePlayers[i].AddScore(scores[i][j]);
+            }
+
+            scorePlayers[i].SetTotal(total);
+
+            /*
             string text = "";
             int total = 0;
 
@@ -104,6 +118,7 @@ public class UIManager : MonoBehaviour {
 
             scorePlayers[i].GetComponentsInChildren<Text>()[1].text = text;
             scorePlayers[i].GetComponentsInChildren<Text>()[2].text = total.ToString();
+            */
         }
     }
 
