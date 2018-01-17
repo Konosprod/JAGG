@@ -65,7 +65,7 @@ public class PlayerController : NetworkBehaviour {
 
         rb = GetComponent<Rigidbody>();
         line = GetComponent<PreviewLine>();
-        lobbyManager = GameObject.FindObjectOfType<LobbyManager>();
+        lobbyManager = LobbyManager._instance;
         panelPause = GameObject.FindObjectOfType<PauseMenu>();
 
         if (!isServer)
@@ -73,6 +73,8 @@ public class PlayerController : NetworkBehaviour {
 
         if (isLocalPlayer)
         {
+            ui.SetParList();
+
             if (gameObject.layer == 0)
                 CmdGetLayer();
         }

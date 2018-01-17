@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour {
     public GameObject panelScore;
     public GameObject holeEntry;
     public PlayerScoreEntry[] scorePlayers;
+    public GameObject holes;
 
     [Header("Pause")]
     public GameObject panelPause;
@@ -81,6 +82,15 @@ public class UIManager : MonoBehaviour {
     public void HideScores()
     {
         panelScore.SetActive(false);
+    }
+
+    public void SetParList()
+    {
+        foreach(Transform hole in holes.transform)
+        {
+            int par = hole.gameObject.GetComponentInChildren<LevelProperties>().par;
+            holeEntry.GetComponent<PlayerScoreEntry>().AddScore(par);
+        }
     }
 
     public void ShowScores()
