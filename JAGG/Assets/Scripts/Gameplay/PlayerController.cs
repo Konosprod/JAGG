@@ -24,7 +24,8 @@ public class PlayerController : NetworkBehaviour {
     private Rigidbody rb;
     private PreviewLine line;
     private LobbyManager lobbyManager;
-    public ParticleSystem particleSys;
+    public ParticleSystem trail;
+    public ParticleSystem explosion;
 
     public GameObject[] ball_parts;
     public GameObject failSign;
@@ -43,7 +44,7 @@ public class PlayerController : NetworkBehaviour {
 
     private const int FirstLayer = 9;
 
-    private bool flagEnableParticle = false;
+    private bool flagEnableTrail = false;
 
 
     private Vector3 save_velocity = Vector3.zero;
@@ -122,11 +123,11 @@ public class PlayerController : NetworkBehaviour {
         }
 
         // Enables the particles at the next frame (when resetting / moving to the next hole) to avoid weird trails effects
-        if (flagEnableParticle)
+        if (flagEnableTrail)
         {
-            ParticleSystem.EmissionModule em = particleSys.emission;
+            ParticleSystem.EmissionModule em = trail.emission;
             em.enabled = true;
-            flagEnableParticle = false;
+            flagEnableTrail = false;
         }
 
         if (!isLocalPlayer || isOver)
@@ -139,7 +140,7 @@ public class PlayerController : NetworkBehaviour {
             // Enable collision with other players only after the end of the first shot
             if (shots == 1 && !firstShotLayerActivated)
             {
-                Debug.Log("Enabling collisions for " + LayerMask.LayerToName(gameObject.layer));
+                // Debug.Log("Enabling collisions for " + LayerMask.LayerToName(gameObject.layer));
                 firstShotLayerActivated = true;
                 CmdEnableMyCollisionLayers();
             }
@@ -509,6 +510,7 @@ public class PlayerController : NetworkBehaviour {
         PlayerController ball_pc = ball.GetComponent<PlayerController>();
         ball_pc.DisablePlayer();
         ball_pc.ChangeBallVisibility(false);
+        ball_pc.ExplodeBall();
         
         StartCoroutine(RespawnRoutine(ball));
     }
@@ -532,6 +534,17 @@ public class PlayerController : NetworkBehaviour {
     private void CmdChangeBallVisibility(bool visi)
     {
         RpcChangeBallVisibility(visi);
+    }
+
+    public void ExplodeBall()
+    {
+        CmdExplodeBall();
+    }
+
+    [Command]
+    private void CmdExplodeBall()
+    {
+        RpcExplodeBall();
     }
 
     #endregion
@@ -565,14 +578,14 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     void RpcForceUpdatePosition(Vector3 position)
     {
-        ParticleSystem.EmissionModule em = particleSys.emission;
+        ParticleSystem.EmissionModule em = trail.emission;
         em.enabled = false;
         
         serverPositions.Clear();
         transform.position = position;
         serverPos = position;
         
-        flagEnableParticle = true;
+        flagEnableTrail = true;
     }
 
     [ClientRpc]
@@ -688,6 +701,13 @@ public class PlayerController : NetworkBehaviour {
     {
         foreach (GameObject go in ball_parts)
             go.SetActive(visi);
+    }
+
+
+    [ClientRpc]
+    private void RpcExplodeBall()
+    {
+        explosion.Play();
     }
     #endregion
 }
