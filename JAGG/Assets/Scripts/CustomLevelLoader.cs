@@ -4,6 +4,8 @@ using UnityEngine.Networking;
 
 public class CustomLevelLoader : MonoBehaviour {
 
+    public GameObject holes;
+
     // Use this for initialization
     void Awake()
     {
@@ -24,6 +26,8 @@ public class CustomLevelLoader : MonoBehaviour {
         {
             Hole h = level.holes[i];
             GameObject hole = new GameObject("Hole " + (i + 1).ToString());
+
+            hole.transform.SetParent(holes.transform);
 
             GameObject startPoint = new GameObject("Spawn Point");
             startPoint.transform.SetParent(hole.transform);
