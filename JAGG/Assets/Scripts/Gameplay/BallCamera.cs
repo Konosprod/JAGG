@@ -6,6 +6,8 @@ public class BallCamera : MonoBehaviour
 
     public Transform target;
 
+    public bool doZoomOnCollide = false;
+
     public float distance = 5.0f;
 
     public float xSpeed = 120.0f;
@@ -54,9 +56,9 @@ public class BallCamera : MonoBehaviour
 
             if (wheel != 0f && canWheel)
                 lastWheelDistance = distance;
-
+            
             RaycastHit hit;
-            if (Physics.Linecast(target.position, transform.position, out hit))
+            if (Physics.Linecast(target.position, transform.position, out hit) && doZoomOnCollide)
             {
                 distance -= hit.distance;
                 distance = (distance < distanceMin ? distanceMin : distance);
