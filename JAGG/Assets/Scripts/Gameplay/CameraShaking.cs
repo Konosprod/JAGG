@@ -1,41 +1,51 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class CameraShaking : MonoBehaviour {
 
-    public float power = 0.7f;
-    public float duration = 1.0f;
-    public Transform camera;
-    public float slowDownAmount = 1.0f;
-    public bool shouldShake = false;
+    private bool isShaking = false;
+    private float baseX, baseY, baseZ;
+    private float intensity;
+    private int shakes = 0;
 
-    private Vector3 startPosition;
-    float initialDuration;
+    void Start()
+    {
+        baseX = transform.position.x;
+        baseY = transform.position.y;
+        baseZ = transform.position.z;
 
-	// Use this for initialization
-	void Start () {
+        intensity = 0.1f;
+    }
 
-        camera = Camera.main.transform;
-        initialDuration = duration;
-        startPosition = camera.localPosition;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-        if(shouldShake)
+    void Update()
+    {
+        if (isShaking)
         {
-            if(duration > 0)
+            float randomShakeX = Random.Range(-intensity, intensity);
+            float randomShakeY = Random.Range(-intensity, intensity);
+            transform.position = new Vector3(baseX + randomShakeX, baseY + randomShakeY, baseZ);
+
+            shakes--;
+
+            if (shakes <= 0)
             {
-                camera.localPosition = startPosition + Random.insideUnitSphere * power;
-                duration -= Time.deltaTime;
-            }
-            else
-            {
-                shouldShake = false;
-                duration = initialDuration;
-                camera.localPosition = startPosition;
+                isShaking = false;
+                transform.position = new Vector3(baseX, baseY, transform.position.z);
             }
         }
+    }
 
-	}
+    public void Shake(float in_intensity)
+    {
+        isShaking = true;
+        shakes = 100;
+        intensity = in_intensity;
+    }
+
+    public void SetOriginTransform(Transform t)
+    {
+        baseX = t.position.x;
+        baseY = t.position.y;
+        baseZ = t.position.z;
+    }
 }
