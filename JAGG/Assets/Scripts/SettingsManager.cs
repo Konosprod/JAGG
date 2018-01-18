@@ -118,12 +118,18 @@ public class SettingsManager : MonoBehaviour {
     {
         gameSettings.BGMAudioVolume = newVolume;
         soundManager.SetBGMVolume(newVolume);
+
+        if (newVolume == BGMvolumeSlider.minValue)
+            soundManager.MuteBGM();
     }
 
     public void OnSFXVolumeChange(float newVolume)
     {
         gameSettings.SFXAudioVolume = newVolume;
         soundManager.SetSFXVolume(newVolume);
+
+        if (newVolume == SFXvolumeSlider.minValue)
+            soundManager.MuteSFX();
     }
 
     public void LoadSettings()

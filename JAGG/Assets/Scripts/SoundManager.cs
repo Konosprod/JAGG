@@ -69,7 +69,8 @@ public class SoundManager : MonoBehaviour {
         {
             bgmSource.Stop();
             bgmSource.loop = true;
-            bgmSource.PlayOneShot(audioClips[type]);
+            bgmSource.clip = audioClips[type];
+            bgmSource.Play();
         }
 
         if (!forceReplay && type == actuallyPlaying)
@@ -77,7 +78,8 @@ public class SoundManager : MonoBehaviour {
 
         bgmSource.Stop();
         bgmSource.loop = true;
-        bgmSource.PlayOneShot(audioClips[type]);
+        bgmSource.clip = audioClips[type];
+        bgmSource.Play();
 
         actuallyPlaying = type;
     }
@@ -112,5 +114,15 @@ public class SoundManager : MonoBehaviour {
     public void SetMasterVolume(float volume)
     {
         masterMixer.SetFloat("MasterVolume", volume);
+    }
+
+    public void MuteBGM()
+    {
+        masterMixer.SetFloat("BGMVolume", -80.0f);
+    }
+
+    public void MuteSFX()
+    {
+        masterMixer.SetFloat("SFXVolume", -80.0f);
     }
 }
