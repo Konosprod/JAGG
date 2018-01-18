@@ -864,6 +864,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+  doZoomOnCollide: 0
   distance: 5
   xSpeed: 175
   ySpeed: 75
@@ -872,6 +873,8 @@ MonoBehaviour:
   yMaxLimit: 85
   distanceMin: 0.4
   distanceMax: 7
+  shakes: 100
+  isShaking: 0
 --- !u!124 &240689142
 Behaviour:
   m_ObjectHideFlags: 0
@@ -4959,7 +4962,7 @@ GameObject:
   - component: {fileID: 1777191543}
   - component: {fileID: 1777191542}
   - component: {fileID: 1777191545}
-  - component: {fileID: 1777191541}
+  - component: {fileID: 1777191546}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -4967,19 +4970,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1777191541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1777191540}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 700e787640acffb428b424c383e3fa4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  originalIntensity: 6
-  shakes: 150
 --- !u!124 &1777191542
 Behaviour:
   m_ObjectHideFlags: 0
@@ -5048,6 +5038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+  doZoomOnCollide: 0
   distance: 5
   xSpeed: 175
   ySpeed: 75
@@ -5056,6 +5047,15 @@ MonoBehaviour:
   yMaxLimit: 85
   distanceMin: 0.4
   distanceMax: 7
+  shakes: 0.75
+  isShaking: 0
+--- !u!81 &1777191546
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1777191540}
+  m_Enabled: 1
 --- !u!1001 &1787923024
 Prefab:
   m_ObjectHideFlags: 0

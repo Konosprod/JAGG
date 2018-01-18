@@ -273,8 +273,6 @@ public class PlayerController : NetworkBehaviour {
                             Physics.IgnoreLayerCollision(collided.layer, i, true);
                     }
 
-                    Camera.main.GetComponent<CameraShaking>().Shake(6.0f);
-
                     CmdDestroyBall(collided);
                     hasDestroyedPlayer = true;
                     restore_velocity = save_velocity;
@@ -709,6 +707,7 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     private void RpcExplodeBall()
     {
+        Camera.main.GetComponent<BallCamera>().isShaking = true;
         explosion.Play();
     }
     #endregion

@@ -6,7 +6,7 @@ public class BallCamera : MonoBehaviour
 
     public Transform target;
 
-    public bool doZoomOnCollide = false;
+    public bool doZoomOnCollide = true;
 
     public float distance = 5.0f;
 
@@ -25,12 +25,19 @@ public class BallCamera : MonoBehaviour
     float wheel = 0.0f;
     float lastWheelDistance;
 
+
+    public float shakingTime = 0.75f;
+    private float originalShakingtime;
+    public bool isShaking = false;
+
     // Use this for initialization
     void Start()
     {
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;
+
+        originalShakingtime = shakingTime;
 
         lastWheelDistance = distance;
     }
@@ -73,8 +80,27 @@ public class BallCamera : MonoBehaviour
             Vector3 negDistance = new Vector3(0.0f, 0.0f, -distance);
             Vector3 position = rotation * negDistance + new Vector3(target.position.x, target.position.y + 0.2f, target.position.z);
 
+            if (isShaking)
+            {
+                doZoomOnCollide = false;
+                float randomShakeX = Random.Range(-0.25f, 0.25f);
+                float randomShakeY = Random.Range(-0.25f, 0.25f);
+                transform.position = new Vector3(position.x + randomShakeX, position.y + randomShakeY, position.z);
+
+                shakingTime -= Time.deltaTime;
+
+                if (shakingTime <= 0)
+                {
+                    isShaking = false;
+                    shakingTime = originalShakingtime;
+                    doZoomOnCollide = true;
+                }
+            }
+            else
+            {
+                transform.position = position;
+            }
             transform.rotation = rotation;
-            transform.position = position;
             // Cameraman en difficulte
             //transform.position = Vector3.Lerp(transform.position, position, 5f * Time.deltaTime);
         }
