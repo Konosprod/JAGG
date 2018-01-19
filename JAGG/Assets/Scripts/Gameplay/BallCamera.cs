@@ -65,7 +65,7 @@ public class BallCamera : MonoBehaviour
                 lastWheelDistance = distance;
             
             RaycastHit hit;
-            if (Physics.Linecast(target.position, transform.position, out hit) && doZoomOnCollide)
+            if (doZoomOnCollide && Physics.Linecast(target.position, transform.position, out hit))
             {
                 distance -= hit.distance;
                 distance = (distance < distanceMin ? distanceMin : distance);
