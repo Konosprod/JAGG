@@ -11,6 +11,7 @@ public class LobbyControls : NetworkBehaviour {
 
 
     public Button editButton;
+    public Button returnButton;
     public Button selectButton;
     public Text labelLevelName;
     public Text lobbyLevelName;
@@ -33,6 +34,9 @@ public class LobbyControls : NetworkBehaviour {
     {
         selectButton.onClick.RemoveAllListeners();
         selectButton.onClick.AddListener(SetSelectedScene);
+
+        returnButton.onClick.RemoveListener(OnReturnButtonClick);
+        returnButton.onClick.AddListener(OnReturnButtonClick);
     }
 
     public void ListScenes()
@@ -77,6 +81,18 @@ public class LobbyControls : NetworkBehaviour {
     public void EnableEditButton(bool enable)
     {
         editButton.gameObject.SetActive(enable);
+    }
+
+    public void OnReturnButtonClick()
+    {
+        if(lobbyPlayer.isServer)
+        {
+            lobbyManager.StopHost();
+        }
+        else
+        {
+            lobbyManager.StopClient();
+        }
     }
 
     public void SetSelectedScene()
