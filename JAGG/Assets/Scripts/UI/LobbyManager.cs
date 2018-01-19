@@ -75,7 +75,7 @@ public class LobbyManager : NetworkLobbyManager
     public void TriggerTimeout()
     {
         playerManager.TriggerTimeout(hole.GetComponentInChildren<LevelProperties>().maxShot);
-        playerManager.ShowPlayersScores();
+        //playerManager.ShowPlayersScores();
         SpawnNextPoint();
     }
 

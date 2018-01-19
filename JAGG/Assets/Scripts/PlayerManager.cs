@@ -55,7 +55,7 @@ public class PlayerManager : NetworkBehaviour {
 
                     ShowPlayersScores();
 
-                    TriggerSpawn();
+                    Invoke("TriggerSpawn", 5);
                     //StartCoroutine(ui.ShowScores(5, TriggerSpawn));
                 }
             }

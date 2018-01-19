@@ -642,7 +642,8 @@ public class PlayerController : NetworkBehaviour {
                     break;
             }
 
-            StartCoroutine(ui.ShowNotification(message, 2, SetDone));
+            SetDone();
+            StartCoroutine(ui.ShowNotification(message, 5));
         }
     }
 
