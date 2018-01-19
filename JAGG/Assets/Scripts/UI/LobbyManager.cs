@@ -216,6 +216,9 @@ public class LobbyManager : NetworkLobbyManager
     {
         playerManager.RemovePlayer(conn.connectionId);
         mainPanel.SetActive(true);
+        joinPanel.SetActive(false);
+        lobbyPanel.SetActive(false);
+        controlPanel.SetActive(false);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
