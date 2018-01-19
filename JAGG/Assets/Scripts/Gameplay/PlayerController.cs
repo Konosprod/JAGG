@@ -53,6 +53,11 @@ public class PlayerController : NetworkBehaviour {
 
     private bool firstShotLayerActivated = false;
 
+    // Handling reset of position when out-of-bounds
+    private float oobInitialResetTimer = 2.0f;
+    private float oobActualResetTimer;
+    private bool isOOB = false;
+
     private void Awake()
     {
         ui = FindObjectOfType<UIManager>();
@@ -73,6 +78,8 @@ public class PlayerController : NetworkBehaviour {
         if (isLocalPlayer)
         {
             ui.SetParList();
+
+            oobActualResetTimer = oobInitialResetTimer;
 
             if (gameObject.layer == 0)
                 CmdGetLayer();
@@ -188,6 +195,30 @@ public class PlayerController : NetworkBehaviour {
             {
                 CmdResetPosition(lastStopPos);
             }
+        }
+
+        // Handle oob
+        if(!Physics.Raycast(new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z), Vector3.down))
+        {
+            if (isOOB)
+            {
+                Debug.Log(oobActualResetTimer);
+                oobActualResetTimer -= Time.deltaTime;
+                if(oobActualResetTimer < 0f)
+                {
+                    isOOB = false;
+                    CmdResetPosition(lastStopPos);
+                }
+            }
+            else
+            {
+                isOOB = true;
+                oobActualResetTimer = oobInitialResetTimer;
+            }
+        }
+        else
+        {
+            isOOB = false;
         }
     }
 
