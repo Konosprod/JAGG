@@ -745,6 +745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+  doZoomOnCollide: 1
   distance: 5
   xSpeed: 175
   ySpeed: 75
@@ -753,6 +754,8 @@ MonoBehaviour:
   yMaxLimit: 85
   distanceMin: 0.4
   distanceMax: 7
+  shakingTime: 0.75
+  isShaking: 0
 --- !u!124 &240689142
 Behaviour:
   m_ObjectHideFlags: 0
@@ -2882,102 +2885,7 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 21258255}
-    m_Modifications:
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: -50
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_SizeDelta.x
-      value: 160
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_SizeDelta.y
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_AnchorMin.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_AnchorMax.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224021723459815264, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 114945764497940746, guid: 3513685b54e871147a7b3c810277c1dd,
-        type: 2}
-      propertyPath: m_Text
-      value: 
-      objectReference: {fileID: 0}
+    m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3513685b54e871147a7b3c810277c1dd, type: 2}
   m_IsPrefabParent: 0
@@ -3312,6 +3220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+  doZoomOnCollide: 1
   distance: 5
   xSpeed: 175
   ySpeed: 75
@@ -3320,6 +3229,8 @@ MonoBehaviour:
   yMaxLimit: 85
   distanceMin: 0.4
   distanceMax: 7
+  shakingTime: 0.75
+  isShaking: 0
 --- !u!1 &1793959284
 GameObject:
   m_ObjectHideFlags: 0
@@ -3716,7 +3627,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -70}
+  m_AnchoredPosition: {x: -20, y: -75}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2066737697
