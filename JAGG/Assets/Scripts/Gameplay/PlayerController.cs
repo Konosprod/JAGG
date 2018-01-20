@@ -202,7 +202,7 @@ public class PlayerController : NetworkBehaviour {
         {
             if (isOOB)
             {
-                Debug.Log(oobActualResetTimer);
+                //Debug.Log(oobActualResetTimer);
                 oobActualResetTimer -= Time.deltaTime;
                 if(oobActualResetTimer < 0f)
                 {
