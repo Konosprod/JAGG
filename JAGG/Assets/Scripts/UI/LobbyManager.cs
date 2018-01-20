@@ -120,9 +120,9 @@ public class LobbyManager : NetworkLobbyManager
         setUi = false;
         layers = new bool[4];
 
-        StartCoroutine(WaitBeforeExec(5, SendReturnToLobby));
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        SendReturnToLobby();
     }
 
     private IEnumerator WaitBeforeExec(float time, Func<bool> callback = null)
