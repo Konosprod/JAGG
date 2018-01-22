@@ -12,7 +12,18 @@ public class BallCamera : MonoBehaviour
 
     public float xSpeed = 120.0f;
     public float ySpeed = 120.0f;
+
+    public float xSpeedAccurate = 12.0f;
+    public float ySpeedAccurate = 12.0f;
+
+    private static float defaultXSpeed = 120.0f;
+    private static float defaultYSpeed = 120.0f;
+    private static float defaultXSpeedAcc = 12.0f;
+    private static float defaultYSpeedAcc = 12.0f;
+
     public float wheelSpeed = 5f;
+
+    private bool isAccurateMode = false;
 
     public float yMinLimit = -20f;
     public float yMaxLimit = 80f;
@@ -42,12 +53,33 @@ public class BallCamera : MonoBehaviour
         lastWheelDistance = distance;
     }
 
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.A))
+        {
+            isAccurateMode = !isAccurateMode;
+        }
+
+        xSpeed = defaultXSpeed * rescale(SettingsManager._instance.gameSettings.Sensibility);
+        ySpeed = defaultYSpeed * rescale(SettingsManager._instance.gameSettings.Sensibility);
+        xSpeedAccurate = defaultXSpeedAcc * rescale(SettingsManager._instance.gameSettings.AccurateSensibility);
+        ySpeedAccurate = defaultYSpeedAcc * rescale(SettingsManager._instance.gameSettings.AccurateSensibility);
+    }
+
+    private float rescale(float sens, float min = 0f, float max = 100f, float minAfterRescale = 0.5f, float maxAfterRescale = 1.5f)
+    {
+        return ( ((maxAfterRescale - minAfterRescale) * (sens - min)) / (max - min) ) + minAfterRescale;
+    }
+
     void LateUpdate()
     {
         if (target)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * Mathf.Pow(Mathf.Clamp(distance,1f,distanceMax), 1f / 3f) * Time.deltaTime;
-            y -= Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
+            float trueXSpeed = (isAccurateMode) ? xSpeedAccurate : xSpeed;
+            float trueYSpeed = (isAccurateMode) ? ySpeedAccurate : ySpeed;
+
+            x += Input.GetAxis("Mouse X") * trueXSpeed * Mathf.Pow(Mathf.Clamp(distance,1f,distanceMax), 1f / 3f) * Time.deltaTime;
+            y -= Input.GetAxis("Mouse Y") * trueYSpeed * Time.deltaTime;
 
             y = ClampAngle(y, yMinLimit, yMaxLimit);
 
