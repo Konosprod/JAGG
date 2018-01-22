@@ -173,6 +173,8 @@ public class LobbyManager : NetworkLobbyManager
                 if (lobbySlots[i] != null)
                     (lobbySlots[i] as LobbyPlayer).ResetStatus();
             }
+
+            playerManager.ClearPlayers();
         }
         else
         {
