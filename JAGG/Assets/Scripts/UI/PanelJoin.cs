@@ -4,8 +4,16 @@ using UnityEngine;
 public class PanelJoin : MonoBehaviour {
 
     public Button buttonJoin;
+    public Button buttonReturn;
     public IPInputField ipInput;
     public PortInputField portInput;
+    public Text statusText;
+
+    public float animationSpeed = 3f;
+    private float elapsed = 0f;
+
+    private bool isConnecting = false;
+    private int nbDots = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -14,6 +22,88 @@ public class PanelJoin : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        buttonJoin.interactable = (ipInput.isValid && portInput.isValid);
+  
+        if(isConnecting)
+        {
+            elapsed += Time.deltaTime;
+
+            if (elapsed >= animationSpeed)
+            {
+                string dots = "";
+
+                if (nbDots == 4)
+                {
+                    dots = "";
+                    nbDots = 0;
+                }
+                else
+                {
+                    for (int i = 0; i < nbDots; i++)
+                    {
+                        dots += ".";
+                    }
+
+                    nbDots++;
+                }
+
+                statusText.text = "Connecting" + dots;
+
+                elapsed = 0f;
+            }
+        }
+        else
+        {
+            buttonJoin.interactable = (ipInput.isValid && portInput.isValid);
+        }
 	}
+
+    void OnEnable()
+    {
+        statusText.text = "";
+        isConnecting = false;
+        nbDots = 0;
+        elapsed = 0f;
+
+        buttonReturn.interactable = true;
+
+        ipInput.inputField.interactable = true;
+        portInput.inputField.interactable = true;
+    }
+
+    public void Connecting()
+    {
+        buttonJoin.interactable = false;
+        buttonReturn.interactable = false;
+
+        ipInput.inputField.interactable = false;
+        portInput.inputField.interactable = false;
+
+        SetStatus("Connecting", Color.white);
+
+        isConnecting = true;
+    }
+
+    public void Error()
+    {
+        buttonJoin.interactable = true;
+        buttonReturn.interactable = true;
+
+        ipInput.inputField.interactable = true;
+        portInput.inputField.interactable = true;
+
+        SetStatus("Error while connecting the host", Color.red);
+
+        isConnecting = false;
+    }
+
+    public void SetStatus(string status, Color color)
+    {
+        statusText.color = color;
+        statusText.text = status;
+    }
+
+    public void SetActive(bool active)
+    {
+        gameObject.SetActive(active);
+    }
 }

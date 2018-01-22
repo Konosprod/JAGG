@@ -56,8 +56,9 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         if (isServer)
         {
             lobbyControls.EnableEditButton(isServer);
-            lobbyControls.lobbyPlayer = this;
         }
+
+        lobbyControls.lobbyPlayer = this;
     }
 
     public void UpdateSelectedScene(string value)

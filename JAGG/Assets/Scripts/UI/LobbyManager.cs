@@ -17,17 +17,18 @@ public class LobbyManager : NetworkLobbyManager
 
     [Header("UI")]
     public GameObject mainPanel;
-    public GameObject joinPanel;
+    public PanelJoin joinPanel;
     public GameObject lobbyPanel;
     public GameObject controlPanel;
     public InputField InputIP;
     public InputField joinPort;
     public InputField createPort;
 
+    [Header("Custom Map")]
+    public string customMapFile = "";
+
     [HideInInspector]
     public GameObject hole;
-
-    public string customMapFile = "";
 
     private int currentHole = 1;
 
@@ -211,12 +212,35 @@ public class LobbyManager : NetworkLobbyManager
         base.OnServerDisconnect(conn);
     }
 
+    public override void OnClientConnect(NetworkConnection conn)
+    {
+        mainPanel.SetActive(false);
+        joinPanel.SetActive(false);
+        lobbyPanel.SetActive(true);
+        controlPanel.SetActive(true);
+        base.OnClientConnect(conn);
+    }
+
+    public override void OnServerConnect(NetworkConnection conn)
+    {
+        base.OnServerConnect(conn);
+    }
 
     public override void OnClientDisconnect(NetworkConnection conn)
     {
-        playerManager.RemovePlayer(conn.connectionId);
-        mainPanel.SetActive(true);
-        joinPanel.SetActive(false);
+        Debug.Log(conn);
+
+        if (conn.lastError == NetworkError.Ok)
+        {
+            playerManager.RemovePlayer(conn.connectionId);
+        }
+        else
+        {
+            joinPanel.Error();
+        }
+
+        mainPanel.SetActive(false);
+        joinPanel.SetActive(true);
         lobbyPanel.SetActive(false);
         controlPanel.SetActive(false);
 
@@ -267,8 +291,9 @@ public class LobbyManager : NetworkLobbyManager
             Debug.LogError("Overflow exception");
         }
         this.StartClient();
-    }
 
+        joinPanel.Connecting();
+    }
 
     private int getNextLayer()
     {
