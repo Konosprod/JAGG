@@ -1151,6 +1151,8 @@ MonoBehaviour:
   distance: 5
   xSpeed: 175
   ySpeed: 75
+  xSpeedAccurate: 12
+  ySpeedAccurate: 12
   wheelSpeed: 5
   yMinLimit: 0
   yMaxLimit: 85
@@ -3089,7 +3091,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4681678896294642, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
       propertyPath: m_RootOrder
-      value: 31
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 4681678896294642, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -3099,6 +3101,14 @@ Prefab:
         type: 2}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309144083793778, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
+      propertyPath: m_RootOrder
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4488226675217284, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
+      propertyPath: m_RootOrder
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
@@ -7760,6 +7770,8 @@ MonoBehaviour:
   distance: 5
   xSpeed: 175
   ySpeed: 75
+  xSpeedAccurate: 12
+  ySpeedAccurate: 12
   wheelSpeed: 5
   yMinLimit: 0
   yMaxLimit: 85
