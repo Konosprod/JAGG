@@ -7,4 +7,6 @@
     public int Resolution;
     public float BGMAudioVolume;
     public float SFXAudioVolume;
+    public float Sensibility;
+    public float AccurateSensibility;
 }

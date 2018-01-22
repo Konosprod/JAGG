@@ -15,13 +15,15 @@ public class SettingsManager : MonoBehaviour {
     public Dropdown vsyncDropdown;
     public Slider BGMvolumeSlider;
     public Slider SFXvolumeSlider;
+    public Slider SensibilitySlider;
+    public Slider AccurateSensibilitySlider;
 
     public Button backButton;
     private GameObject returnPanel;
     private UnityAction backCallback;
 
     private Resolution[] resolutions;
-    private GameSettings gameSettings;
+    public GameSettings gameSettings;
 
     private SoundManager soundManager;
 
@@ -67,6 +69,12 @@ public class SettingsManager : MonoBehaviour {
 
         SFXvolumeSlider.onValueChanged.RemoveAllListeners();
         SFXvolumeSlider.onValueChanged.AddListener(OnSFXVolumeChange);
+
+        SensibilitySlider.onValueChanged.RemoveAllListeners();
+        SensibilitySlider.onValueChanged.AddListener(OnSensibilityChanged);
+
+        AccurateSensibilitySlider.onValueChanged.RemoveAllListeners();
+        AccurateSensibilitySlider.onValueChanged.AddListener(OnAccurateSensibilityChanged);
 
         resolutionsDropdown.ClearOptions();
 
@@ -132,6 +140,17 @@ public class SettingsManager : MonoBehaviour {
             soundManager.MuteSFX();
     }
 
+    public void OnSensibilityChanged(float newSensibility)
+    {
+        gameSettings.Sensibility = newSensibility;
+    }
+
+    public void OnAccurateSensibilityChanged(float newAccurateSensibility)
+    {
+        gameSettings.AccurateSensibility = newAccurateSensibility;
+    }
+
+
     public void LoadSettings()
     {
         try
@@ -145,6 +164,8 @@ public class SettingsManager : MonoBehaviour {
             vsyncDropdown.value = gameSettings.VSync;
             BGMvolumeSlider.value = gameSettings.BGMAudioVolume;
             SFXvolumeSlider.value = gameSettings.SFXAudioVolume;
+            SensibilitySlider.value = gameSettings.Sensibility;
+            AccurateSensibilitySlider.value = gameSettings.AccurateSensibility;
         }
         catch(Exception)
         {
@@ -155,6 +176,8 @@ public class SettingsManager : MonoBehaviour {
             vsyncDropdown.value = 0;
             BGMvolumeSlider.value = 1f;
             SFXvolumeSlider.value = 1f;
+            SensibilitySlider.value = 100f;
+            AccurateSensibilitySlider.value = 100f;
 
         }
     }
