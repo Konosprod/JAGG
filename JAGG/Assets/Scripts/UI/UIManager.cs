@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour {
 
     public Text textShots;
     public Text notificationText;
+    public GameObject notificationPanel;
 
     [Header("Slider")]
     public Slider slider;
@@ -161,10 +162,12 @@ public class UIManager : MonoBehaviour {
 
     public IEnumerator ShowNotification(string message, float time, Action callback = null)
     {
+        notificationPanel.SetActive(true);
         notificationText.text = message;
         notificationText.enabled = true;
         yield return new WaitForSeconds(time);
         notificationText.enabled = false;
+        notificationPanel.SetActive(false);
 
         if (callback != null)
             callback();

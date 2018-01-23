@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -102,11 +103,8 @@ public class CustomLevelLoader : MonoBehaviour {
         */
     }
 
-    void Start () {
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update () {
 		
 	}
 }
