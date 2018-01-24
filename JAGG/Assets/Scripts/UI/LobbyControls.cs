@@ -9,13 +9,16 @@ public class LobbyControls : NetworkBehaviour {
     public Transform contentPanel;
     public GameObject prefabButton;
 
-
+    [Header("UI")]
     public Button editButton;
     public Button returnButton;
     public Button selectButton;
+    public Button rulesButton;
+
     public Text labelLevelName;
     public Text lobbyLevelName;
 
+    [Header("Game Logic")]
     public string selectedScene;
 
     [SyncVar(hook ="OnSelectedSceneChange")]
@@ -81,6 +84,11 @@ public class LobbyControls : NetworkBehaviour {
     public void EnableEditButton(bool enable)
     {
         editButton.gameObject.SetActive(enable);
+    }
+
+    public void EnableRulesButton(bool enable)
+    {
+        rulesButton.gameObject.SetActive(enable);
     }
 
     public void OnReturnButtonClick()

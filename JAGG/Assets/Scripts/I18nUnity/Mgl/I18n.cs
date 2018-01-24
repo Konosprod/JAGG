@@ -17,7 +17,7 @@ namespace Mgl
 
         private static string _localePath = "Locales/";
 
-        private static bool _isLoggingMissing = true;
+        private static bool _isLoggingMissing = false;
 
         static I18n()
         {

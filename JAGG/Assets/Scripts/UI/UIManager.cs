@@ -28,8 +28,6 @@ public class UIManager : MonoBehaviour {
     public Button buttonQuit;
     public Button buttonReturn;
 
-    private UnityAction returnCallback;
-
     private bool slideUp = false;
     private PlayerManager playerManager;
 
@@ -43,13 +41,7 @@ public class UIManager : MonoBehaviour {
 
     void Update()
     {
-        if(Input.GetKeyUp(KeyCode.Escape))
-        {
-            if (returnCallback != null)
-                returnCallback.Invoke();
 
-            HidePauseMenu();
-        }
     }
 
     public void UpdateSlider()
@@ -116,20 +108,6 @@ public class UIManager : MonoBehaviour {
             }
 
             scorePlayers[i].SetTotal(total);
-
-            /*
-            string text = "";
-            int total = 0;
-
-            for(int j = 0; j < scores[i].Count; j++)
-            {
-                text += scores[i][j].ToString() + " ";
-                total += scores[i][j];
-            }
-
-            scorePlayers[i].GetComponentsInChildren<Text>()[1].text = text;
-            scorePlayers[i].GetComponentsInChildren<Text>()[2].text = total.ToString();
-            */
         }
     }
 
@@ -141,15 +119,13 @@ public class UIManager : MonoBehaviour {
         panelPause.SetActive(false);
     }
 
-    public void ShowPause(UnityAction returnCallback = null, UnityAction quitCallback = null)
+    public void ShowPause(UnityAction quitCallback = null)
     {
         panelPause.SetActive(true);
-        this.returnCallback = returnCallback;
 
         SettingsManager._instance.SetBackSettings(panelPause);
 
         buttonReturn.onClick.RemoveAllListeners();
-        buttonReturn.onClick.AddListener(returnCallback);
         buttonReturn.onClick.AddListener(HidePauseMenu);
 
         buttonQuit.onClick.RemoveAllListeners();
