@@ -33,7 +33,7 @@ public class PlayerController : NetworkBehaviour {
     private UIManager ui;
 
     private bool isShooting = false;
-
+    private bool isPaused = false;
     private bool isOver = false;
 
     private Vector3 serverPos = Vector3.zero;
@@ -91,21 +91,28 @@ public class PlayerController : NetworkBehaviour {
     {
         if (Input.GetKeyUp(KeyCode.Escape))
         {
-            canShoot = false;
-            ui.ShowPause(delegate ()
+            if (!isPaused)
             {
-                canShoot = true;
-            },
-            delegate ()
-            {
-                if (isServer)
-                    lobbyManager.StopHost();
-                else
-                    lobbyManager.StopClient();
+                canShoot = false;
+                ui.ShowPause(
+                    delegate ()
+                    {
+                        if (isServer)
+                            lobbyManager.StopHost();
+                        else
+                            lobbyManager.StopClient();
 
-                lobbyManager.ReturnToLobby();
+                        lobbyManager.ReturnToLobby();
+                    }
+                );
+                isPaused = true;
             }
-            );
+            else
+            {
+                ui.HidePauseMenu();
+                isPaused = false;
+                canShoot = true;
+            }
         }
 
 
@@ -119,7 +126,7 @@ public class PlayerController : NetworkBehaviour {
                 // Update the last position where the ball stopped
                 lastStopPos = transform.position;
 
-                int maxShot = lobbyManager.hole.GetComponentInChildren<LevelProperties>().maxShot;
+                int maxShot = lobbyManager.GetMaxShot();
                 if (shots == maxShot)
                 {
                     CmdOutOfStrokes();

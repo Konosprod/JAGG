@@ -39,6 +39,7 @@ public class LobbyManager : NetworkLobbyManager
 
     private const int FirstLayer = 9;
     private bool[] layers = new bool[4];
+    public CustomLevel ruleSet;
 
     // Use this for initialization
     void Start()
@@ -75,7 +76,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public void TriggerTimeout()
     {
-        playerManager.TriggerTimeout(hole.GetComponentInChildren<LevelProperties>().maxShot);
+        playerManager.TriggerTimeout(GetMaxShot());
         //playerManager.ShowPlayersScores();
         SpawnNextPoint();
     }
@@ -93,7 +94,7 @@ public class LobbyManager : NetworkLobbyManager
             currentHole++;
             hole = GameObject.Find("Hole " + currentHole.ToString());
 
-            gameTimer.StartTimer(hole.GetComponentInChildren<LevelProperties>().maxTime);
+            gameTimer.StartTimer(GetMaxTime());
         }
         else
         {
@@ -110,6 +111,16 @@ public class LobbyManager : NetworkLobbyManager
     public int GetPar()
     {
         return hole.GetComponentInChildren<LevelProperties>().par;
+    }
+
+    public int GetMaxShot()
+    {
+        return ruleSet.holes[currentHole-1].properties.maxShot;
+    }
+
+    public float GetMaxTime()
+    {
+        return ruleSet.holes[currentHole-1].properties.maxTime;
     }
 
     private void EndOfGame()
@@ -147,7 +158,7 @@ public class LobbyManager : NetworkLobbyManager
             isStarted = true;
             gameTimer = GameObject.Find("GameTimer").GetComponent<GameTimer>();
 
-            gameTimer.StartTimer(hole.GetComponentInChildren<LevelProperties>().maxTime);
+            gameTimer.StartTimer(GetMaxTime());
 
         }
         else

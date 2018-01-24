@@ -56,6 +56,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         if (isServer)
         {
             lobbyControls.EnableEditButton(isServer);
+            lobbyControls.EnableRulesButton(isServer);
         }
 
         lobbyControls.lobbyPlayer = this;
