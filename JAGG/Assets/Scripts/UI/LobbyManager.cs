@@ -78,7 +78,7 @@ public class LobbyManager : NetworkLobbyManager
     {
         playerManager.TriggerTimeout(GetMaxShot());
         //playerManager.ShowPlayersScores();
-        SpawnNextPoint();
+        //SpawnNextPoint();
     }
 
     public void SpawnNextPoint()

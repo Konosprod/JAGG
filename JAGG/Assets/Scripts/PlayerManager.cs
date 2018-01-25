@@ -132,10 +132,16 @@ public class PlayerManager : NetworkBehaviour {
             {
                 pc.score.Add(maxShot + 2);
                 pc.shots = 0;
+                pc.SetDone();
             }
         }
 
+        /*
         ResetAllPlayers();
+
+        ShowPlayersScores();
+
+        Invoke("TriggerSpawn", 5)*/
     }
 
     private void TriggerSpawn()
