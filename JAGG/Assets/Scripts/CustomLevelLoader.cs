@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -22,6 +23,9 @@ public class CustomLevelLoader : MonoBehaviour {
 
         CustomLevel level = JsonUtility.FromJson<CustomLevel>(json);
 
+        List<GameObject> spawnPositions = new List<GameObject>();
+
+        //
         for (int i = 0; i < level.holes.Count; i++)
         {
             Hole h = level.holes[i];
@@ -33,6 +37,7 @@ public class CustomLevelLoader : MonoBehaviour {
             startPoint.transform.SetParent(hole.transform);
 
             startPoint.transform.position = h.properties.spawnPoint;
+            spawnPositions.Add(startPoint);
 
             //First hole needs a network start position
             if (i == 0)
@@ -55,51 +60,17 @@ public class CustomLevelLoader : MonoBehaviour {
             levelProperties.maxShot = h.properties.maxShot;
             levelProperties.maxTime = h.properties.maxTime;
             levelProperties.par = h.properties.par;
-
-            //Last holes needs end of game flag
-            if(i == level.holes.Count - 1)
-                levelProperties.nextSpawnPoint = endOfGame.transform;
         }
 
-        /*
-        CustomLevel level = new CustomLevel
+        for (int i = 1; i < holes.transform.childCount; i++)
         {
-            holes = new System.Collections.Generic.List<Hole>(),
-            author = "test",
-            name = "test"
-        };
+            holes.transform.GetChild(i-1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = spawnPositions[i].transform;
 
-        Hole h = new Hole
-        {
-            pieces = new System.Collections.Generic.List<Piece>(),
-            properties = new HoleInfo()
-        };
-
-        h.properties.maxShot = 6;
-        h.properties.maxTime = 60;
-        h.properties.par = 2;
-        h.properties.spawnPoint = new Vector3(0, 0.2f, 0);
-
-        h.pieces.Add(new Piece {
-            id = "Start",
-            rotation = new Vector3(0, 0, 0),
-            position = new Vector3(0, 0, 0),
-            scale = new Vector3(1, 1, 1)
-        });
-
-        h.pieces.Add(new Piece {
-            id = "HoleEnd",
-            rotation = new Vector3(0, 270, 0),
-            position = new Vector3(0, 0, 2),
-            scale = new Vector3(1, 1, 1)
-        });
-
-        level.holes.Add(h);
-
-        string json = JsonUtility.ToJson(level, true);
-
-        File.WriteAllText(Path.Combine(Path.Combine(Application.persistentDataPath, "levels"), "test.json"), json);
-        */
+            if (i == level.holes.Count - 1)
+            {
+                holes.transform.GetChild(i).GetComponentInChildren<LevelProperties>().nextSpawnPoint = endOfGame.transform;
+            }
+        }
     }
 
     // Update is called once per frame
