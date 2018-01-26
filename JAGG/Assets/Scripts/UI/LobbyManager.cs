@@ -40,6 +40,9 @@ public class LobbyManager : NetworkLobbyManager
     private const int FirstLayer = 9;
     private bool[] layers = new bool[4];
     public CustomLevel ruleSet;
+    
+    //0 = normal, 1 = low, 2 = high
+    public int gravity;
 
     // Use this for initialization
     void Start()
@@ -123,7 +126,7 @@ public class LobbyManager : NetworkLobbyManager
 
     public float GetMaxTime()
     {
-        if (ruleSet.holes.Count == 0)
+        if (ruleSet.holes != null && ruleSet.holes.Count == 0)
             return hole.GetComponentInChildren<LevelProperties>().maxTime;
         else
             return ruleSet.holes[currentHole-1].properties.maxTime;
@@ -141,7 +144,7 @@ public class LobbyManager : NetworkLobbyManager
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        //NetworkManager.singleton.ServerChangeScene("Victory");
+        NetworkManager.singleton.ServerChangeScene("Victory");
 
         SendReturnToLobby();
     }

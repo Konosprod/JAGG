@@ -296,10 +296,28 @@ public class CustomPhysics : NetworkBehaviour {
         if (!onEvenGround)
         {
             // Can use custom gravity to obtain various results
-            //Vector3 grav = new Vector3(0, -1.622f, 0);
+            Vector3 grav = new Vector3();
+
+            //Normal = 0; Low = 1; High = 2
+            if (LobbyManager._instance.gravity == 0)
+            {
+                grav = Physics.gravity;
+            }
+            else if (LobbyManager._instance.gravity == 1)
+            {
+                grav = new Vector3(0, Physics.gravity.y + 7, 0);
+            }
+            else if (LobbyManager._instance.gravity == 2)
+            {
+                grav = new Vector3(0, Physics.gravity.y - 7, 0);
+            }
+            else
+            {
+                grav = Physics.gravity;
+            }
 
             // Apply gravity when mid-air
-            rb.AddForce(Physics.gravity/*grav*/);
+            rb.AddForce(grav);
         }
 
         if(frameHit < i)

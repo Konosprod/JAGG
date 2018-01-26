@@ -7,6 +7,8 @@ public class PanelRulesEdit : MonoBehaviour {
     [Header("UI")]
     public Transform contentPanel;
     public GameObject holeInfoPrefab;
+    public Toggle highgravityToggle;
+    public Toggle lowGravityToggle;
 
     [Header("Game Logic")]
     public LobbyManager lobbyManager;
@@ -62,6 +64,19 @@ public class PanelRulesEdit : MonoBehaviour {
             level.holes[i].properties.maxTime = int.Parse(inputs[0].text);
             level.holes[i].properties.maxShot = int.Parse(inputs[1].text);
         }
+
+        if(highgravityToggle.group.AnyTogglesOn())
+        {
+            if (highgravityToggle.isOn)
+                lobbyManager.gravity = 2;
+            else
+                lobbyManager.gravity = 1;
+        }
+        else
+        {
+            lobbyManager.gravity = 0;
+        }
+        
 
         lobbyManager.ruleSet = level;
     }

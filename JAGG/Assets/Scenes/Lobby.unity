@@ -922,6 +922,7 @@ MonoBehaviour:
     name: 
     author: 
     holes: []
+  gravity: 0
 --- !u!114 &175604008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2845,6 +2846,8 @@ MonoBehaviour:
   contentPanel: {fileID: 1582376503}
   holeInfoPrefab: {fileID: 1685516565283130, guid: 49d0c70d687b55b4a8b53580cd3bef64,
     type: 2}
+  highgravityToggle: {fileID: 1298870481}
+  lowGravityToggle: {fileID: 1168882910}
   lobbyManager: {fileID: 175604007}
 --- !u!1 &598010569
 GameObject:
