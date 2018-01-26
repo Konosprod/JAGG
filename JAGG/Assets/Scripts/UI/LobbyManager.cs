@@ -115,12 +115,18 @@ public class LobbyManager : NetworkLobbyManager
 
     public int GetMaxShot()
     {
-        return ruleSet.holes[currentHole-1].properties.maxShot;
+        if (ruleSet.holes.Count == 0)
+            return hole.GetComponentInChildren<LevelProperties>().maxShot;
+        else
+            return ruleSet.holes[currentHole-1].properties.maxShot;
     }
 
     public float GetMaxTime()
     {
-        return ruleSet.holes[currentHole-1].properties.maxTime;
+        if (ruleSet.holes.Count == 0)
+            return hole.GetComponentInChildren<LevelProperties>().maxTime;
+        else
+            return ruleSet.holes[currentHole-1].properties.maxTime;
     }
 
     private void EndOfGame()
