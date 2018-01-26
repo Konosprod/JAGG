@@ -65,12 +65,9 @@ public class CustomLevelLoader : MonoBehaviour {
         for (int i = 1; i < holes.transform.childCount; i++)
         {
             holes.transform.GetChild(i-1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = spawnPositions[i].transform;
-
-            if (i == level.holes.Count - 1)
-            {
-                holes.transform.GetChild(i).GetComponentInChildren<LevelProperties>().nextSpawnPoint = endOfGame.transform;
-            }
         }
+        holes.transform.GetChild(level.holes.Count-1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = endOfGame.transform;
+
     }
 
     // Update is called once per frame
