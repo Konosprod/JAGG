@@ -140,6 +140,9 @@ public class LobbyManager : NetworkLobbyManager
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        //NetworkManager.singleton.ServerChangeScene("Victory");
+
         SendReturnToLobby();
     }
 
@@ -158,7 +161,7 @@ public class LobbyManager : NetworkLobbyManager
     {
         base.OnLobbyServerSceneChanged(sceneName);
 
-        if (sceneName != lobbyScene)
+        if (sceneName != lobbyScene && sceneName != "Victory")
         {
             playerManager.isStarted = true;
             isStarted = true;
@@ -167,12 +170,19 @@ public class LobbyManager : NetworkLobbyManager
             gameTimer.StartTimer(GetMaxTime());
 
         }
-        else
+        else if(sceneName == lobbyScene)
         {
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(true);
             joinPanel.SetActive(false);
             controlPanel.SetActive(true);
+        }
+        else
+        {
+            mainPanel.SetActive(false);
+            lobbyPanel.SetActive(false);
+            joinPanel.SetActive(false);
+            controlPanel.SetActive(false);
         }
     }
 
@@ -193,13 +203,19 @@ public class LobbyManager : NetworkLobbyManager
 
             playerManager.ClearPlayers();
         }
+        else if(SceneManager.GetSceneAt(0).name == "Victory")
+        {
+            mainPanel.SetActive(false);
+            lobbyPanel.SetActive(false);
+            joinPanel.SetActive(false);
+            controlPanel.SetActive(false);
+        }
         else
         {
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(false);
             joinPanel.SetActive(false);
             controlPanel.SetActive(false);
-
         }
     }
 
