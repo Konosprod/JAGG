@@ -51,6 +51,14 @@ public class CustomLevelLoader : MonoBehaviour {
                 o.transform.position = p.position;
                 o.transform.localEulerAngles = p.rotation;
                 o.transform.localScale = p.scale;
+
+                if(p.id == "BoosterPad")
+                {
+                    BoosterPad bp = o.GetComponent<BoosterPad>();
+
+                    bp.addFactor = p.addFactor;
+                    bp.multFactor = p.multFactor;
+                }
             }
 
             GameObject goLevelProp = GameObject.Instantiate(Resources.Load("Prefabs/Level Properties") as GameObject, hole.transform);

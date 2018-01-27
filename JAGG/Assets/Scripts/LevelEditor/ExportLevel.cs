@@ -9,7 +9,7 @@ public class ExportLevel : MonoBehaviour {
 
     void Start()
     {
-        Debug.Log(CreateCustomLevel());
+        //Debug.Log(CreateCustomLevel());
     }
 
     public string CreateCustomLevel(string name = "", string author = "")
@@ -43,6 +43,7 @@ public class ExportLevel : MonoBehaviour {
 
             foreach (TerrainPiece piece in pieces)
             {
+
                 Piece p = new Piece
                 {
                     id = piece.id,
@@ -50,6 +51,12 @@ public class ExportLevel : MonoBehaviour {
                     rotation = piece.gameObject.transform.eulerAngles,
                     scale = piece.gameObject.transform.localScale
                 };
+
+                if(piece.id == "BoosterPad")
+                {
+                    p.addFactor = piece.gameObject.GetComponent<BoosterPad>().addFactor;
+                    p.multFactor = piece.gameObject.GetComponent<BoosterPad>().multFactor;
+                }
 
                 h.pieces.Add(p);
             }

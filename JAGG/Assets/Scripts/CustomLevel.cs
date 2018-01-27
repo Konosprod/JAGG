@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 [Serializable]
 public class HoleInfo
 {
@@ -25,11 +26,15 @@ public class Piece
     public Vector3 rotation;
     public Vector3 position;
     public Vector3 scale;
+    public float multFactor;
+    public float addFactor;
 }
 
 [Serializable]
-public class CustomLevel {
+public class CustomLevel
+{
     public string name;
     public string author;
     public List<Hole> holes;
 }
+
