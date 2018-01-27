@@ -8,7 +8,10 @@ public class MainMenuHandler : MonoBehaviour
 {
     public Button btn_Quit;
     public Button btn_Start;
-
+    public Fader fader;
+    public CanvasGroup canvasGroup;
+    
+    [HideInInspector]
     public int sceneIndex;
 
     private SoundManager soundManager;
@@ -17,12 +20,25 @@ public class MainMenuHandler : MonoBehaviour
     void Start()
     {
         btn_Quit.onClick.AddListener(Quit);
+        btn_Start.onClick.AddListener(FadeOutMenu);
+
         soundManager = SoundManager._instance;
 
         soundManager.PlayMusic(SoundType.MainMenu);
 
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
+    }
+
+    void OnEnable()
+    {
+        fader.FadeIn(0.5f, delegate () { canvasGroup.blocksRaycasts = true; });
+    }
+
+    private void FadeOutMenu()
+    {
+        canvasGroup.blocksRaycasts = false;
+        fader.FadeOut();
     }
 
     public void Quit()

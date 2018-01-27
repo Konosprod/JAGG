@@ -52,6 +52,8 @@ public class LobbyManager : NetworkLobbyManager
 
         if (EndOfGamePos == null)
             Debug.Log("NEED ENDOFGAMEPREFAB");
+
+        mainPanel.GetComponent<Fader>().FadeIn(0.2f, delegate() { mainPanel.GetComponent<CanvasGroup>().blocksRaycasts = true; });
     }
 
     // Update is called once per frame
@@ -188,6 +190,10 @@ public class LobbyManager : NetworkLobbyManager
         else if(sceneName == lobbyScene)
         {
             isStarted = false;
+
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(true);
             joinPanel.SetActive(false);
@@ -208,6 +214,9 @@ public class LobbyManager : NetworkLobbyManager
 
         if (SceneManager.GetSceneAt(0).name == lobbyScene)
         {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+
             lobbyPanel.SetActive(true);
             controlPanel.SetActive(true);
             
