@@ -234,6 +234,20 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
+    private void OnApplicationFocus(bool focus)
+    {
+        if(isPaused)
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
     public override void OnStartLocalPlayer()
     {
         GameObject guiCam = GameObject.FindWithTag("GUICamera");

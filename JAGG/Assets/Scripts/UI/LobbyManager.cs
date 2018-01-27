@@ -67,6 +67,20 @@ public class LobbyManager : NetworkLobbyManager
         }
     }
 
+    private void OnApplicationFocus(bool focus)
+    {
+        if (!isStarted)
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
     public void ReturnToLobby()
     {
         SceneManager.LoadScene("Lobby");
@@ -142,7 +156,7 @@ public class LobbyManager : NetworkLobbyManager
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
 
-        NetworkManager.singleton.ServerChangeScene("Victory");
+        //NetworkManager.singleton.ServerChangeScene("Victory");
 
         SendReturnToLobby();
     }
@@ -173,6 +187,7 @@ public class LobbyManager : NetworkLobbyManager
         }
         else if(sceneName == lobbyScene)
         {
+            isStarted = false;
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(true);
             joinPanel.SetActive(false);
@@ -213,6 +228,7 @@ public class LobbyManager : NetworkLobbyManager
         }
         else
         {
+            isStarted = false;
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(false);
             joinPanel.SetActive(false);

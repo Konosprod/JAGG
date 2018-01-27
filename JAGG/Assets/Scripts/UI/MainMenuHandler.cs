@@ -34,6 +34,12 @@ public class MainMenuHandler : MonoBehaviour
 #endif
     }
 
+    private void OnApplicationFocus(bool focus)
+    {
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
+    }
+
     public void LoadSceneByName(string name)
     {
         SceneManager.LoadScene(name);
