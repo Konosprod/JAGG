@@ -12,11 +12,15 @@ public class CustomPhysics : NetworkBehaviour {
     private Vector3 lastWallHit;
     private int frameHit;
 
+
+    private int layerWall;
+
     //private static float gravity = 9.81f;
     Quaternion serverRota = Quaternion.identity;
 
 	// Use this for initialization
 	void Start () {
+        layerWall = LayerMask.NameToLayer("Wall");
         i = frameHit =  0;
         lastWallHit = new Vector3(Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
 	}
@@ -94,11 +98,11 @@ public class CustomPhysics : NetworkBehaviour {
         RaycastHit hitTopLeft;
 
 
-        bool forward = Physics.Linecast(transform.position, transform.position + bestForwardCheck, out hitForward, 1 << 8);
-        bool right = Physics.Linecast(transform.position, transform.position + (new Vector3(rb.velocity.normalized.z, 0, -rb.velocity.normalized.x)) / 20f, out hitRight, 1 << 8);
-        bool left = Physics.Linecast(transform.position, transform.position + (new Vector3(-rb.velocity.normalized.z, 0, rb.velocity.normalized.x)) / 20f, out hitLeft, 1 << 8);
-        bool topRight = Physics.Linecast(transform.position, transform.position + topRightPos, out hitTopRight, 1 << 8);
-        bool topLeft = Physics.Linecast(transform.position, transform.position + topLeftPos, out hitTopLeft, 1 << 8);
+        bool forward = Physics.Linecast(transform.position, transform.position + bestForwardCheck, out hitForward, 1 << layerWall);
+        bool right = Physics.Linecast(transform.position, transform.position + (new Vector3(rb.velocity.normalized.z, 0, -rb.velocity.normalized.x)) / 20f, out hitRight, 1 << layerWall);
+        bool left = Physics.Linecast(transform.position, transform.position + (new Vector3(-rb.velocity.normalized.z, 0, rb.velocity.normalized.x)) / 20f, out hitLeft, 1 << layerWall);
+        bool topRight = Physics.Linecast(transform.position, transform.position + topRightPos, out hitTopRight, 1 << layerWall);
+        bool topLeft = Physics.Linecast(transform.position, transform.position + topLeftPos, out hitTopLeft, 1 << layerWall);
 
         bool collision = forward || right || left || topRight || topLeft;
 
@@ -253,7 +257,7 @@ public class CustomPhysics : NetworkBehaviour {
             //Debug.DrawLine(transform.position, transform.position + bestDownwardCheck, Color.black, 10f);
 
             RaycastHit hitDownward;
-            bool downward = Physics.Linecast(transform.position, transform.position + bestDownwardCheck, out hitDownward, 1 << 8);
+            bool downward = Physics.Linecast(transform.position, transform.position + bestDownwardCheck, out hitDownward, 1 << layerWall);
 
             if(downward)
             {
