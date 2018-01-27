@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.Networking;
-using UnityEngine.Networking.Match;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
@@ -73,7 +71,7 @@ public class LobbyManager : NetworkLobbyManager
     {
         SceneManager.LoadScene("Lobby");
         mainPanel.SetActive(true);
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
     }
 
@@ -141,7 +139,7 @@ public class LobbyManager : NetworkLobbyManager
         setUi = false;
         layers = new bool[4];
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
 
         NetworkManager.singleton.ServerChangeScene("Victory");
@@ -282,7 +280,7 @@ public class LobbyManager : NetworkLobbyManager
         lobbyPanel.SetActive(false);
         controlPanel.SetActive(false);
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
 
         base.OnClientDisconnect(conn);

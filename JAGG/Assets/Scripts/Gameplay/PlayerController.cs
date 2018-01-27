@@ -95,6 +95,11 @@ public class PlayerController : NetworkBehaviour {
             {
                 canShoot = false;
                 ui.ShowPause(
+                    delegate()
+                    {
+                        isPaused = false;
+                        canShoot = true;
+                    },
                     delegate ()
                     {
                         if (isServer)

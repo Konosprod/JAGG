@@ -119,7 +119,7 @@ public class UIManager : MonoBehaviour {
         panelPause.SetActive(false);
     }
 
-    public void ShowPause(UnityAction quitCallback = null)
+    public void ShowPause(UnityAction returnCallback = null, UnityAction quitCallback = null)
     {
         panelPause.SetActive(true);
 
@@ -127,6 +127,7 @@ public class UIManager : MonoBehaviour {
 
         buttonReturn.onClick.RemoveAllListeners();
         buttonReturn.onClick.AddListener(HidePauseMenu);
+        buttonReturn.onClick.AddListener(returnCallback);
 
         buttonQuit.onClick.RemoveAllListeners();
         buttonQuit.onClick.AddListener(HidePauseMenu);

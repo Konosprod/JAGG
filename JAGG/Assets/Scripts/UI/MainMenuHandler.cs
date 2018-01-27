@@ -21,7 +21,7 @@ public class MainMenuHandler : MonoBehaviour
 
         soundManager.PlayMusic(SoundType.MainMenu);
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
     }
 
