@@ -49,7 +49,8 @@ namespace cakeslice
         }
         private OutlineEffect() { }
 
-        private readonly LinkedSet<Outline> outlines = new LinkedSet<Outline>();
+        private readonly LinkedSet<OutlineRend> outlines = new LinkedSet<OutlineRend>();
+        
 
         [Range(1.0f, 6.0f)]
         public float lineThickness = 1.25f;
@@ -173,7 +174,7 @@ namespace cakeslice
             commandBuffer.Clear();
             if(outlines != null)
             {
-                foreach(Outline outline in outlines)
+                foreach(OutlineRend outline in outlines)
                 {
                     LayerMask l = sourceCamera.cullingMask;
 
@@ -242,9 +243,9 @@ namespace cakeslice
 
         private void OnEnable()
         {
-            Outline[] o = FindObjectsOfType<Outline>();
+            OutlineRend[] o = FindObjectsOfType<OutlineRend>();
 
-            foreach(Outline oL in o)
+            foreach(OutlineRend oL in o)
             {
                 oL.enabled = false;
                 oL.enabled = true;
@@ -392,13 +393,13 @@ namespace cakeslice
 #endif
         }
 
-        public void AddOutline(Outline outline)
+        public void AddOutline(OutlineRend outline)
         {
             if(!outlines.Contains(outline))
                 outlines.Add(outline);
         }
 
-        public void RemoveOutline(Outline outline)
+        public void RemoveOutline(OutlineRend outline)
         {
             if(outlines.Contains(outline))
                 outlines.Remove(outline);

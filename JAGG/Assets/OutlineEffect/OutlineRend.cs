@@ -30,7 +30,7 @@ namespace cakeslice
 {
     [ExecuteInEditMode]
     [RequireComponent(typeof(Renderer))]
-    public class Outline : MonoBehaviour
+    public class OutlineRend : MonoBehaviour
     {
         public Renderer Renderer { get; private set; }
 
