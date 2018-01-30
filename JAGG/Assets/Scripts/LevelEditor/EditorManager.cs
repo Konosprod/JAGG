@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class EditorManager : MonoBehaviour {
+public class EditorManager : MonoBehaviour
+{
 
     private int layerFloor;
     private int layerWall;
@@ -23,15 +24,16 @@ public class EditorManager : MonoBehaviour {
     private static GameObject[] prefabs;
 
     private GameObject currentPiece = null; // Piece that the player wants to place
-    private List<GameObject> selectedPiecesInPlace; // Piece that was placed that the player wants to edit
+    public static List<GameObject> selectedPiecesInPlace; // Piece that was placed that the player wants to edit
 
     private List<GameObject> piecesInPlace; // List of pieces placed
 
     private UndoRedoStack<CommandParams> undoRedoStack = new UndoRedoStack<CommandParams>();
     private CommandParams currParams = null;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         piecesInPlace = new List<GameObject>();
         selectedPiecesInPlace = new List<GameObject>();
 
@@ -62,9 +64,10 @@ public class EditorManager : MonoBehaviour {
         layerBoosterPad = LayerMask.NameToLayer("BoosterPad");
         layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerBoosterPad);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
 
         // Handle ctrl + Z
         // Unity editor will catch the ctrl + Z so Z alone will be the input for the editor
@@ -118,7 +121,7 @@ public class EditorManager : MonoBehaviour {
                         // If you left-click and the position is free, place the piece
                         if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
                         {
-                            currParams = undoRedoStack.Do(new AddPieceCommand(new CommandParams(currentPiece, pos, currentPiece.transform.rotation)), currParams);
+                            currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
                             // GameObject newPiece = Instantiate(currentPiece, pos, currentPiece.transform.rotation);
                             // Enable all colliders so that Raycasts do hit the piece
                             SetAllCollidersStatus(true, currParams.result);
@@ -140,13 +143,14 @@ public class EditorManager : MonoBehaviour {
             // The player clicked on a piece that was placed, he can edit it
             // He can also select other pieces or select a part of the piece (like a single wall to disable or stuff)
 
-            if(Input.GetKeyDown(KeyCode.Delete))
+            if (Input.GetKeyDown(KeyCode.Delete))
             {
-                foreach(GameObject go in selectedPiecesInPlace)
+                /*foreach(GameObject go in selectedPiecesInPlace)
                 {
                     Destroy(go);
                 }
-                selectedPiecesInPlace.Clear();
+                selectedPiecesInPlace.Clear();*/
+                currParams = undoRedoStack.Do(new DeletePiecesCommand(), currParams);
             }
 
         }
@@ -184,7 +188,7 @@ public class EditorManager : MonoBehaviour {
     {
         bool res = true;
 
-        // Check if the position is empty (there are some exceptions like barrel roll that covers sevral spaces)
+        // Check if the position is empty
         // We use a raycast to find the pieces
         RaycastHit rayHitPiece;
         Ray rayPiece = Camera.main.ScreenPointToRay(pos);
@@ -204,7 +208,7 @@ public class EditorManager : MonoBehaviour {
 
             GameObject piece = null;
 
-            foreach(GameObject pref in prefabs)
+            foreach (GameObject pref in prefabs)
             {
                 if (pref.name == pieceName)
                     piece = pref;
@@ -225,7 +229,7 @@ public class EditorManager : MonoBehaviour {
     }
 
     // Enable / disable all colliders of gameobject and its children
-    public void SetAllCollidersStatus(bool active, GameObject go)
+    public static void SetAllCollidersStatus(bool active, GameObject go)
     {
         foreach (Collider c in go.GetComponentsInChildren<Collider>())
         {
@@ -233,9 +237,10 @@ public class EditorManager : MonoBehaviour {
         }
     }
 
-    public void SetHighlight(bool active, GameObject go)
+    // Activate/Disable the outline effect on object (will add the component if the object doesn't have it)
+    public static void SetHighlight(bool active, GameObject go)
     {
-        foreach(Renderer r in go.GetComponentsInChildren<Renderer>())
+        foreach (Renderer r in go.GetComponentsInChildren<Renderer>())
         {
             OutlineRend outl = r.gameObject.GetComponent<OutlineRend>();
             if (outl == null)
@@ -246,9 +251,9 @@ public class EditorManager : MonoBehaviour {
             outl.enabled = active;
         }
     }
-    
 
-#region Undo/Redo Stack
+
+    #region Undo/Redo Stack
     public interface ICommand<T>
     {
         T Do(T input);
@@ -257,56 +262,100 @@ public class EditorManager : MonoBehaviour {
 
     public class CommandParams
     {
+        // AddPieceCommand (parameters)
         public GameObject prefab;
         public Vector3 position;
         public Quaternion rotation;
 
-        // GameObject Instantiate
-        public CommandParams(GameObject pr, Vector3 pos, Quaternion rot)
+        // AddPieceCommand (stores the created piece)
+        public GameObject result;
+
+        // DeletePieceCommand (stores the pieces to restore if undo / delete if out of the redo stack)
+        public List<GameObject> selectedPieces = new List<GameObject>();
+    }
+
+    // Adding a piece
+    public class AddPieceCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public AddPieceCommand(GameObject pr, Vector3 pos, Quaternion rot)
         {
             // Remove the (Clone) from the name
             string prName = pr.name.Split('(')[0];
-            // We must find the reference in prefabs because the pr from the parameters in an instance used temporarily to display at the mouse cursor position (currentPiece)
-            // This way the ctrl + Z will work even if the player presses right-click which deletes the currentPiece
+            // We must find the reference in prefabs because the pr from the parameters is an instance used temporarily to display at the mouse cursor position (currentPiece)
+            // This way the ctrl + Z will work even if the player selects another piece
             foreach (GameObject pref in prefabs)
             {
                 if (pref.name == prName)
                 {
-                    prefab = pref;
+                    _CP.prefab = pref;
                 }
             }
-            position = pos;
-            rotation = rot;
-            result = null;
-        }
-
-        public GameObject result;
-    }
-
-    public class AddPieceCommand : ICommand<CommandParams>
-    {
-        private CommandParams _CP;
-
-        public AddPieceCommand()
-        {
-            _CP = null;
-        }
-
-        public AddPieceCommand(CommandParams ips)
-        {
-            _CP = ips;
+            _CP.position = pos;
+            _CP.rotation = rot;
+            _CP.result = null;
         }
 
         public CommandParams Do(CommandParams input = null)
         {
-            _CP.result = Instantiate(_CP.prefab, _CP.position, _CP.rotation);
+            if (_CP.result == null)
+            {
+                _CP.result = Instantiate(_CP.prefab, _CP.position, _CP.rotation);
+            }
+            else
+            {
+                _CP.result.SetActive(true);
+            }
             return _CP;
         }
 
         public CommandParams Undo(CommandParams input = null)
         {
-            Destroy(_CP.result);
+            _CP.result.SetActive(false);
             return _CP;
+        }
+    }
+
+    // Deletes the selected pieces
+    public class DeletePiecesCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public DeletePiecesCommand()
+        {
+            foreach(GameObject go in selectedPiecesInPlace)
+            {
+                _CP.selectedPieces.Add(go);
+            }
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                go.SetActive(false);
+                SetHighlight(false, go);
+            }
+            selectedPiecesInPlace.Clear();
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                go.SetActive(true);
+            }
+            return _CP;
+        }
+
+        public void TrueDelete()
+        {
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                Destroy(go);
+            }
         }
     }
 
@@ -339,7 +388,6 @@ public class EditorManager : MonoBehaviour {
             _Undo = new Stack<ICommand<T>>();
             _Redo = new Stack<ICommand<T>>();
         }
-        
 
         public T Do(ICommand<T> cmd, T input)
         {
@@ -376,12 +424,12 @@ public class EditorManager : MonoBehaviour {
                 return input;
             }
         }
-        
+
     }
 
 
 
-#endregion
+    #endregion
 
 
 
