@@ -74,7 +74,7 @@ public class EditorManager : MonoBehaviour
 #if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Z))
 #else
-     if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Z))
+        if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Z))
 #endif
         {
             currParams = undoRedoStack.Undo(currParams);
@@ -85,7 +85,7 @@ public class EditorManager : MonoBehaviour
 #if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Y))
 #else
-     if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Y))
+        if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Y))
 #endif
         {
             currParams = undoRedoStack.Redo(currParams);
@@ -132,6 +132,12 @@ public class EditorManager : MonoBehaviour
                 }
             }
 
+            // Use R to rotate the piece 90 degrees clockwise
+            if(Input.GetKeyDown(KeyCode.R))
+            {
+                currentPiece.transform.Rotate(new Vector3(0f, 90f, 0f));
+            }
+
             // Right-click allows to destroy the current piece
             if (Input.GetMouseButtonDown(1))
             {
@@ -151,6 +157,59 @@ public class EditorManager : MonoBehaviour
                 }
                 selectedPiecesInPlace.Clear();*/
                 currParams = undoRedoStack.Do(new DeletePiecesCommand(), currParams);
+            }
+
+
+            // Use R to rotate the selected pieces 90 degrees clockwise
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                currParams = undoRedoStack.Do(new RotateSelectedPiecesCommand(), currParams);
+            }
+
+            // Click alone selects a single piece while deselecting other pieces
+            // Use shift + click to select additional pieces
+            if (Input.GetMouseButtonDown(0))
+            {
+                // We use a raycast to find the pieces
+                RaycastHit rayHitPiece;
+                Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                {
+                    //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
+                    GameObject piece = rayHitPiece.transform.gameObject;
+                    while (piece.transform.parent != null)
+                    {
+                        piece = piece.transform.parent.gameObject;
+                    }
+
+                    // Debug.Log(piece.name);
+
+                    // Add to the selection or remove from the selection if the piece was already selected
+                    if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
+                    {
+                        if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                        {
+                            currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                        }
+                        else
+                        {
+                            currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                        }
+                    }
+                    else
+                    {
+                        currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                    }
+                }
+                else
+                {
+                    // Click on an empty space => deselect all pieces
+                    // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
+                    if(  !(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)) )
+                    {
+                        currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
+                    }
+                }
             }
 
         }
@@ -176,8 +235,7 @@ public class EditorManager : MonoBehaviour
                     // Debug.Log(piece.name);
 
                     // We highlight the selected piece
-                    SetHighlight(true, piece);
-                    selectedPiecesInPlace.Add(piece);
+                    currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
                 }
             }
         }
@@ -268,9 +326,15 @@ public class EditorManager : MonoBehaviour
         public Quaternion rotation;
 
         // AddPieceCommand (stores the created piece)
+        // SelectPieceCommand (parameter)
+        // SelectSinglePieceCommand (parameter)
+        // DeselectSinglePieceCommand (parameter)
         public GameObject result;
 
         // DeletePieceCommand (stores the pieces to restore if undo / delete if out of the redo stack)
+        // RotateSelectedPiecesCommand
+        // SelectSinglePieceCommand (stores the pieces that were deselected)
+        // DeselectAllPiecesCommand (stores the pieces that were deselected)
         public List<GameObject> selectedPieces = new List<GameObject>();
     }
 
@@ -346,16 +410,175 @@ public class EditorManager : MonoBehaviour
             foreach (GameObject go in _CP.selectedPieces)
             {
                 go.SetActive(true);
+                selectedPiecesInPlace.Add(go);
+                SetHighlight(true, go);
+            }
+            return _CP;
+        }
+    }
+
+    // Add a piece to the selected pieces
+    public class SelectPieceCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public SelectPieceCommand(GameObject sel)
+        {
+            _CP.result = sel;
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            selectedPiecesInPlace.Add(_CP.result);
+            SetHighlight(true, _CP.result);
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            selectedPiecesInPlace.Remove(_CP.result);
+            SetHighlight(false, _CP.result);
+            return _CP;
+        }
+    }
+
+    // Select a single piece (deselects other pieces)
+    public class SelectSinglePieceCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public SelectSinglePieceCommand(GameObject sel)
+        {
+            _CP.result = sel;
+            foreach(GameObject go in selectedPiecesInPlace)
+            {
+                _CP.selectedPieces.Add(go);
+            }
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            // Remove other pieces from the selection
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                SetHighlight(false, go);
+            }
+            selectedPiecesInPlace.Clear();
+
+            // Add the new piece to the selection
+            selectedPiecesInPlace.Add(_CP.result);
+            SetHighlight(true, _CP.result);
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            // Remove the piece from the selection
+            selectedPiecesInPlace.Remove(_CP.result);
+            SetHighlight(false, _CP.result);
+
+            // Put the former pieces back in the selection
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                SetHighlight(true, go);
+                selectedPiecesInPlace.Add(go);
+            }
+            return _CP;
+        }
+    }
+
+    // Deselect a single piece
+    public class DeselectSinglePieceCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public DeselectSinglePieceCommand(GameObject sel)
+        {
+            _CP.result = sel;
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            // Remove the piece from the selection
+            selectedPiecesInPlace.Remove(_CP.result);
+            SetHighlight(false, _CP.result);
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            // Add the piece to the selection
+            selectedPiecesInPlace.Add(_CP.result);
+            SetHighlight(true, _CP.result);
+            return _CP;
+        }
+    }
+
+    // Deselect all pieces
+    public class DeselectAllPiecesCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public DeselectAllPiecesCommand()
+        {
+            foreach (GameObject go in selectedPiecesInPlace)
+            {
+                _CP.selectedPieces.Add(go);
+            }
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            // Remove all pieces from the selection
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                SetHighlight(false, go);
+            }
+            selectedPiecesInPlace.Clear();
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            // Put the pieces back in the selection
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                SetHighlight(true, go);
+                selectedPiecesInPlace.Add(go);
+            }
+            return _CP;
+        }
+    }
+
+    // Rotate the selected pieces (clockwise 90 degrees)
+    public class RotateSelectedPiecesCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public RotateSelectedPiecesCommand()
+        {
+            foreach (GameObject go in selectedPiecesInPlace)
+            {
+                _CP.selectedPieces.Add(go);
+            }
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            foreach (GameObject go in _CP.selectedPieces)
+            {
+                go.transform.Rotate(new Vector3(0f, 90f, 0f));
             }
             return _CP;
         }
 
-        public void TrueDelete()
+        public CommandParams Undo(CommandParams input = null)
         {
             foreach (GameObject go in _CP.selectedPieces)
             {
-                Destroy(go);
+                go.transform.Rotate(new Vector3(0f, -90f, 0f));
             }
+            return _CP;
         }
     }
 
