@@ -13,7 +13,9 @@ public enum SoundType {
 
 public enum SFXType
 {
-    WoodHit
+    WoodHit,
+    Rocket,
+    RocketExplosion
 }
 
 public class SoundManager : MonoBehaviour {

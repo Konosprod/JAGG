@@ -30,11 +30,6 @@ public class MainMenuHandler : MonoBehaviour
         Cursor.visible = true;
     }
 
-    void OnEnable()
-    {
-        fader.FadeIn(0.5f, delegate () { canvasGroup.blocksRaycasts = true; });
-    }
-
     private void FadeOutMenu()
     {
         canvasGroup.blocksRaycasts = false;

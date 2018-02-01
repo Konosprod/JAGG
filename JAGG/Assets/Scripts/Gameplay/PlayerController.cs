@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour {
@@ -19,6 +20,9 @@ public class PlayerController : NetworkBehaviour {
     [SyncVar]
     public bool done = false;
 
+    [SyncVar]
+    public string playerName;
+
     public SyncListInt score;
 
     private Rigidbody rb;
@@ -26,6 +30,7 @@ public class PlayerController : NetworkBehaviour {
     private LobbyManager lobbyManager;
     public ParticleSystem trail;
     public ParticleSystem explosion;
+    public Text playerNameText;
 
     public GameObject[] ball_parts;
     public GameObject failSign;
@@ -72,11 +77,14 @@ public class PlayerController : NetworkBehaviour {
         line = GetComponent<PreviewLine>();
         lobbyManager = LobbyManager._instance;
 
+        playerNameText.text = playerName;
+
         if (!isServer)
             rb.isKinematic = true;
 
         if (isLocalPlayer)
         {
+            playerNameText.gameObject.SetActive(false);
             ui.SetParList();
 
             oobActualResetTimer = oobInitialResetTimer;
