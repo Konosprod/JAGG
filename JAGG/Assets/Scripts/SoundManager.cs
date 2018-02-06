@@ -28,13 +28,12 @@ public class SoundManager : MonoBehaviour {
     private static Dictionary<SoundType, AudioClip> audioClips;
     private static Dictionary<SFXType, AudioClip> sfxClips;
 
-    public static SoundManager _instance;
-
     private SoundType actuallyPlaying;
 
-	// Use this for initialization
-	void Awake () {
+    public static SoundManager _instance;
 
+    void Awake()
+    {
         if (_instance == null)
         {
             _instance = this;
@@ -47,18 +46,26 @@ public class SoundManager : MonoBehaviour {
         audioClips = new Dictionary<SoundType, AudioClip>();
         sfxClips = new Dictionary<SFXType, AudioClip>();
 
-        foreach(SoundType t in Enum.GetValues(typeof(SoundType)))
+        foreach (SoundType t in Enum.GetValues(typeof(SoundType)))
         {
-            if(t != SoundType.None)
+            if (t != SoundType.None)
                 audioClips[t] = Resources.Load<AudioClip>("Sounds/" + t.ToString());
         }
 
-        foreach(SFXType t in Enum.GetValues(typeof(SFXType)))   
+        foreach (SFXType t in Enum.GetValues(typeof(SFXType)))
         {
             sfxClips[t] = Resources.Load<AudioClip>("Sounds/SFX/" + t.ToString());
         }
+    }
 
-	}
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialise()
+    {
+        if (_instance == null)
+        {
+            Instantiate(Resources.Load("Prefabs/SoundManager"));
+        }
+    }
 
 	// Update is called once per frame
 	void Update () {

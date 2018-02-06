@@ -25,8 +25,6 @@ public class SettingsManager : MonoBehaviour {
     private Resolution[] resolutions;
     public GameSettings gameSettings;
 
-    private SoundManager soundManager;
-
     public static SettingsManager _instance;
 
     void Awake()
@@ -39,8 +37,15 @@ public class SettingsManager : MonoBehaviour {
         {
             Destroy(this.gameObject);
         }
+    }
 
-        soundManager = SoundManager._instance;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialise()
+    {
+        if (_instance == null)
+        {
+            Instantiate(Resources.Load("Prefabs/SettingsManager"));
+        }
     }
 
     void Start()
@@ -125,19 +130,19 @@ public class SettingsManager : MonoBehaviour {
     public void OnBGMVolumeChange(float newVolume)
     {
         gameSettings.BGMAudioVolume = newVolume;
-        soundManager.SetBGMVolume(newVolume);
+        SoundManager._instance.SetBGMVolume(newVolume);
 
         if (newVolume == BGMvolumeSlider.minValue)
-            soundManager.MuteBGM();
+            SoundManager._instance.MuteBGM();
     }
 
     public void OnSFXVolumeChange(float newVolume)
     {
         gameSettings.SFXAudioVolume = newVolume;
-        soundManager.SetSFXVolume(newVolume);
+        SoundManager._instance.SetSFXVolume(newVolume);
 
         if (newVolume == SFXvolumeSlider.minValue)
-            soundManager.MuteSFX();
+            SoundManager._instance.MuteSFX();
     }
 
     public void OnSensibilityChanged(float newSensibility)
