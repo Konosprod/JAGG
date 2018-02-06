@@ -140,6 +140,7 @@ GameObject:
   - component: {fileID: 114351922675703174}
   - component: {fileID: 114277472616525290}
   - component: {fileID: 114172854367086094}
+  - component: {fileID: 114288062548389386}
   m_Layer: 0
   m_Name: GolfBall
   m_TagString: Player
@@ -681,7 +682,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Player 1
+  m_Text: 
 --- !u!114 &114172854367086094
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -717,6 +718,7 @@ MonoBehaviour:
   shots: 0
   isMoving: 0
   done: 0
+  playerName: 
   trail: {fileID: 198457286473044352}
   explosion: {fileID: 198397896965986620}
   playerNameText: {fileID: 114097390829951948}
@@ -726,6 +728,18 @@ MonoBehaviour:
   - {fileID: 1425080522990792}
   - {fileID: 1931030841906622}
   failSign: {fileID: 1770767686008722}
+--- !u!114 &114288062548389386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1696014211341154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96fa75636a818ff45b56a0fd205e7c24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DestroyOnLoad: 0
 --- !u!114 &114351922675703174
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -760,7 +774,7 @@ MonoBehaviour:
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
-  m_DynamicPixelsPerUnit: 1
+  m_DynamicPixelsPerUnit: 10
 --- !u!114 &114683513821661536
 MonoBehaviour:
   m_ObjectHideFlags: 1

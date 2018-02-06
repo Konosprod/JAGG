@@ -12,7 +12,9 @@ public class CameraFacing : MonoBehaviour
 
     void Update()
     {
-        transform.LookAt(transform.position + m_Camera.transform.rotation * Vector3.forward,
-            m_Camera.transform.rotation * Vector3.up);
+        //No more exception when switching scene, yeay
+        if (m_Camera != null)
+            transform.LookAt(transform.position + m_Camera.transform.rotation * Vector3.forward,
+                m_Camera.transform.rotation * Vector3.up);
     }
 }

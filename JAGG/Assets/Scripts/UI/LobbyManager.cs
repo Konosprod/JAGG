@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class LobbyManager : NetworkLobbyManager
 {
@@ -39,6 +40,9 @@ public class LobbyManager : NetworkLobbyManager
     private bool[] layers = new bool[4];
     public CustomLevel ruleSet;
     
+    [HideInInspector]
+    public string winnerName = "";
+
     //0 = normal, 1 = low, 2 = high
     public int gravity;
 
@@ -158,9 +162,9 @@ public class LobbyManager : NetworkLobbyManager
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
 
-        //NetworkManager.singleton.ServerChangeScene("Victory");
+        NetworkManager.singleton.ServerChangeScene("Victory");
 
-        SendReturnToLobby();
+        Invoke("SendReturnToLobby", 10);
     }
 
     private IEnumerator WaitBeforeExec(float time, Func<bool> callback = null)
@@ -201,6 +205,41 @@ public class LobbyManager : NetworkLobbyManager
         }
         else
         {
+            // Victory Scene
+
+            List<GameObject> podium = playerManager.GetPodium();
+
+            GameObject first = GameObject.Find("1st");
+            GameObject second = GameObject.Find("2nd");
+            GameObject third = GameObject.Find("3rd");
+
+
+            Debug.Log(podium.Count);
+
+            first.GetComponent<VictoryBall>().playerName = podium[0].GetComponent<PlayerController>().playerName;
+
+            second.SetActive(false);
+            third.SetActive(false);
+
+            if(podium.Count >= 2)
+            {
+                second.GetComponent<VictoryBall>().playerName = podium[1].GetComponent<PlayerController>().playerName;
+                second.SetActive(true);
+                third.SetActive(false);
+            }
+
+            if(podium.Count >= 3)
+            {
+                third.GetComponent<VictoryBall>().playerName = podium[2].GetComponent<PlayerController>().playerName;
+                third.SetActive(true);
+            }
+
+            //Disable controls
+            for (int i = 0; i < podium.Count; i++)
+            {
+                podium[i].GetComponent<PlayerController>().enabled = false;
+            }
+
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(false);
             joinPanel.SetActive(false);
@@ -291,7 +330,6 @@ public class LobbyManager : NetworkLobbyManager
 
     public override void OnClientDisconnect(NetworkConnection conn)
     {
-        Debug.Log(conn);
 
         if (conn.lastError == NetworkError.Ok)
         {

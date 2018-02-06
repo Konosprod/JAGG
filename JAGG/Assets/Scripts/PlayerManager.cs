@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -56,10 +57,72 @@ public class PlayerManager : NetworkBehaviour {
                     ShowPlayersScores();
 
                     Invoke("TriggerSpawn", 5);
-                    //StartCoroutine(ui.ShowScores(5, TriggerSpawn));
                 }
             }
         }
+    }
+
+    public List<GameObject> GetPodium()
+    {
+        List<GameObject> podium = new List<GameObject>();
+        Dictionary<int, int> scores = new Dictionary<int, int>();
+
+        int i = 0;
+        foreach(KeyValuePair<int, GameObject> entry in players)
+        {
+            if(i == 0)
+            {
+                int score = 0;
+                foreach(int s in scoreP1)
+                {
+                    score += s;
+                }
+                scores.Add(entry.Key, score);
+            }
+            else if (i == 1)
+            {
+                int score = 0;
+                foreach (int s in scoreP2)
+                {
+                    score += s;
+                }
+                scores.Add(entry.Key, score);
+            }
+            else if (i == 2)
+            {
+                int score = 0;
+                foreach (int s in scoreP3)
+                {
+                    score += s;
+                }
+                scores.Add(entry.Key, score);
+            }
+            else if (i == 3)
+            {
+                int score = 0;
+                foreach (int s in scoreP4)
+                {
+                    score += s;
+                }
+                scores.Add(entry.Key, score);
+            }
+            else
+            {
+                Debug.LogError("Plus de 4 joueurs ? NANI ?!");
+            }
+
+
+            i++;
+        }
+
+        scores.OrderBy(x => x.Value);
+
+        foreach(int key in scores.Keys)
+        {
+            podium.Add(players[key]);
+        }
+
+        return podium;
     }
 
     public void ShowPlayersScores()
@@ -135,13 +198,6 @@ public class PlayerManager : NetworkBehaviour {
                 pc.SetDone();
             }
         }
-
-        /*
-        ResetAllPlayers();
-
-        ShowPlayersScores();
-
-        Invoke("TriggerSpawn", 5)*/
     }
 
     private void TriggerSpawn()
