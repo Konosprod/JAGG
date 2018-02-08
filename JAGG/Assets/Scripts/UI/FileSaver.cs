@@ -1,16 +1,18 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FileBrowser : MonoBehaviour {
+public class FileSaver : MonoBehaviour {
+
 
     [Header("UI")]
     public Text directoryText;
     public GameObject content;
     public Button returnButton;
+    public Button saveButton;
+    public InputField inputFilename;
+    public OverwriteMessageBox messageBox;
     public GameObject fileEntryPrefab;
 
     [HideInInspector]
@@ -23,21 +25,32 @@ public class FileBrowser : MonoBehaviour {
         directoryText.text = currentDirectory;
     }
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start()
     {
-
-	}
+        saveButton.onClick.AddListener(delegate ()
+        {
+            if(inputFilename.text != "")
+            {
+                SaveObject(inputFilename.text);
+            }
+            else
+            {
+                Debug.Log("Empty filename");
+            }
+        });
+    }
 
     void OnEnable()
     {
         BrowseDirectory();
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     public void Hide()
     {
@@ -49,8 +62,29 @@ public class FileBrowser : MonoBehaviour {
         this.gameObject.SetActive(true);
     }
 
-    public void LoadObject(string path)
+    public void EnableButtons()
     {
+        returnButton.interactable = true;
+        saveButton.interactable = true;
+    }
+
+    public void DisableButtons()
+    {
+        returnButton.interactable = false;
+        saveButton.interactable = false;
+    }
+
+    public void SaveObject(string path, bool overwrite = false)
+    {
+
+        if(File.Exists(currentDirectory + path) && !overwrite)
+        {
+            messageBox.path = currentDirectory + path;
+            DisableButtons();
+            messageBox.gameObject.SetActive(true);
+            return;
+        }
+
         throw new NotImplementedException();
     }
 
@@ -85,7 +119,7 @@ public class FileBrowser : MonoBehaviour {
         //Create ".." to move inside
         GameObject parentDirectory = Instantiate(fileEntryPrefab.gameObject, content.transform);
         FileEntry parentFe = parentDirectory.GetComponent<FileEntry>();
-        parentFe.fileBrowser = this;
+        parentFe.fileSaver = this;
         parentFe.fileEntryText.text = "..";
 
 
@@ -95,7 +129,7 @@ public class FileBrowser : MonoBehaviour {
         {
             directories = Directory.GetDirectories(currentDirectory, "*", SearchOption.TopDirectoryOnly);
         }
-        catch(UnauthorizedAccessException e)
+        catch (UnauthorizedAccessException e)
         {
             Debug.Log(e);
         }
@@ -105,31 +139,10 @@ public class FileBrowser : MonoBehaviour {
             foreach (string s in directories)
             {
                 GameObject fileEntry = Instantiate(fileEntryPrefab.gameObject, content.transform);
-                fileEntry.GetComponent<FileEntry>().fileBrowser = this;
+                fileEntry.GetComponent<FileEntry>().fileSaver = this;
                 fileEntry.GetComponent<Text>().text = Path.GetFileName(s) + System.IO.Path.DirectorySeparatorChar;
             }
         }
 
-
-        string[] files = null;
-
-        try
-        {
-            files = Directory.GetFiles(currentDirectory, "*", SearchOption.TopDirectoryOnly);
-        }
-        catch(UnauthorizedAccessException e)
-        {
-            Debug.Log(e);
-        }
-
-        if (files != null)
-        {
-            foreach (string s in files)
-            {
-                GameObject fileEntry = Instantiate(fileEntryPrefab.gameObject, content.transform);
-                fileEntry.GetComponent<FileEntry>().fileBrowser = this;
-                fileEntry.GetComponent<Text>().text = Path.GetFileName(s);
-            }
-        }
     }
 }

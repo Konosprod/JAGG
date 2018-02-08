@@ -2,42 +2,54 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class FileEntry : MonoBehaviour {
+public class FileEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler {
 
     public Text fileEntryText;
     public EventTrigger eventTrigger;
 
     [HideInInspector]
     public FileBrowser fileBrowser;
+    public FileSaver fileSaver;
 
     // Use this for initialization
     void Start() {
-        EventTrigger.Entry entry = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerClick
-        };
 
-        entry.callback.AddListener((data) => { DoubleClicked((PointerEventData)data); });
-        eventTrigger.triggers.Add(entry);
     }
 
-    public void DoubleClicked(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.clickCount == 2)
         {
-            if (fileEntryText.text == "..")
+            //Browsing context
+            if (fileBrowser != null)
             {
-                //Parent
-                fileBrowser.ParentDirectory();
+                if (fileEntryText.text == "..")
+                {
+                    //Parent
+                    fileBrowser.ParentDirectory();
+                }
+                else if (fileEntryText.text.EndsWith("" + System.IO.Path.DirectorySeparatorChar))
+                {
+                    fileBrowser.ChangeDirectory(fileEntryText.text);
+                }
+                else
+                {
+                    //Load an object
+                    fileBrowser.LoadObject(fileEntryText.text);
+                }
             }
-            else if (fileEntryText.text.EndsWith("" + System.IO.Path.DirectorySeparatorChar))
+            //Saving context
+            else if (fileSaver != null)
             {
-                fileBrowser.ChangeDirectory(fileEntryText.text);
-            }
-            else
-            {
-                //Load an object
-                fileBrowser.LoadObject(fileEntryText.text);
+                if (fileEntryText.text == "..")
+                {
+                    //Parent
+                    fileSaver.ParentDirectory();
+                }
+                else if (fileEntryText.text.EndsWith("" + System.IO.Path.DirectorySeparatorChar))
+                {
+                    fileSaver.ChangeDirectory(fileEntryText.text);
+                }
             }
         }
     }
@@ -46,4 +58,14 @@ public class FileEntry : MonoBehaviour {
     void Update () {
 		
 	}
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        fileEntryText.color = Color.white;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        fileEntryText.color = Color.red;
+    }
 }
