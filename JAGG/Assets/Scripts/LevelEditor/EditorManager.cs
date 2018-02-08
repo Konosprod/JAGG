@@ -20,6 +20,10 @@ public class EditorManager : MonoBehaviour
 
 
     public GameObject scrollviewContent;
+    public GameObject grid;
+    public GameObject plane;
+    private static GameObject gridGO;
+    private static GameObject planeGO;
 
     private static GameObject[] prefabs;
 
@@ -32,6 +36,11 @@ public class EditorManager : MonoBehaviour
     private CommandParams currParams = null;
 
     private Vector3 targetNormal = Vector3.up;
+
+    private static float
+        offsetGridX = 0f,
+        offsetGridY = 0f,
+        offsetGridZ = 0f;
 
     // Use this for initialization
     void Start()
@@ -59,6 +68,9 @@ public class EditorManager : MonoBehaviour
             previewImage.transform.SetParent(scrollviewContent.transform);
         }
 
+        // GameObjects
+        gridGO = grid;
+        planeGO = plane;
 
         // Setup our layerMask
         layerPlane = LayerMask.NameToLayer("LevelEditor");
@@ -117,11 +129,13 @@ public class EditorManager : MonoBehaviour
                         {
                             //Debug.Log("hitPoint : " + rayHitPlane.point);
                             // Round to the lowest even integer in order to move correctly on the grid
-                            x = Mathf.Floor(rayHitPlane.point.x + 1); // + 1 because of grid offset
+                            x = Mathf.Floor(rayHitPlane.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
                             x = (x % 2 == 0) ? x : x - 1;
-                            y = 0f;
-                            z = Mathf.Floor(rayHitPlane.point.z + 1);
+                            x += offsetGridX;
+                            y = rayHitPlane.point.y;
+                            z = Mathf.Floor(rayHitPlane.point.z + 1 - offsetGridZ);
                             z = (z % 2 == 0) ? z : z - 1;
+                            z += offsetGridZ;
                             Vector3 pos = new Vector3(x, y, z);
                             //Debug.Log("pos : " + pos);
                             targetNormal = Vector3.up;
@@ -162,17 +176,21 @@ public class EditorManager : MonoBehaviour
                         {
                             //Debug.Log("hitPoint : " + rayHitPlane.point);
                             // Round to the lowest even integer in order to move correctly on the grid
-                            x = Mathf.Floor(rayHit.point.x + 1); // + 1 because of grid offset
+                            x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
                             x = (x % 2 == 0) ? x : x - 1;
+                            x += offsetGridX;
                             y = rayHit.point.y + 0.001f;
-                            z = Mathf.Floor(rayHit.point.z + 1);
+                            z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
                             z = (z % 2 == 0) ? z : z - 1;
+                            z += offsetGridZ;
                             Vector3 pos = new Vector3(x, rayHit.point.y+0.001f, z);
                             if (rayHit.transform.gameObject.name == "Slope")
                             {
                                 y = 0.391f;
                                 pos.y = 0.391f;
                             }
+
+                            // Align the booster pad alongside the piece
                             if (rayHit.normal != targetNormal)
                             {
                                 targetNormal = rayHit.normal;
@@ -201,11 +219,13 @@ public class EditorManager : MonoBehaviour
                         {
                             //Debug.Log("hitPoint : " + rayHitPlane.point);
                             // Round to the lowest even integer in order to move correctly on the grid
-                            x = Mathf.Floor(rayHit.point.x + 1); // + 1 because of grid offset
+                            x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
                             x = (x % 2 == 0) ? x : x - 1;
-                            y = 0f;
-                            z = Mathf.Floor(rayHit.point.z + 1);
+                            x += offsetGridX;
+                            y = rayHit.point.y;
+                            z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
                             z = (z % 2 == 0) ? z : z - 1;
+                            z += offsetGridZ;
                             Vector3 pos = new Vector3(x, y, z);
                             //Debug.Log("pos : " + pos);
                             targetNormal = Vector3.up;
@@ -247,6 +267,15 @@ public class EditorManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.R))
             {
                 currParams = undoRedoStack.Do(new RotateSelectedPiecesCommand(), currParams);
+            }
+
+            // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
+            if(selectedPiecesInPlace.Count == 1)
+            {
+                if (Input.GetKeyDown(KeyCode.O))
+                {
+                    currParams = undoRedoStack.Do(new UsePieceAsOriginCommand(), currParams);
+                }
             }
 
             // Click alone selects a single piece while deselecting other pieces
@@ -304,6 +333,14 @@ public class EditorManager : MonoBehaviour
         else
         {
             // No piece selected, the player can click pieces in place to modify them or a piece in the menu to start placing them
+
+
+            // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
+            if (Input.GetKeyDown(KeyCode.O))
+            {
+                currParams = undoRedoStack.Do(new ResetOriginCommand(), currParams);
+            }
+
 
             // Use left-click to select
             if (Input.GetMouseButtonDown(0))
@@ -414,6 +451,14 @@ public class EditorManager : MonoBehaviour
         }
     }
 
+    private static void SetGridOffset(float offX = 0f, float offY = 0f, float offZ = 0f)
+    {
+        gridGO.transform.position += new Vector3(offX - offsetGridX, offY - offsetGridY, offZ - offsetGridZ);
+        planeGO.transform.position += new Vector3(offX - offsetGridX, offY - offsetGridY, offZ - offsetGridZ);
+        offsetGridX = offX;
+        offsetGridY = offY;
+        offsetGridZ = offZ;
+    }
 
     #region Undo/Redo Stack
     public interface ICommand<T>
@@ -425,9 +470,13 @@ public class EditorManager : MonoBehaviour
     public class CommandParams
     {
         // AddPieceCommand (parameters)
+        // UsePieceAsOriginCommand (position stores the offset to reach)
         public GameObject prefab;
         public Vector3 position;
         public Quaternion rotation;
+
+        // UsePieceAsOriginCommand (position stores the previous offset for the undo) 
+        public Vector3 offset;
 
         // AddPieceCommand (stores the created piece)
         // SelectPieceCommand (parameter)
@@ -685,6 +734,86 @@ public class EditorManager : MonoBehaviour
             return _CP;
         }
     }
+
+    // Use the selected piece as origin for the grid
+    public class UsePieceAsOriginCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public UsePieceAsOriginCommand()
+        {
+            GameObject referencePiece = selectedPiecesInPlace[0];
+            float offX = Mathf.Repeat(referencePiece.transform.position.x, 2f), offY = referencePiece.transform.position.y, offZ = Mathf.Repeat(referencePiece.transform.position.z, 2f);
+
+            // Remove the (Clone) from the name
+            string pName = referencePiece.name.Split('(')[0];
+
+            Vector3 off = new Vector3();
+
+            // Pieces with specific offset
+            if (pName == "BarrelRoll" || pName == "StartBarrelRoll")
+            {
+                off = new Vector3(-1.38f, 0f, 1.3f);
+            }
+            else if (pName == "Looping" || pName == "AirReceptionBoosterLooping")
+            {
+                off = new Vector3(0f, 0f, 0.4f);
+            }
+            else if (pName == "Slope" || pName == "SlopeNoWall")
+            {
+                off = new Vector3(0f, 0.57875f, 0f);
+            }
+
+            if (off != Vector3.zero)
+            {
+                // Apply the rotation of the piece to get the right offset
+                off = Quaternion.Euler(referencePiece.transform.eulerAngles) * off;
+                offX += off.x;
+                offY += off.y;
+                offZ += off.z;
+            }
+
+            _CP.position = new Vector3(offX, offY, offZ);
+            _CP.offset = new Vector3(offsetGridX, offsetGridY, offsetGridZ);
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            SetGridOffset(_CP.position.x, _CP.position.y, _CP.position.z);
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            SetGridOffset(_CP.offset.x, _CP.offset.y, _CP.offset.z);
+            return _CP;
+        }
+    }
+
+    // Reset the origin of the grid
+    public class ResetOriginCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public ResetOriginCommand()
+        {
+            _CP.offset = new Vector3(offsetGridX, offsetGridY, offsetGridZ);
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            // Default call will reset the grid
+            SetGridOffset();
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            SetGridOffset(_CP.offset.x, _CP.offset.y, _CP.offset.z);
+            return _CP;
+        }
+    }
+
 
     public class UndoRedoStack<T>
     {

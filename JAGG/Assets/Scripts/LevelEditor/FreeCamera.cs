@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class FreeCamera : MonoBehaviour {
 
@@ -47,7 +48,7 @@ public class FreeCamera : MonoBehaviour {
         float axis2 = Input.GetAxis("Mouse Y");
         float wheel = Input.GetAxis("Mouse ScrollWheel");
 
-        if (/*Input.GetKey(KeyCode.LeftAlt) && Input.GetMouseButton(1)*/ wheel != 0f)
+        if (/*Input.GetKey(KeyCode.LeftAlt) && Input.GetMouseButton(1)*/ wheel != 0f && !EventSystem.current.IsPointerOverGameObject())
         {
             // Could use alt + right-click to zoom like in unity editor (can do both if we want to)
             /*float num = (Mathf.Abs(axis) <= Mathf.Abs(axis2)) ? axis2 : axis;
