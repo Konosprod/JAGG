@@ -670,6 +670,10 @@ MonoBehaviour:
   returnButton: {fileID: 114381726620253310}
   fileEntryPrefab: {fileID: 1473491474901202, guid: ae95f02d57638884088e2c14eb9a7476,
     type: 2}
+  callback:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: LoadingEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   currentDirectory: 
 --- !u!114 &114466406754177320
 MonoBehaviour:
@@ -821,6 +825,7 @@ MonoBehaviour:
   fileEntryText: {fileID: 114586230468705228}
   eventTrigger: {fileID: 114795771303901142}
   fileBrowser: {fileID: 0}
+  fileSaver: {fileID: 0}
 --- !u!114 &114875527463596418
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1047,7 +1052,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000016693113}
+  m_AnchoredPosition: {x: 0, y: 0.0000019073486}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224151377585350158

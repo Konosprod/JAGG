@@ -3,7 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
+
+[Serializable]
+public class LoadingEvent : UnityEvent<string>
+{
+
+}
 
 public class FileBrowser : MonoBehaviour {
 
@@ -12,6 +19,7 @@ public class FileBrowser : MonoBehaviour {
     public GameObject content;
     public Button returnButton;
     public GameObject fileEntryPrefab;
+    public LoadingEvent loadingCallback;
 
     [HideInInspector]
     public string currentDirectory;
@@ -51,7 +59,16 @@ public class FileBrowser : MonoBehaviour {
 
     public void LoadObject(string path)
     {
-        throw new NotImplementedException();
+        if (loadingCallback != null)
+        {
+            loadingCallback.Invoke(currentDirectory + path);
+            this.gameObject.SetActive(false);
+
+        }
+        else
+        {
+            Debug.Log("You must set a callback for loading function");
+        }
     }
 
     public void ChangeDirectory(string path)
