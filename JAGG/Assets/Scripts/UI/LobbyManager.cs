@@ -213,9 +213,6 @@ public class LobbyManager : NetworkLobbyManager
             GameObject second = GameObject.Find("2nd");
             GameObject third = GameObject.Find("3rd");
 
-
-            Debug.Log(podium.Count);
-
             first.GetComponent<VictoryBall>().playerName = podium[0].GetComponent<PlayerController>().playerName;
 
             second.SetActive(false);

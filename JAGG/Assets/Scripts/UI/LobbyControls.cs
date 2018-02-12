@@ -64,7 +64,7 @@ public class LobbyControls : NetworkBehaviour {
             Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "levels"));
         }
 
-        foreach(string file in Directory.GetFiles(Path.Combine(Application.persistentDataPath, "levels"), "*.json"))
+        foreach(string file in Directory.GetFiles(Path.Combine(Application.persistentDataPath, "levels"), "*.map"))
         {
             GameObject newButton = Instantiate(prefabButton, contentPanel);
 

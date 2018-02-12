@@ -4,4 +4,5 @@ using UnityEngine;
 
 public class TerrainPiece : MonoBehaviour {
     public string id;
+    public bool prefab = true;
 }

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Ionic.Zip;
+using System.IO;
 
 public class ExportLevel : MonoBehaviour {
     public Transform holes;
@@ -12,7 +14,13 @@ public class ExportLevel : MonoBehaviour {
         //Debug.Log(CreateCustomLevel());
     }
 
-    public string CreateCustomLevel(string name = "", string author = "")
+    //Test function
+    public void SaveLevel()
+    {
+        CreateCustomLevel("TestLevel", "TestAuthor", Path.Combine(Application.persistentDataPath, "Levels"));
+    }
+
+    public string CreateCustomLevel(string name = "", string author = "", string location = "")
     {
         string json = "";
         string levelName = name;
@@ -20,6 +28,9 @@ public class ExportLevel : MonoBehaviour {
         if (name == "")
             levelName = holes.gameObject.scene.name;
 
+        ZipFile mapFile = new ZipFile(levelName + ".map");
+
+        mapFile.AddDirectoryByName("obj");
 
         CustomLevel customLevel = new CustomLevel
         {
@@ -59,6 +70,15 @@ public class ExportLevel : MonoBehaviour {
                 }
 
                 h.pieces.Add(p);
+
+                if(!piece.prefab)
+                {
+                    //Copy .obj, .mtl, .png to obj/
+                    string path = Path.GetDirectoryName(ObjImporter.GetObjPath(piece.id)) + Path.DirectorySeparatorChar;
+                    mapFile.AddFile(path + p.id + ".obj", "obj");
+                    mapFile.AddFile(path + p.id + ".mtl", "obj");
+                    mapFile.AddFile(path + p.id + ".png", "obj");
+                }
             }
 
 
@@ -75,7 +95,13 @@ public class ExportLevel : MonoBehaviour {
             customLevel.holes.Add(h);
         }
 
+        //level.json
         json = JsonUtility.ToJson(customLevel);
+
+        mapFile.AddEntry("level.json", json);
+        mapFile.Save(location + Path.DirectorySeparatorChar + levelName + ".map");
+
+        //Create file .map
 
         return json;
     }

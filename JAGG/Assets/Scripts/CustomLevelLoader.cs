@@ -2,6 +2,7 @@
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
+using Ionic.Zip;
 
 public class CustomLevelLoader : MonoBehaviour {
 
@@ -17,7 +18,17 @@ public class CustomLevelLoader : MonoBehaviour {
             Directory.CreateDirectory(levelDirectory);
         }
 
-        string json = File.ReadAllText(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile +".json"));
+
+        ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile +".map"));
+        //ZipFile f = new ZipFile(Path.Combine(levelDirectory, "blah.map"));
+
+        //Don't forget to create the directory maybe
+        string tmpPath = Path.Combine(Application.temporaryCachePath, LobbyManager._instance.customMapFile);
+        //string tmpPath = Path.Combine(Application.temporaryCachePath, "test");
+
+        mapFile.ExtractAll(tmpPath, ExtractExistingFileAction.OverwriteSilently);
+
+        string json = File.ReadAllText(Path.Combine(tmpPath, "level.json"));
 
         GameObject endOfGame = Resources.Load("Prefabs/EndOfGamePosition") as GameObject;
 
@@ -47,7 +58,18 @@ public class CustomLevelLoader : MonoBehaviour {
 
             foreach (Piece p in h.pieces)
             {
-                GameObject o = GameObject.Instantiate<GameObject>(Resources.Load("Prefabs/Terrain/" + p.id) as GameObject, hole.transform);
+                GameObject objectToLoad = null;
+
+                objectToLoad = Resources.Load("Prefabs/Terrain/" + p.id) as GameObject;
+
+
+                if (objectToLoad == null)
+                {
+                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath,"obj" + Path.DirectorySeparatorChar + p.id + ".obj"));
+                }
+
+                GameObject o = GameObject.Instantiate<GameObject>(objectToLoad, hole.transform);
+                o.SetActive(true);
                 o.transform.position = p.position;
                 o.transform.localEulerAngles = p.rotation;
                 o.transform.localScale = p.scale;
