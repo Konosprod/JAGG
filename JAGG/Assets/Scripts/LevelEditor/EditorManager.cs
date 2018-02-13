@@ -28,6 +28,7 @@ public class EditorManager : MonoBehaviour
     private static GameObject[] prefabs;
 
     private GameObject currentPiece = null; // Piece that the player wants to place
+    private static GameObject originPiece = null;  // Piece that is used as the origin for the grid
     public static List<GameObject> selectedPiecesInPlace; // Piece that was placed that the player wants to edit
 
     private List<GameObject> piecesInPlace; // List of pieces placed
@@ -433,7 +434,12 @@ public class EditorManager : MonoBehaviour
     //      1) If you SetHighlight to true, you must add the GameObject to SelectedPiecesInPlace AFTER the call to SetHighlight
     //      2) When you SetHighlight to false, it's the other way around so you must remove the GameObject from SelectedPiecesInPlace BEFORE the call to SetHighlight
     //      If a piece isn't/stays selected when it should/n't then there is probably a call going in the wrong order
-    public static void SetHighlight(bool active, GameObject go)
+    // Side note on highlight colors : 
+    //      1) We can only have 3 different colors at once
+    //      2) Color 2 is for a selected piece (blue)
+    //      3) Color 1 is for a piece that is both selected and the origin for the grid (pink/purple)
+    //      4) Color 0 is for a non-selected piece that is the origin (red)
+    public static void SetHighlight(bool active, GameObject go, int outlColor = 2)
     {
         foreach (Renderer r in go.GetComponentsInChildren<Renderer>())
         {
@@ -443,14 +449,29 @@ public class EditorManager : MonoBehaviour
                 OutlineRend outl = r.gameObject.GetComponent<OutlineRend>();
                 if (outl == null)
                 {
+                    // Add the component when needed
                     outl = r.gameObject.AddComponent<OutlineRend>();
-                    outl.color = 2;
                 }
-                outl.enabled = active;
+
+                if (originPiece == go)
+                {
+                    // Special cases for the origin
+                    // If active = false, it means we are deselecting the origin piece => we keep the highlight and change to color 0
+                    // else, it means we are selecting the origin piece (individually or not) => we change from color 0 to 1
+                    outl.color = (active)?1:0;
+                }
+                else
+                {
+                    outl.color = outlColor;
+                    outl.enabled = active;
+                }
             }
         }
     }
 
+    // Moves the grid to align with the end of the selected piece
+    // It takes the calculated offset as parameter and moves the grid accordingly
+    // The planeGO is what go beneath the grid to catch RayCasts
     private static void SetGridOffset(float offX = 0f, float offY = 0f, float offZ = 0f)
     {
         gridGO.transform.position += new Vector3(offX - offsetGridX, offY - offsetGridY, offZ - offsetGridZ);
@@ -470,7 +491,7 @@ public class EditorManager : MonoBehaviour
     public class CommandParams
     {
         // AddPieceCommand (parameters)
-        // UsePieceAsOriginCommand (position stores the offset to reach)
+        // UsePieceAsOriginCommand (position stores the offset to reach, prefab stores the piece for outline effect)
         public GameObject prefab;
         public Vector3 position;
         public Quaternion rotation;
@@ -482,6 +503,7 @@ public class EditorManager : MonoBehaviour
         // SelectPieceCommand (parameter)
         // SelectSinglePieceCommand (parameter)
         // DeselectSinglePieceCommand (parameter)
+        // UsePieceAsOriginCommand (stores the previous origin piece, can be null)
         public GameObject result;
 
         // DeletePieceCommand (stores the pieces to restore if undo / delete if out of the redo stack)
@@ -743,7 +765,12 @@ public class EditorManager : MonoBehaviour
         public UsePieceAsOriginCommand()
         {
             GameObject referencePiece = selectedPiecesInPlace[0];
-            float offX = Mathf.Repeat(referencePiece.transform.position.x, 2f), offY = referencePiece.transform.position.y, offZ = Mathf.Repeat(referencePiece.transform.position.z, 2f);
+            _CP.prefab = referencePiece;
+            _CP.result = originPiece;
+
+            float offX = Mathf.Repeat(referencePiece.transform.position.x, 2f), 
+                  offY = referencePiece.transform.position.y, 
+                  offZ = Mathf.Repeat(referencePiece.transform.position.z, 2f);
 
             // Remove the (Clone) from the name
             string pName = referencePiece.name.Split('(')[0];
@@ -779,13 +806,21 @@ public class EditorManager : MonoBehaviour
 
         public CommandParams Do(CommandParams input = null)
         {
+            originPiece = _CP.prefab;
             SetGridOffset(_CP.position.x, _CP.position.y, _CP.position.z);
+            SetHighlight(true, _CP.prefab, 1);
+            if(_CP.result != null)
+                SetHighlight(false, _CP.result);
             return _CP;
         }
 
         public CommandParams Undo(CommandParams input = null)
         {
             SetGridOffset(_CP.offset.x, _CP.offset.y, _CP.offset.z);
+            if (_CP.result != null)
+                SetHighlight(true, _CP.result, 0);
+            originPiece = _CP.result;
+            SetHighlight(true, _CP.prefab);
             return _CP;
         }
     }
@@ -798,18 +833,23 @@ public class EditorManager : MonoBehaviour
         public ResetOriginCommand()
         {
             _CP.offset = new Vector3(offsetGridX, offsetGridY, offsetGridZ);
+            _CP.prefab = originPiece;
         }
 
         public CommandParams Do(CommandParams input = null)
         {
             // Default call will reset the grid
             SetGridOffset();
+            originPiece = null;
+            SetHighlight(false, _CP.prefab);
             return _CP;
         }
 
         public CommandParams Undo(CommandParams input = null)
         {
             SetGridOffset(_CP.offset.x, _CP.offset.y, _CP.offset.z);
+            SetHighlight(true, _CP.prefab, 0);
+            originPiece = _CP.prefab;
             return _CP;
         }
     }
