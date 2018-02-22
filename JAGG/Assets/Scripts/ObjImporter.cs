@@ -14,6 +14,8 @@ public class ObjImporter : MonoBehaviour {
             loaded = new Dictionary<string, GameObject>();
             paths = new Dictionary<string, string>();
         }
+
+        //Instantiate(LoadGameObject(@"C:\Users\Kono\Desktop\test_hole_ucx.obj")).SetActive(true);
 	}
 	
     public static GameObject LoadGameObject(string path)
@@ -31,7 +33,6 @@ public class ObjImporter : MonoBehaviour {
             try
             {
                 GameObject o = OBJLoader.LoadOBJFile(@path);
-                o.transform.GetChild(0).gameObject.AddComponent<MeshCollider>();
                 o.AddComponent<TerrainPiece>();
                 o.GetComponent<TerrainPiece>().id = key;
                 o.GetComponent<TerrainPiece>().prefab = false;

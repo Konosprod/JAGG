@@ -364,6 +364,7 @@ public class OBJLoader
             List<string> meshMaterialNames = new List<string>();
 
             OBJFace[] ofaces = faceList.Where(x =>  x.meshName == obj).ToArray();
+
             foreach (string mn in materialNames)
             {
                 OBJFace[] faces = ofaces.Where(x => x.materialName == mn).ToArray();
@@ -422,38 +423,44 @@ public class OBJLoader
              m.RecalculateNormals();   
             }
             m.RecalculateBounds();
-            ;
 
-            MeshFilter mf = subObject.AddComponent<MeshFilter>();
-            MeshRenderer mr = subObject.AddComponent<MeshRenderer>();
 
-            Material[] processedMaterials = new Material[meshMaterialNames.Count];
-            for(int i=0 ; i < meshMaterialNames.Count; i++)
+            if (obj.StartsWith("COL_", true, CultureInfo.InvariantCulture))
             {
-                
-                if (materialCache == null)
+                subObject.AddComponent<MeshCollider>();
+            }
+            else
+            {
+                MeshFilter mf = subObject.AddComponent<MeshFilter>();
+                MeshRenderer mr = subObject.AddComponent<MeshRenderer>();
+
+                Material[] processedMaterials = new Material[meshMaterialNames.Count];
+                for (int i = 0; i < meshMaterialNames.Count; i++)
                 {
-                    processedMaterials[i] = new Material(Shader.Find("Standard (Specular setup)"));
-                }
-                else
-                {
-                    Material mfn = Array.Find(materialCache, x => x.name == meshMaterialNames[i]); ;
-                    if (mfn == null)
+
+                    if (materialCache == null)
                     {
                         processedMaterials[i] = new Material(Shader.Find("Standard (Specular setup)"));
                     }
                     else
                     {
-                        processedMaterials[i] = mfn;
+                        Material mfn = Array.Find(materialCache, x => x.name == meshMaterialNames[i]); ;
+                        if (mfn == null)
+                        {
+                            processedMaterials[i] = new Material(Shader.Find("Standard (Specular setup)"));
+                        }
+                        else
+                        {
+                            processedMaterials[i] = mfn;
+                        }
+
                     }
-                    
+                    processedMaterials[i].name = meshMaterialNames[i];
                 }
-                processedMaterials[i].name = meshMaterialNames[i];
+
+                mr.materials = processedMaterials;
+                mf.mesh = m;
             }
-
-            mr.materials = processedMaterials;
-            mf.mesh = m;
-
         }
 
         return parentObject;

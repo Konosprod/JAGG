@@ -3,11 +3,16 @@ using UnityEngine;
 
 public class PanelJoin : MonoBehaviour {
 
+    public PanelCreate panelCreate;
     public Button buttonJoin;
     public Button buttonReturn;
+    public Button buttonCreate;
+    public PortInputField portInputCreate;
     public IPInputField ipInput;
     public PortInputField portInput;
     public Text statusText;
+
+    public bool shouldCheckInputs = true;
 
     public float animationSpeed = 3f;
     private float elapsed = 0f;
@@ -17,6 +22,7 @@ public class PanelJoin : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        shouldCheckInputs = true;
         buttonJoin.interactable = false;
 	}
 	
@@ -53,7 +59,8 @@ public class PanelJoin : MonoBehaviour {
         }
         else
         {
-            buttonJoin.interactable = (ipInput.isValid && portInput.isValid);
+            if(shouldCheckInputs)
+                buttonJoin.interactable = (ipInput.isValid && portInput.isValid);
         }
 	}
 
@@ -65,18 +72,23 @@ public class PanelJoin : MonoBehaviour {
         elapsed = 0f;
 
         buttonReturn.interactable = true;
+        buttonCreate.interactable = true;
 
         ipInput.inputField.interactable = true;
         portInput.inputField.interactable = true;
+        portInputCreate.inputField.interactable = true;
     }
 
     public void Connecting()
     {
+        panelCreate.shouldCheckInputs = false;
         buttonJoin.interactable = false;
         buttonReturn.interactable = false;
+        buttonCreate.interactable = false;
 
         ipInput.inputField.interactable = false;
         portInput.inputField.interactable = false;
+        portInputCreate.inputField.interactable = false;
 
         SetStatus("Connecting", Color.white);
 
@@ -85,11 +97,14 @@ public class PanelJoin : MonoBehaviour {
 
     public void Error()
     {
+        panelCreate.shouldCheckInputs = true;
         buttonJoin.interactable = true;
         buttonReturn.interactable = true;
+        buttonCreate.interactable = true;
 
         ipInput.inputField.interactable = true;
         portInput.inputField.interactable = true;
+        portInputCreate.inputField.interactable = true;
 
         SetStatus("Error while connecting the host", Color.red);
 

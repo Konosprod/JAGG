@@ -83,7 +83,7 @@ public class LobbyControls : NetworkBehaviour {
 
     public void EnableEditButton(bool enable)
     {
-        editButton.gameObject.SetActive(enable);
+        editButton.interactable = enable;
     }
 
     public void EnableRulesButton(bool enable)

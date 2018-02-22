@@ -16,9 +16,9 @@ public class LobbyManager : NetworkLobbyManager
 
     [Header("UI")]
     public GameObject mainPanel;
-    public PanelJoin joinPanel;
     public GameObject lobbyPanel;
     public GameObject controlPanel;
+    public PanelJoin joinPanel;
     public InputField InputIP;
     public InputField joinPort;
     public InputField createPort;
@@ -42,6 +42,13 @@ public class LobbyManager : NetworkLobbyManager
     
     [HideInInspector]
     public string winnerName = "";
+
+    private static Vector3[] positions = new Vector3[] {
+        new Vector3(-320, -79, 220),
+        new Vector3(-118, -79, 220),
+        new Vector3(97, -79, 220),
+        new Vector3(315, -79, 220)
+    };
 
     //0 = normal, 1 = low, 2 = high
     public int gravity;
@@ -200,7 +207,6 @@ public class LobbyManager : NetworkLobbyManager
 
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(true);
-            joinPanel.SetActive(false);
             controlPanel.SetActive(true);
         }
         else
@@ -239,7 +245,6 @@ public class LobbyManager : NetworkLobbyManager
 
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(false);
-            joinPanel.SetActive(false);
             controlPanel.SetActive(false);
         }
     }
@@ -268,7 +273,6 @@ public class LobbyManager : NetworkLobbyManager
         {
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(false);
-            joinPanel.SetActive(false);
             controlPanel.SetActive(false);
         }
         else
@@ -276,7 +280,6 @@ public class LobbyManager : NetworkLobbyManager
             isStarted = false;
             mainPanel.SetActive(false);
             lobbyPanel.SetActive(false);
-            joinPanel.SetActive(false);
             controlPanel.SetActive(false);
         }
     }
@@ -301,6 +304,7 @@ public class LobbyManager : NetworkLobbyManager
     public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
     {
         GameObject o = Instantiate(lobbyPlayerPrefab.gameObject) as GameObject;
+        o.GetComponent<LobbyPlayer>().position = positions[numPlayers];
 
         return o;
     }
@@ -314,7 +318,6 @@ public class LobbyManager : NetworkLobbyManager
     public override void OnClientConnect(NetworkConnection conn)
     {
         mainPanel.SetActive(false);
-        joinPanel.SetActive(false);
         lobbyPanel.SetActive(true);
         controlPanel.SetActive(true);
         base.OnClientConnect(conn);
@@ -337,8 +340,7 @@ public class LobbyManager : NetworkLobbyManager
             joinPanel.Error();
         }
 
-        mainPanel.SetActive(false);
-        joinPanel.SetActive(true);
+        mainPanel.SetActive(true);
         lobbyPanel.SetActive(false);
         controlPanel.SetActive(false);
 

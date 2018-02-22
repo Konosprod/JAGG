@@ -8,6 +8,9 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     public Toggle toggleReady;
     public Text readyText;
 
+    [SyncVar(hook = "OnPosition")]
+    public Vector3 position;
+
     public Color localPlayerColor = new Color(1, 1, 1);
 
     [SyncVar(hook = "OnMyName")]
@@ -15,8 +18,8 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     public LobbyControls lobbyControls;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         LobbyPlayerList._instance.AddPlayer(this);
 
         lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
@@ -43,6 +46,8 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     public override void OnClientEnterLobby()
     {
         OnMyName(playerName);
+        OnClientReady(toggleReady.isOn);
+        OnPosition(this.position);
     }
 
     private void SetupLocalPlayer()
@@ -83,6 +88,11 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         {
             playerNameLabel.color = localPlayerColor;
         }
+    }
+
+    private void OnPosition(Vector3 position)
+    {
+        gameObject.transform.position = position;
     }
 
     private void OnReadyClicked(bool newValue)

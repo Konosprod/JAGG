@@ -6,6 +6,8 @@ public class PanelCreate : MonoBehaviour {
     public Button buttonCreate;
     public PortInputField portInput;
 
+    public bool shouldCheckInputs = true;
+
 
 	// Use this for initialization
 	void Start() {
@@ -14,6 +16,7 @@ public class PanelCreate : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        buttonCreate.interactable = portInput.isValid;
+        if(shouldCheckInputs)
+            buttonCreate.interactable = portInput.isValid;
 	}
 }
