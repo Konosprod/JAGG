@@ -1,5 +1,7 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
+using Ionic.Zip;
+using System.IO;
 
 public class PanelRulesEdit : MonoBehaviour {
 
@@ -20,7 +22,25 @@ public class PanelRulesEdit : MonoBehaviour {
 
         if (lobbyManager.playScene == "Custom")
         {
-            string json = System.IO.File.ReadAllText(Application.persistentDataPath + "/levels/" + lobbyManager.customMapFile + ".json");
+            string json = "";
+            string filename = Application.persistentDataPath + "/levels/" + lobbyManager.customMapFile + ".map";
+
+            using (ZipFile mapFile = ZipFile.Read(filename))
+            {
+                using (MemoryStream s = new MemoryStream())
+                {
+                    ZipEntry e = mapFile["level.json"];
+                    e.Extract(s);
+
+                    s.Seek(0, SeekOrigin.Begin);
+
+                    using (StreamReader sr = new StreamReader(s))
+                    {
+                        json = sr.ReadToEnd();
+                    }
+                }
+            }
+
             level = JsonUtility.FromJson<CustomLevel>(json);
         }
         else
