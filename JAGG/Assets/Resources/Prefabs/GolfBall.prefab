@@ -139,7 +139,6 @@ GameObject:
   - component: {fileID: 114683513821661536}
   - component: {fileID: 114351922675703174}
   - component: {fileID: 114277472616525290}
-  - component: {fileID: 114172854367086094}
   - component: {fileID: 114288062548389386}
   m_Layer: 0
   m_Name: GolfBall
@@ -683,27 +682,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
---- !u!114 &114172854367086094
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1696014211341154}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TransformSyncMode: 1
-  m_SendInterval: 0.033333335
-  m_SyncRotationAxis: 7
-  m_RotationSyncCompression: 0
-  m_SyncSpin: 0
-  m_MovementTheshold: 0.001
-  m_VelocityThreshold: 0.0001
-  m_SnapThreshold: 5
-  m_InterpolateRotation: 1
-  m_InterpolateMovement: 1
 --- !u!114 &114277472616525290
 MonoBehaviour:
   m_ObjectHideFlags: 1

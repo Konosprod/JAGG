@@ -24,14 +24,28 @@ public class EditorManager : MonoBehaviour
     public GameObject plane;
     private static GameObject gridGO;
     private static GameObject planeGO;
+    public TestMode testMode;
+    public GameObject controlPanelContent;
 
+    // Contains the list of terrain prefabs
     private static GameObject[] prefabs;
+
+    public GameObject prefabSpawnPoint;
+    public GameObject prefabLevelProperties;
+
+    private static int currentHole = 0; // The hole that the player is currently editing
+    private const int maxHoles = 18;
+
+    private GameObject holesObject = null;
+    private static GameObject currentHoleObject = null;
 
     private GameObject currentPiece = null; // Piece that the player wants to place
     private static GameObject originPiece = null;  // Piece that is used as the origin for the grid
     public static List<GameObject> selectedPiecesInPlace; // Piece that was placed that the player wants to edit
 
-    private List<GameObject> piecesInPlace; // List of pieces placed
+    private static GameObject[] spawnPoints = new GameObject[maxHoles]; // SpawnPoints of the holes
+    private static GameObject[] levelsProperties = new GameObject[maxHoles]; // levelProperties of the holes
+    private static List<GameObject>[] piecesInPlace; // List of pieces placed
 
     private UndoRedoStack<CommandParams> undoRedoStack = new UndoRedoStack<CommandParams>();
     private CommandParams currParams = null;
@@ -46,8 +60,30 @@ public class EditorManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        piecesInPlace = new List<GameObject>();
+        // Create Holes GameObject for easier debugging
+        holesObject = new GameObject("Holes");
+
+        piecesInPlace = new List<GameObject>[maxHoles];
+        for (int i = 0; i < maxHoles; i++)
+        {
+            piecesInPlace[i] = new List<GameObject>();
+            GameObject go = new GameObject("Hole " + (i + 1));
+            go.transform.parent = holesObject.transform;
+
+            // Add levelProperties and spawnPoint to holes
+            GameObject lvlProp = Instantiate(prefabLevelProperties);
+            lvlProp.transform.parent = go.transform;
+            lvlProp.name = prefabLevelProperties.name;
+            levelsProperties[i] = lvlProp;
+            GameObject spwn = Instantiate(prefabSpawnPoint);
+            spwn.transform.parent = go.transform;
+            spwn.name = prefabSpawnPoint.name;
+            spawnPoints[i] = spwn;
+        }
+
         selectedPiecesInPlace = new List<GameObject>();
+
+        currentHoleObject = GameObject.Find("Hole " + (currentHole+1));
 
         // Grab all prefabs previews
         prefabs = Resources.LoadAll<GameObject>("Prefabs/Terrain");
@@ -84,289 +120,295 @@ public class EditorManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        // Handle ctrl + Z
-        // Unity editor will catch the ctrl + Z so Z alone will be the input for the editor
+        if (!testMode.isInTest())
+        {
+            // Handle ctrl + Z
+            // Unity editor will catch the ctrl + Z so Z alone will be the input for the editor
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.Z))
+            if (Input.GetKeyDown(KeyCode.Z))
 #else
         if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Z))
 #endif
-        {
-            currParams = undoRedoStack.Undo(currParams);
-        }
+            {
+                currParams = undoRedoStack.Undo(currParams);
+            }
 
-        // Handle ctrl + Y
-        // Unity editor will catch the ctrl + Y so Y alone will be the input for the editor
+            // Handle ctrl + Y
+            // Unity editor will catch the ctrl + Y so Y alone will be the input for the editor
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.Y))
+            if (Input.GetKeyDown(KeyCode.Y))
 #else
         if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Y))
 #endif
-        {
-            currParams = undoRedoStack.Redo(currParams);
-        }
-
-
-        if (currentPiece != null)
-        {
-            // A piece was selected in the menu, the player can place copies
-            float x,y,z = 0f;
-
-            // If the selected is a prefab or a simple floor
-            if (currentPiece.layer != layerBoosterPad && currentPiece.layer != layerWall)
             {
-                // We use a raycast to find the plane (layerPlane)
-                RaycastHit rayHitPlane;
-                Ray rayPlane = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(rayPlane, out rayHitPlane, Mathf.Infinity))
+                currParams = undoRedoStack.Redo(currParams);
+            }
+
+
+            if (currentPiece != null)
+            {
+                // A piece was selected in the menu, the player can place copies
+                float x, y, z = 0f;
+
+                // If the selected is a prefab or a simple floor
+                if (currentPiece.layer != layerBoosterPad && currentPiece.layer != layerWall)
                 {
-                    if (rayHitPlane.transform.gameObject.layer == layerPlane)
+                    // We use a raycast to find the plane (layerPlane)
+                    RaycastHit rayHitPlane;
+                    Ray rayPlane = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(rayPlane, out rayHitPlane, Mathf.Infinity))
                     {
-                        //Debug.Log("Hit the plane");
-
-                        // Only move the piece on the grid, ignore if the cursor is on any UI element
-                        if (!EventSystem.current.IsPointerOverGameObject())
+                        if (rayHitPlane.transform.gameObject.layer == layerPlane)
                         {
-                            //Debug.Log("hitPoint : " + rayHitPlane.point);
-                            // Round to the lowest even integer in order to move correctly on the grid
-                            x = Mathf.Floor(rayHitPlane.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
-                            x = (x % 2 == 0) ? x : x - 1;
-                            x += offsetGridX;
-                            y = rayHitPlane.point.y;
-                            z = Mathf.Floor(rayHitPlane.point.z + 1 - offsetGridZ);
-                            z = (z % 2 == 0) ? z : z - 1;
-                            z += offsetGridZ;
-                            Vector3 pos = new Vector3(x, y, z);
-                            //Debug.Log("pos : " + pos);
-                            targetNormal = Vector3.up;
-                            currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
-                            currentPiece.transform.position = pos;
+                            //Debug.Log("Hit the plane");
 
-                            // If you left-click and the position is free, place the piece
-                            if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
+                            // Only move the piece on the grid, ignore if the cursor is on any UI element
+                            if (!EventSystem.current.IsPointerOverGameObject())
                             {
-                                currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
-                                // GameObject newPiece = Instantiate(currentPiece, pos, currentPiece.transform.rotation);
-                                // Enable all colliders so that Raycasts do hit the piece
-                                SetAllCollidersStatus(true, currParams.result);
-                                piecesInPlace.Add(currParams.result);
-                            }
+                                //Debug.Log("hitPoint : " + rayHitPlane.point);
+                                // Round to the lowest even integer in order to move correctly on the grid
+                                x = Mathf.Floor(rayHitPlane.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
+                                x = (x % 2 == 0) ? x : x - 1;
+                                x += offsetGridX;
+                                y = rayHitPlane.point.y;
+                                z = Mathf.Floor(rayHitPlane.point.z + 1 - offsetGridZ);
+                                z = (z % 2 == 0) ? z : z - 1;
+                                z += offsetGridZ;
+                                Vector3 pos = new Vector3(x, y, z);
+                                //Debug.Log("pos : " + pos);
+                                targetNormal = Vector3.up;
+                                currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
+                                currentPiece.transform.position = pos;
 
+                                // If you left-click and the position is free, place the piece
+                                if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
+                                {
+                                    currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
+                                }
+
+                            }
                         }
                     }
                 }
-            }
-            else if (currentPiece.layer == layerWall)
-            {
-
-            }
-            else if (currentPiece.layer == layerBoosterPad)
-            {
-                // The booster pads go on top of the floor pieces so we use a raycast to find them
-                RaycastHit rayHit;
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out rayHit, Mathf.Infinity))
+                else if (currentPiece.layer == layerWall)
                 {
-                    if (rayHit.transform.gameObject.layer == layerFloor) // If we hit a floor we put the BoosterPad on top
-                    {
-                        //Debug.Log("Hit a floor");
 
-                        // Only move the piece on the grid, ignore if the cursor is on any UI element
-                        if (!EventSystem.current.IsPointerOverGameObject())
-                        {
-                            //Debug.Log("hitPoint : " + rayHitPlane.point);
-                            // Round to the lowest even integer in order to move correctly on the grid
-                            x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
-                            x = (x % 2 == 0) ? x : x - 1;
-                            x += offsetGridX;
-                            y = rayHit.point.y + 0.001f;
-                            z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
-                            z = (z % 2 == 0) ? z : z - 1;
-                            z += offsetGridZ;
-                            Vector3 pos = new Vector3(x, rayHit.point.y+0.001f, z);
-                            if (rayHit.transform.gameObject.name == "Slope")
-                            {
-                                y = 0.391f;
-                                pos.y = 0.391f;
-                            }
-
-                            // Align the booster pad alongside the piece
-                            if (rayHit.normal != targetNormal)
-                            {
-                                targetNormal = rayHit.normal;
-                                currentPiece.transform.rotation = Quaternion.FromToRotation(Vector3.up, rayHit.normal);
-                            }
-                            //Debug.Log("pos : " + pos);
-                            currentPiece.transform.position = pos;
-
-                           
-                            // If you left-click and the position is free, place the piece
-                            if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
-                            {
-                                currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
-                                // GameObject newPiece = Instantiate(currentPiece, pos, currentPiece.transform.rotation);
-                                // Enable all colliders so that Raycasts do hit the piece
-                                SetAllCollidersStatus(true, currParams.result);
-                                piecesInPlace.Add(currParams.result);
-                            }
-
-                        }
-                    }
-                    else if (rayHit.transform.gameObject.layer == layerPlane) // If we hit the plane we move along the grid
-                    {
-                        // Only move the piece on the grid, ignore if the cursor is on any UI element
-                        if (!EventSystem.current.IsPointerOverGameObject())
-                        {
-                            //Debug.Log("hitPoint : " + rayHitPlane.point);
-                            // Round to the lowest even integer in order to move correctly on the grid
-                            x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
-                            x = (x % 2 == 0) ? x : x - 1;
-                            x += offsetGridX;
-                            y = rayHit.point.y;
-                            z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
-                            z = (z % 2 == 0) ? z : z - 1;
-                            z += offsetGridZ;
-                            Vector3 pos = new Vector3(x, y, z);
-                            //Debug.Log("pos : " + pos);
-                            targetNormal = Vector3.up;
-                            currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
-                            currentPiece.transform.position = pos;
-                        }
-                    }
                 }
-            }
-            else
-            {
-                Debug.LogError("Unknown layer : " + currentPiece.layer + ", for piece : " +currentPiece.name);
-            }
-
-            // Use R to rotate the piece 90 degrees clockwise
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                currentPiece.transform.Rotate(currentPiece.transform.up, 90f, Space.World);
-            }
-
-            // The D allows to destroy the current piece
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                Destroy(currentPiece);
-            }
-        }
-        else if (selectedPiecesInPlace.Count > 0)
-        {
-            // The player clicked on a piece that was placed, he can edit it
-            // He can also select other pieces or select a part of the piece (like a single wall to disable or stuff)
-
-            if (Input.GetKeyDown(KeyCode.Delete))
-            {
-                currParams = undoRedoStack.Do(new DeletePiecesCommand(), currParams);
-            }
-
-
-            // Use R to rotate the selected pieces 90 degrees clockwise
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                currParams = undoRedoStack.Do(new RotateSelectedPiecesCommand(), currParams);
-            }
-
-            // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
-            if(selectedPiecesInPlace.Count == 1)
-            {
-                if (Input.GetKeyDown(KeyCode.O))
+                else if (currentPiece.layer == layerBoosterPad)
                 {
-                    currParams = undoRedoStack.Do(new UsePieceAsOriginCommand(), currParams);
-                }
-            }
-
-            // Click alone selects a single piece while deselecting other pieces
-            // Use shift + click to select additional pieces
-            if (Input.GetMouseButtonDown(0))
-            {
-                // We use a raycast to find the pieces
-                RaycastHit rayHitPiece;
-                Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
-                {
-                    //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
-                    GameObject piece = rayHitPiece.transform.gameObject;
-
-                    // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
-                    //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
-                    //{
-                    while (piece.transform.parent != null)
+                    // The booster pads go on top of the floor pieces so we use a raycast to find them
+                    RaycastHit rayHit;
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out rayHit, Mathf.Infinity))
                     {
-                        piece = piece.transform.parent.gameObject;
-                    }
-                    //}
-
-                    // Debug.Log(piece.name);
-
-                    // Add to the selection or remove from the selection if the piece was already selected
-                    if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
-                    {
-                        if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                        if (rayHit.transform.gameObject.layer == layerFloor) // If we hit a floor we put the BoosterPad on top
                         {
-                            currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                            //Debug.Log("Hit a floor");
+
+                            // Only move the piece on the grid, ignore if the cursor is on any UI element
+                            if (!EventSystem.current.IsPointerOverGameObject())
+                            {
+                                //Debug.Log("hitPoint : " + rayHitPlane.point);
+                                // Round to the lowest even integer in order to move correctly on the grid
+                                x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
+                                x = (x % 2 == 0) ? x : x - 1;
+                                x += offsetGridX;
+                                y = rayHit.point.y + 0.001f;
+                                z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
+                                z = (z % 2 == 0) ? z : z - 1;
+                                z += offsetGridZ;
+                                Vector3 pos = new Vector3(x, rayHit.point.y + 0.001f, z);
+                                if (rayHit.transform.gameObject.name == "Slope")
+                                {
+                                    y = 0.391f;
+                                    pos.y = 0.391f;
+                                }
+
+                                // Align the booster pad alongside the piece
+                                if (rayHit.normal != targetNormal)
+                                {
+                                    targetNormal = rayHit.normal;
+                                    currentPiece.transform.rotation = Quaternion.FromToRotation(Vector3.up, rayHit.normal);
+                                }
+                                //Debug.Log("pos : " + pos);
+                                currentPiece.transform.position = pos;
+
+
+                                // If you left-click and the position is free, place the piece
+                                if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
+                                {
+                                    currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
+                                }
+
+                            }
                         }
-                        else
+                        else if (rayHit.transform.gameObject.layer == layerPlane) // If we hit the plane we move along the grid
                         {
-                            currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                            // Only move the piece on the grid, ignore if the cursor is on any UI element
+                            if (!EventSystem.current.IsPointerOverGameObject())
+                            {
+                                //Debug.Log("hitPoint : " + rayHitPlane.point);
+                                // Round to the lowest even integer in order to move correctly on the grid
+                                x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
+                                x = (x % 2 == 0) ? x : x - 1;
+                                x += offsetGridX;
+                                y = rayHit.point.y;
+                                z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
+                                z = (z % 2 == 0) ? z : z - 1;
+                                z += offsetGridZ;
+                                Vector3 pos = new Vector3(x, y, z);
+                                //Debug.Log("pos : " + pos);
+                                targetNormal = Vector3.up;
+                                currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
+                                currentPiece.transform.position = pos;
+                            }
                         }
-                    }
-                    else
-                    {
-                        currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
                     }
                 }
                 else
                 {
-                    // Click on an empty space => deselect all pieces
-                    // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
-                    if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
-                    {
-                        currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
-                    }
+                    Debug.LogError("Unknown layer : " + currentPiece.layer + ", for piece : " + currentPiece.name);
+                }
+
+                // Use R to rotate the piece 90 degrees clockwise
+                if (Input.GetKeyDown(KeyCode.R))
+                {
+                    currentPiece.transform.Rotate(currentPiece.transform.up, 90f, Space.World);
+                }
+
+                // The D allows to destroy the current piece
+                if (Input.GetKeyDown(KeyCode.D))
+                {
+                    Destroy(currentPiece);
                 }
             }
-
-        }
-        else
-        {
-            // No piece selected, the player can click pieces in place to modify them or a piece in the menu to start placing them
-
-
-            // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
-            if (Input.GetKeyDown(KeyCode.O))
+            else if (selectedPiecesInPlace.Count > 0)
             {
-                currParams = undoRedoStack.Do(new ResetOriginCommand(), currParams);
-            }
+                // The player clicked on a piece that was placed, he can edit it
+                // He can also select other pieces or select a part of the piece (like a single wall to disable or stuff)
 
-
-            // Use left-click to select
-            if (Input.GetMouseButtonDown(0))
-            {
-                // We use a raycast to find the pieces
-                RaycastHit rayHitPiece;
-                Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                if (Input.GetKeyDown(KeyCode.D))
                 {
-                    //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
-                    GameObject piece = rayHitPiece.transform.gameObject;
+                    currParams = undoRedoStack.Do(new DeletePiecesCommand(), currParams);
+                }
 
-                    // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
-                    //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
-                    //{
-                    while (piece.transform.parent != null)
+
+                // Use R to rotate the selected pieces 90 degrees clockwise
+                if (Input.GetKeyDown(KeyCode.R))
+                {
+                    currParams = undoRedoStack.Do(new RotateSelectedPiecesCommand(), currParams);
+                }
+
+
+                if (selectedPiecesInPlace.Count == 1)
+                {
+                    // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
+                    if (Input.GetKeyDown(KeyCode.O))
                     {
-                        piece = piece.transform.parent.gameObject;
+                        currParams = undoRedoStack.Do(new UsePieceAsOriginCommand(), currParams);
                     }
-                    //}
+                    // Use shift + S to define the piece as the spawning point of the level
+                    else if (Input.GetKeyDown(KeyCode.S) && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
+                    {
+                        currParams = undoRedoStack.Do(new SetSpawnPointCommand(), currParams);
+                    }
+                }
 
-                    // Debug.Log(piece.name);
+                // Click alone selects a single piece while deselecting other pieces
+                // Use shift + click to select additional pieces
+                if (Input.GetMouseButtonDown(0))
+                {
+                    // We use a raycast to find the pieces
+                    RaycastHit rayHitPiece;
+                    Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                    {
+                        //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
+                        GameObject piece = rayHitPiece.transform.gameObject;
 
-                    // We highlight the selected piece
-                    currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                        // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
+                        //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
+                        //{
+                        string pName = piece.name.Split(' ')[0];
+                        while (piece.transform.parent != null && pName != "Hole")
+                        {
+                            pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                            if (pName != "Hole")
+                                piece = piece.transform.parent.gameObject;
+                        }
+                        //}
+
+                        // Debug.Log(piece.name);
+
+                        // Add to the selection or remove from the selection if the piece was already selected
+                        if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
+                        {
+                            if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                            {
+                                currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                            }
+                            else
+                            {
+                                currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                            }
+                        }
+                        else
+                        {
+                            currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                        }
+                    }
+                    else
+                    {
+                        // Click on an empty space => deselect all pieces
+                        // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
+                        if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
+                        {
+                            currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                // No piece selected, the player can click pieces in place to modify them or a piece in the menu to start placing them
+
+
+                // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
+                if (Input.GetKeyDown(KeyCode.O))
+                {
+                    currParams = undoRedoStack.Do(new ResetOriginCommand(), currParams);
+                }
+
+
+                // Use left-click to select
+                if (Input.GetMouseButtonDown(0))
+                {
+                    // We use a raycast to find the pieces
+                    RaycastHit rayHitPiece;
+                    Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                    {
+                        //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
+                        GameObject piece = rayHitPiece.transform.gameObject;
+
+                        // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
+                        //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
+                        //{
+                        string pName = piece.name.Split(' ')[0];
+                        while (piece.transform.parent != null && pName != "Hole")
+                        {
+                            pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                            if (pName != "Hole")
+                                piece = piece.transform.parent.gameObject;
+                        }
+                        //}
+
+                        // Debug.Log(piece.name);
+
+                        // We highlight the selected piece
+                        currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                    }
                 }
             }
         }
@@ -412,6 +454,9 @@ public class EditorManager : MonoBehaviour
                 currentPiece = Instantiate(piece);
                 // Disable all colliders so that Raycasts can go through the currentPiece
                 SetAllCollidersStatus(false, currentPiece);
+
+                // Deselect all pieces when we pick something in the UI
+                //currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
             }
             else
                 Debug.LogError("Piece not found : " + pieceName);
@@ -511,6 +556,9 @@ public class EditorManager : MonoBehaviour
         // SelectSinglePieceCommand (stores the pieces that were deselected)
         // DeselectAllPiecesCommand (stores the pieces that were deselected)
         public List<GameObject> selectedPieces = new List<GameObject>();
+
+        // SetSpawnPoint (stores wether the spawnPoint must be displayed or not)
+        public bool b;
     }
 
     // Adding a piece
@@ -541,6 +589,10 @@ public class EditorManager : MonoBehaviour
             if (_CP.result == null)
             {
                 _CP.result = Instantiate(_CP.prefab, _CP.position, _CP.rotation);
+                // Enable all colliders so that Raycasts do hit the piece
+                _CP.result.transform.parent = currentHoleObject.transform;
+                SetAllCollidersStatus(true, _CP.result);
+                piecesInPlace[currentHole].Add(_CP.result);
             }
             else
             {
@@ -552,6 +604,8 @@ public class EditorManager : MonoBehaviour
         public CommandParams Undo(CommandParams input = null)
         {
             _CP.result.SetActive(false);
+            if (!piecesInPlace[currentHole].Remove(_CP.result))
+                Debug.LogError("Failed to remove object on addPieceCommand undo");
             return _CP;
         }
     }
@@ -854,6 +908,41 @@ public class EditorManager : MonoBehaviour
         }
     }
 
+    // Set the spawn point
+    public class SetSpawnPointCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public SetSpawnPointCommand()
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            GameObject spawnP = spawnPoints[currentHole];
+
+            _CP.result = piece;
+            _CP.prefab = spawnP;
+            _CP.position = spawnP.transform.position;
+
+            _CP.b = _CP.prefab.transform.GetChild(0).gameObject.activeSelf;
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            _CP.prefab.transform.position = _CP.result.transform.position;
+            _CP.prefab.transform.position = new Vector3(_CP.prefab.transform.position.x, _CP.prefab.transform.position.y + 0.2f, _CP.prefab.transform.position.z);
+            
+            _CP.prefab.transform.GetChild(0).gameObject.SetActive(true);
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            _CP.prefab.transform.position = _CP.position;
+
+            _CP.prefab.transform.GetChild(0).gameObject.SetActive(_CP.b);
+            return _CP;
+        }
+    }
+
 
     public class UndoRedoStack<T>
     {
@@ -927,6 +1016,20 @@ public class EditorManager : MonoBehaviour
 
     #endregion
 
+    public Vector3 getSpawnPosition()
+    {
+        return spawnPoints[currentHole].transform.position;
+    }
+
+    public bool canStartTestMode()
+    {
+        return spawnPoints[currentHole].transform.GetChild(0).gameObject.activeSelf;
+    }
+
+    public GameObject getCurrentHoleLevelProp()
+    {
+        return levelsProperties[currentHole];
+    }
 
     private float ClampAngle(float angle, float min = 0f, float max = 360f)
     {
