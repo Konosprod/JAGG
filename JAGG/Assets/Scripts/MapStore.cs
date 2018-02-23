@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class MapStore : MonoBehaviour
 {
-    public Downloader downloader;
     public Slider progressBar;
     public Text percentageText;
     public Text progressSizeText;
@@ -25,32 +26,50 @@ public class MapStore : MonoBehaviour
     {
     }
 
-    void FixedUpdate()
+
+    public void StartDownload()
     {
-        if(isDownloading)
+        //downloader.DownloadFile("https://img.20mn.fr/ef4UGBD6S5aECsvZcFzisQ/478x190-0.21x13.52-100_deux-loups-semi-sauvages-parc-angles-sud-france-juin-2015", @"C:\Users\Kono\Desktop\img.jpg");
+
+        StartCoroutine(DownloadFile("https://img.20mn.fr/ef4UGBD6S5aECsvZcFzisQ/478x190-0.21x13.52-100_deux-loups-semi-sauvages-parc-angles-sud-france-juin-2015", @"C:\Users\Kono\Desktop\img.jpg"));
+    }
+
+    IEnumerator DownloadFile(string url, string path)
+    {
+        using (UnityWebRequest uwr = UnityWebRequest.Get(url))
         {
-            progressBar.value = downloader.progressPercent;
-            percentageText.text = progressBar.value.ToString() + " %";
-            progressSizeText.text = FormatSize(downloader.currentBytes) + " / " + FormatSize(downloader.totalBytes);
+            uwr.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
 
-            if(downloader.isDone)
+            AsyncOperation request = uwr.SendWebRequest();
+
+            while (!request.isDone)
             {
-                isDownloading = false;
-                progressBar.value = 0;
+                ulong totalSize;
+                ulong.TryParse(uwr.GetResponseHeader("Content-Length"), out totalSize);
+                progressBar.value = request.progress*100;
+                percentageText.text = progressBar.value.ToString("0.##") + " %";
+                progressSizeText.text = FormatSize(uwr.downloadedBytes) + " / " + FormatSize(totalSize);
+                yield return null;
+            }
 
-                //What to do when done
+
+            if (uwr.isNetworkError || uwr.isHttpError)
+            {
+                progressBar.value = 0;
+                Debug.Log(uwr.error);
+                Debug.Log(uwr.responseCode);
+            }
+            else
+            {
+                progressBar.value = 0;
+                percentageText.text = "";
+                progressSizeText.text = "";
+                System.IO.File.WriteAllBytes(path, uwr.downloadHandler.data);
             }
         }
     }
 
-    public void StartDownload()
-    {
-        isDownloading = true;
-        //On pourra pas use du HTTPS avec Let's Encrypt, mono ne reconnait pas l'authoritée de certif
-        //downloader.DownloadFile("http://compile.konosprod.fr/1.mp4", @"C:\Users\Kono\Desktop\dled.mp4");
-    }
-
-    public string FormatSize(long size)
+    public string FormatSize(ulong size)
     {
         double len = size;
         int order = 0;
