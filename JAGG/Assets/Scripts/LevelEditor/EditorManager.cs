@@ -25,7 +25,7 @@ public class EditorManager : MonoBehaviour
     private static GameObject gridGO;
     private static GameObject planeGO;
     public TestMode testMode;
-    public GameObject controlPanelContent;
+    public Dropdown holeSelection;
 
     // Contains the list of terrain prefabs
     private static GameObject[] prefabs;
@@ -63,6 +63,8 @@ public class EditorManager : MonoBehaviour
         // Create Holes GameObject for easier debugging
         holesObject = new GameObject("Holes");
 
+        List<string> dropOptions = new List<string>();
+
         piecesInPlace = new List<GameObject>[maxHoles];
         for (int i = 0; i < maxHoles; i++)
         {
@@ -79,7 +81,16 @@ public class EditorManager : MonoBehaviour
             spwn.transform.parent = go.transform;
             spwn.name = prefabSpawnPoint.name;
             spawnPoints[i] = spwn;
+
+            // Add "Hole i+1" to the hole selection dropdown
+            dropOptions.Add("Hole " + (i + 1));
         }
+
+        // Setup the dropdown
+        holeSelection.AddOptions(dropOptions);
+        holeSelection.onValueChanged.AddListener(delegate {
+            DropdownValueChanged(holeSelection);
+        });
 
         selectedPiecesInPlace = new List<GameObject>();
 
@@ -464,6 +475,23 @@ public class EditorManager : MonoBehaviour
         else
             Debug.LogError("Empty string call");
     }
+
+
+    // This event triggers when the user changes the value of the dropdown menu (holeSelection)
+    void DropdownValueChanged(Dropdown change)
+    {
+        int holeSelected = change.value;
+
+        Debug.Log("Hole selected : " + (holeSelected+1));
+
+        // Just a safety check to avoid trying to change from current hole to current hole
+        if (holeSelected != currentHole)
+        {
+            currentHole = holeSelected;
+            currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
+        }
+    }
+
 
     // Enable / disable all colliders of gameobject and its children
     public static void SetAllCollidersStatus(bool active, GameObject go)
