@@ -25,14 +25,7 @@ GameObject:
   - component: {fileID: 65009350169330604}
   - component: {fileID: 114926285810070688}
   - component: {fileID: 114604936955830752}
-  - component: {fileID: 114699133988786764}
-  - component: {fileID: 114242624419756188}
-  - component: {fileID: 114894569781147536}
-  - component: {fileID: 114340574814944738}
-  - component: {fileID: 114763828196676126}
-  - component: {fileID: 114064205127474334}
-  - component: {fileID: 114991654720077398}
-  - component: {fileID: 114930639342789564}
+  - component: {fileID: 114747593820399252}
   m_Layer: 17
   m_Name: BoosterPad
   m_TagString: Untagged
@@ -106,17 +99,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.9599999, y: 0.2, z: 1.2300005}
   m_Center: {x: 0, y: 0.00000000613786, z: 0.02547652}
---- !u!114 &114064205127474334
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013808191614856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114074498685093068
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -129,28 +111,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1.5
---- !u!114 &114242624419756188
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013808191614856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114340574814944738
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013808191614856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114604936955830752
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -164,29 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: BoosterPad
   prefab: 1
---- !u!114 &114699133988786764
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013808191614856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114763828196676126
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013808191614856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114894569781147536
+--- !u!114 &114747593820399252
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -210,25 +148,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   multFactor: 2
   addFactor: 1500
---- !u!114 &114930639342789564
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013808191614856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114991654720077398
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1013808191614856}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
