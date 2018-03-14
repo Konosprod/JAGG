@@ -35,6 +35,8 @@ public class OfflineBallController : MonoBehaviour {
     private int shots = 0;
     private float timer = 0f;
 
+    private bool flagEnableTrail = false;
+
 
     // Use this for initialization
     void Start () {
@@ -45,6 +47,13 @@ public class OfflineBallController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        if(flagEnableTrail)
+        {
+            ParticleSystem.EmissionModule em = trail.emission;
+            em.enabled = true;
+            flagEnableTrail = false;
+        }
 
         isMoving = rb.velocity.magnitude >= 0.001f;
 
@@ -87,8 +96,11 @@ public class OfflineBallController : MonoBehaviour {
 
             if (Input.GetKeyDown(KeyCode.R) && lastPos != Vector3.zero)
             {
+                ParticleSystem.EmissionModule em = trail.emission;
+                em.enabled = false;
                 rb.velocity = Vector3.zero;
                 transform.position = lastPos;
+                flagEnableTrail = true;
             }
         }
 
@@ -107,9 +119,7 @@ public class OfflineBallController : MonoBehaviour {
         {
             testMode.TestHole(false);
             testMode.EndOfTest(shots, timer);
-            shots = 0;
-            timer = 0f;
-            rb.velocity = Vector3.zero;
+            resetTest();
         }
         else if (LayerMask.LayerToName(otherGO.layer) == "BoosterPad")
         {
@@ -126,6 +136,13 @@ public class OfflineBallController : MonoBehaviour {
         {
             Debug.LogError("Ball entered unexpected trigger : " + other.gameObject.name);
         }
+    }
+
+    public void resetTest()
+    {
+        shots = 0;
+        timer = 0f;
+        rb.velocity = Vector3.zero;
     }
 
     private void UpdateSlider()

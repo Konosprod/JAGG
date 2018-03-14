@@ -88,18 +88,26 @@ public class EditorManager : MonoBehaviour
 
         // Setup the dropdown
         holeSelection.AddOptions(dropOptions);
-        holeSelection.onValueChanged.AddListener(delegate {
+        holeSelection.onValueChanged.AddListener(delegate
+        {
             DropdownValueChanged(holeSelection);
         });
 
         selectedPiecesInPlace = new List<GameObject>();
 
-        currentHoleObject = GameObject.Find("Hole " + (currentHole+1));
+        currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
 
         // Grab all prefabs previews
         prefabs = Resources.LoadAll<GameObject>("Prefabs/Terrain");
         foreach (GameObject pref in prefabs)
         {
+            // /!\ CHANGES THE PREFAB ITSELF /!\
+            foreach (Renderer r in pref.GetComponentsInChildren<Renderer>())
+            {
+                if(r.gameObject.GetComponent<MaterialSwaperoo>() == null)
+                    r.gameObject.AddComponent<MaterialSwaperoo>();
+            }
+
             //Debug.Log(pref.name);
             //string preview = Application.dataPath + "/Resources/Previews/" + pref.name + "Preview.png";
             GameObject previewImage = new GameObject(pref.name);
@@ -482,15 +490,42 @@ public class EditorManager : MonoBehaviour
     {
         int holeSelected = change.value;
 
-        Debug.Log("Hole selected : " + (holeSelected+1));
+        // Debug.Log("Hole selected : " + (holeSelected + 1));
 
         // Just a safety check to avoid trying to change from current hole to current hole
         if (holeSelected != currentHole)
         {
+            foreach (MaterialSwaperoo ms in currentHoleObject.GetComponentsInChildren<MaterialSwaperoo>())
+            {
+                ms.SwapToGrey(true);
+            }
+
             currentHole = holeSelected;
             currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
+
+            foreach (MaterialSwaperoo ms in currentHoleObject.GetComponentsInChildren<MaterialSwaperoo>())
+            {
+                ms.SwapToGrey(false);
+            }
         }
     }
+
+
+    // Handle loss/gain of focus
+    private void OnApplicationFocus(bool focus)
+    {
+        if (!testMode.isInTest())
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
 
 
     // Enable / disable all colliders of gameobject and its children
@@ -531,7 +566,7 @@ public class EditorManager : MonoBehaviour
                     // Special cases for the origin
                     // If active = false, it means we are deselecting the origin piece => we keep the highlight and change to color 0
                     // else, it means we are selecting the origin piece (individually or not) => we change from color 0 to 1
-                    outl.color = (active)?1:0;
+                    outl.color = (active) ? 1 : 0;
                 }
                 else
                 {
@@ -850,8 +885,8 @@ public class EditorManager : MonoBehaviour
             _CP.prefab = referencePiece;
             _CP.result = originPiece;
 
-            float offX = Mathf.Repeat(referencePiece.transform.position.x, 2f), 
-                  offY = referencePiece.transform.position.y, 
+            float offX = Mathf.Repeat(referencePiece.transform.position.x, 2f),
+                  offY = referencePiece.transform.position.y,
                   offZ = Mathf.Repeat(referencePiece.transform.position.z, 2f);
 
             // Remove the (Clone) from the name
@@ -891,7 +926,7 @@ public class EditorManager : MonoBehaviour
             originPiece = _CP.prefab;
             SetGridOffset(_CP.position.x, _CP.position.y, _CP.position.z);
             SetHighlight(true, _CP.prefab, 1);
-            if(_CP.result != null)
+            if (_CP.result != null)
                 SetHighlight(false, _CP.result);
             return _CP;
         }
@@ -957,7 +992,7 @@ public class EditorManager : MonoBehaviour
         {
             _CP.prefab.transform.position = _CP.result.transform.position;
             _CP.prefab.transform.position = new Vector3(_CP.prefab.transform.position.x, _CP.prefab.transform.position.y + 0.2f, _CP.prefab.transform.position.z);
-            
+
             _CP.prefab.transform.GetChild(0).gameObject.SetActive(true);
             return _CP;
         }

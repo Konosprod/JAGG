@@ -14,7 +14,7 @@ public class TestMode : MonoBehaviour {
     public GameObject scrollView;   // Piece selection
     public GameObject testButton;
     public GameObject exitTestButton;
-    public GameObject controlPanel;
+    public GameObject holeSelection;
     public EditorManager editorMan;
 
 
@@ -31,6 +31,7 @@ public class TestMode : MonoBehaviour {
     
     private float panelTimer = 0f;
 
+
     // Update is called once per frame
     void Update()
     {
@@ -42,6 +43,7 @@ public class TestMode : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Escape) && isTestMode)
         {
             TestHole(false);
+            ball.GetComponent<OfflineBallController>().resetTest();
         }
 
         if(endOfTestPanel.activeSelf)
@@ -65,13 +67,18 @@ public class TestMode : MonoBehaviour {
             if(start)
             {
                 saveCameraPos = MainCamera.transform.position;
+                Cursor.lockState = CursorLockMode.Locked;
             }
             else
             {
                 MainCamera.transform.position = saveCameraPos;
+                Cursor.lockState = CursorLockMode.Confined;
             }
+            
+            Cursor.visible = !start;
 
             MainCamera.GetComponent<FreeCamera>().enabled = !start;
+            MainCamera.GetComponent<cakeslice.OutlineEffect>().enabled = !start;
             MainCamera.GetComponent<BallCamera>().enabled = start;
             GUICamera.GetComponent<BallCamera>().enabled = start;
 
@@ -79,7 +86,7 @@ public class TestMode : MonoBehaviour {
             scrollView.SetActive(!start);
             testButton.SetActive(!start);
             exitTestButton.SetActive(start);
-            controlPanel.SetActive(!start);
+            holeSelection.SetActive(!start);
 
             ball.transform.position = editorMan.getSpawnPosition();
 
