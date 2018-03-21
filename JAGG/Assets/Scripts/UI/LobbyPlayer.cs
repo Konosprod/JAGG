@@ -1,6 +1,7 @@
 ﻿using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine;
+using Steamworks;
 
 public class LobbyPlayer : NetworkLobbyPlayer {
 
@@ -56,7 +57,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         toggleReady.onValueChanged.AddListener(OnReadyClicked);
 
         if (playerName == "")
-            CmdNameChanged("Player " + (LobbyPlayerList._instance.playerListContentTransform.childCount).ToString());
+            CmdNameChanged(SteamFriends.GetPersonaName());
 
         if (isServer)
         {

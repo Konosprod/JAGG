@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using Steamworks;
+using System;
+using UnityEngine.Networking;
 
 public class MainMenuHandler : MonoBehaviour
 {
@@ -39,7 +42,7 @@ public class MainMenuHandler : MonoBehaviour
     public void Quit()
     {
 #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
+        UnityEditor.EditorApplication.isPlaying = false;  
 #else
         Application.Quit();
 #endif
