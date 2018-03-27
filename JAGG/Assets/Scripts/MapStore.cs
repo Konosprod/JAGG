@@ -62,7 +62,6 @@ public class MapStore : MonoBehaviour
     private static string[] sizes = { "B", "KB", "MB", "GB", "TB" };
     private static string[] orderbyTerms = { "id", "updated_at", "monthly_download_count", "download_count" };
     private static string[] sortTerms = { "ASC", "DESC" };
-    private static string[] searchType = { "map", "tag", "author" };
 
     // Use this for initialization
     void Start()

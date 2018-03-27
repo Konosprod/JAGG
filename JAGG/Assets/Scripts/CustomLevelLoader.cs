@@ -3,6 +3,9 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 using Ionic.Zip;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Bson;
 
 public class CustomLevelLoader : MonoBehaviour {
 
@@ -20,7 +23,7 @@ public class CustomLevelLoader : MonoBehaviour {
 
 
         ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile +".map"));
-        //ZipFile f = new ZipFile(Path.Combine(levelDirectory, "blah.map"));
+        //ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, "TestLevel.map"));
 
         //Don't forget to create the directory maybe
         string tmpPath = Path.Combine(Application.temporaryCachePath, LobbyManager._instance.customMapFile);
@@ -28,77 +31,76 @@ public class CustomLevelLoader : MonoBehaviour {
 
         mapFile.ExtractAll(tmpPath, ExtractExistingFileAction.OverwriteSilently);
 
-        string json = File.ReadAllText(Path.Combine(tmpPath, "level.json"));
+        byte[] data = File.ReadAllBytes(Path.Combine(tmpPath, "level.json"));
+
+        MemoryStream ms = new MemoryStream(data);
 
         GameObject endOfGame = Resources.Load("Prefabs/EndOfGamePosition") as GameObject;
 
-        CustomLevel level = JsonUtility.FromJson<CustomLevel>(json);
+        JObject level = null;
+
+        using (BsonReader reader = new BsonReader(ms))
+        {
+            level = (JObject)JToken.ReadFrom(reader);
+        }
 
         List<GameObject> spawnPositions = new List<GameObject>();
 
-        //
-        for (int i = 0; i < level.holes.Count; i++)
+        int i = 0;
+        foreach(JObject jHole in level["holes"])
         {
-            Hole h = level.holes[i];
             GameObject hole = new GameObject("Hole " + (i + 1).ToString());
-
             hole.transform.SetParent(holes.transform);
 
             GameObject startPoint = new GameObject("Spawn Point");
             startPoint.transform.SetParent(hole.transform);
 
-            startPoint.transform.position = h.properties.spawnPoint;
+            startPoint.transform.position = new Vector3((float)jHole["properties"]["spawnPoint"]["x"], (float)jHole["properties"]["spawnPoint"]["y"], (float)jHole["properties"]["spawnPoint"]["z"]);
+
             spawnPositions.Add(startPoint);
 
-            //First hole needs a network start position
-            if (i == 0)
+            if(i == 0)
             {
                 startPoint.AddComponent<NetworkStartPosition>();
             }
 
-            foreach (Piece p in h.pieces)
+            foreach(JObject jPiece in jHole["pieces"])
             {
                 GameObject objectToLoad = null;
 
-                objectToLoad = Resources.Load("Prefabs/Terrain/" + p.id) as GameObject;
+                objectToLoad = Resources.Load("Prefabs/Terrain/" + jPiece["id"]) as GameObject;
 
 
                 if (objectToLoad == null)
                 {
-                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath,"obj" + Path.DirectorySeparatorChar + p.id + ".obj"));
+                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath,"obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
                 }
 
                 GameObject o = GameObject.Instantiate<GameObject>(objectToLoad, hole.transform);
+
+                o.GetComponent<TerrainPiece>().FromJson(jPiece.ToString());
+
                 o.SetActive(true);
-                o.transform.position = p.position;
-                o.transform.localEulerAngles = p.rotation;
-                o.transform.localScale = p.scale;
-
-                if(p.id == "BoosterPad")
-                {
-                    BoosterPad bp = o.GetComponent<BoosterPad>();
-
-                    bp.addFactor = p.addFactor;
-                    bp.multFactor = p.multFactor;
-                }
             }
 
             GameObject goLevelProp = GameObject.Instantiate(Resources.Load("Prefabs/Level Properties") as GameObject, hole.transform);
 
             LevelProperties levelProperties = goLevelProp.GetComponent<LevelProperties>();
 
-            levelProperties.maxShot = h.properties.maxShot;
-            levelProperties.maxTime = h.properties.maxTime;
-            levelProperties.par = h.properties.par;
+            levelProperties.maxShot = (int)jHole["properties"]["maxShot"];
+            levelProperties.maxTime = (int)jHole["properties"]["maxTime"];
+            levelProperties.par = (int)jHole["properties"]["par"];
+
+            i++;
         }
 
-        for (int i = 1; i < holes.transform.childCount; i++)
+        for (int j = 1; j < holes.transform.childCount; j++)
         {
-            holes.transform.GetChild(i-1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = spawnPositions[i].transform;
+            holes.transform.GetChild(j - 1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = spawnPositions[j].transform;
         }
-        holes.transform.GetChild(level.holes.Count-1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = endOfGame.transform;
-
+        holes.transform.GetChild(((JArray)level["holes"]).Count - 1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = endOfGame.transform;
     }
+    
 
     // Update is called once per frame
     void Update () {

@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Ionic.Zip;
+using Newtonsoft.Json;
 using System.IO;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Bson;
 
 public class ExportLevel : MonoBehaviour {
     public Transform holes;
@@ -12,6 +15,7 @@ public class ExportLevel : MonoBehaviour {
     void Start()
     {
         //Debug.Log(CreateCustomLevel());
+        //SaveLevel();
     }
 
     //Test function
@@ -32,12 +36,12 @@ public class ExportLevel : MonoBehaviour {
 
         mapFile.AddDirectoryByName("obj");
 
-        CustomLevel customLevel = new CustomLevel
-        {
-            author = author,
-            name = levelName,
-            holes = new List<Hole>()
-        };
+        JObject customLevel = new JObject();
+
+        customLevel.Add("author", author);
+        customLevel.Add("name", levelName);
+
+        JArray jholes = new JArray();
 
         foreach(Transform holeTransform in holes)
         {
@@ -45,63 +49,62 @@ public class ExportLevel : MonoBehaviour {
 
             Transform spawnPoint = holeTransform.Find("Spawn Point").transform;
 
-            Hole h = new Hole
-            {
-                pieces = new List<Piece>()
-            };
+            JObject h = new JObject();
+            JArray jPieces = new JArray();
 
             TerrainPiece[] pieces = hole.GetComponentsInChildren<TerrainPiece>();
 
             foreach (TerrainPiece piece in pieces)
             {
-
-                Piece p = new Piece
-                {
-                    id = piece.id,
-                    position = piece.gameObject.transform.position,
-                    rotation = piece.gameObject.transform.eulerAngles,
-                    scale = piece.gameObject.transform.localScale
-                };
-
-                if(piece.id == "BoosterPad")
-                {
-                    p.addFactor = piece.gameObject.GetComponent<BoosterPad>().addFactor;
-                    p.multFactor = piece.gameObject.GetComponent<BoosterPad>().multFactor;
-                }
-
-                h.pieces.Add(p);
+                piece.ToJson(jPieces);
 
                 if(!piece.prefab)
                 {
                     //Copy .obj, .mtl, .png to obj/
                     string path = Path.GetDirectoryName(ObjImporter.GetObjPath(piece.id)) + Path.DirectorySeparatorChar;
-                    mapFile.AddFile(path + p.id + ".obj", "obj");
-                    mapFile.AddFile(path + p.id + ".mtl", "obj");
-                    mapFile.AddFile(path + p.id + ".png", "obj");
+                    
+                    mapFile.AddFile(path + piece.id + ".obj", "obj");
+                    mapFile.AddFile(path + piece.id + ".mtl", "obj");
+                    mapFile.AddFile(path + piece.id + ".png", "obj");
                 }
             }
 
+            h.Add("pieces", jPieces);
 
             LevelProperties properties = hole.GetComponentInChildren<LevelProperties>();
 
-            h.properties = new HoleInfo
+            JObject jProperties = new JObject
             {
-                maxShot = properties.maxShot,
-                maxTime = properties.maxTime,
-                par = properties.par,
-                spawnPoint = spawnPoint.position
+                { "maxShot", properties.maxShot },
+                { "maxTime", properties.maxTime },
+                { "par", properties.par }
             };
 
-            customLevel.holes.Add(h);
+            JObject jSpawnPoint = new JObject();
+            jSpawnPoint.Add("x", spawnPoint.position.x);
+            jSpawnPoint.Add("y", spawnPoint.position.y);
+            jSpawnPoint.Add("z", spawnPoint.position.z);
+
+            jProperties.Add("spawnPoint", jSpawnPoint);
+            h.Add("properties", jProperties);
+            jholes.Add(h);
         }
 
-        //level.json
-        json = JsonUtility.ToJson(customLevel);
+        customLevel.Add("holes", jholes);
 
-        mapFile.AddEntry("level.json", json);
+        /**
+         * @TODO: Use BSON
+         * */
+
+        MemoryStream ms = new MemoryStream();
+
+        using (BsonWriter writer = new BsonWriter(ms))
+        {
+            customLevel.WriteTo(writer);
+        }
+
+        mapFile.AddEntry("level.json", ms.ToArray());
         mapFile.Save(location + Path.DirectorySeparatorChar + levelName + ".map");
-
-        //Create file .map
 
         return json;
     }
