@@ -2,6 +2,8 @@
 using UnityEngine;
 using Ionic.Zip;
 using System.IO;
+using Newtonsoft.Json.Bson;
+using Newtonsoft.Json.Linq;
 
 public class PanelRulesEdit : MonoBehaviour {
 
@@ -18,11 +20,13 @@ public class PanelRulesEdit : MonoBehaviour {
     private CustomLevel level = new CustomLevel();
 
     // Use this for initialization
-    void Start() {
+    void OnEnable()
+    {
+        CleanPanel();
+        JObject json = null;
 
         if (lobbyManager.playScene == "Custom")
         {
-            string json = "";
             string filename = Application.persistentDataPath + "/levels/" + lobbyManager.customMapFile + ".map";
 
             using (ZipFile mapFile = ZipFile.Read(filename))
@@ -34,20 +38,20 @@ public class PanelRulesEdit : MonoBehaviour {
 
                     s.Seek(0, SeekOrigin.Begin);
 
-                    using (StreamReader sr = new StreamReader(s))
+                    using (BsonReader br = new BsonReader(s))
                     {
-                        json = sr.ReadToEnd();
+                        json = (JObject)JToken.ReadFrom(br);
+                        Debug.Log(json.ToString(Newtonsoft.Json.Formatting.None));
                     }
                 }
             }
-
-            level = JsonUtility.FromJson<CustomLevel>(json);
         }
         else
         {
-            string json = System.IO.File.ReadAllText(Application.dataPath + "/Resources/Levels/" + lobbyManager.playScene + ".json");
-            level = JsonUtility.FromJson<CustomLevel>(json);
+            json = JObject.Parse(System.IO.File.ReadAllText(Application.dataPath + "/Resources/Levels/" + lobbyManager.playScene + ".json"));
         }
+
+        level = JsonUtility.FromJson<CustomLevel>(json.ToString());
 
         int i = 0;
 
@@ -99,5 +103,13 @@ public class PanelRulesEdit : MonoBehaviour {
         
 
         lobbyManager.ruleSet = level;
+    }
+
+    void CleanPanel()
+    {
+        foreach(Transform t in contentPanel)
+        {
+            Destroy(t.gameObject);
+        }
     }
 }
