@@ -78,7 +78,7 @@ public class TestMode : MonoBehaviour {
             Cursor.visible = !start;
 
             MainCamera.GetComponent<FreeCamera>().enabled = !start;
-            MainCamera.GetComponent<cakeslice.OutlineEffect>().enabled = !start;
+            editorMan.setSelection(start);
             MainCamera.GetComponent<BallCamera>().enabled = start;
             GUICamera.GetComponent<BallCamera>().enabled = start;
 

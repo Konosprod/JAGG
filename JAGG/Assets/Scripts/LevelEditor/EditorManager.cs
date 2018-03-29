@@ -1,24 +1,25 @@
 ﻿using cakeslice;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class EditorManager : MonoBehaviour
 {
-    private int layerPlane;
-    private int layerFloor;
-    private int layerWall;
+    private static int layerPlane;
+    private static int layerFloor;
+    private static int layerWall;
 
     // Specific pieces that go on top of other pieces and/or have a special layer due to their behaviour
     // Only instance to date are booster pads
-    private int layerBoosterPad;
+    private static int layerBoosterPad;
 
     // Which layers to use our Raycasts on when we waznt to select pieces
-    private int layerMaskPieceSelection;
+    private static int layerMaskPieceSelection;
 
-
+    // Required things in the scene
     public GameObject scrollviewContent;
     public GameObject grid;
     public GameObject plane;
@@ -56,6 +57,42 @@ public class EditorManager : MonoBehaviour
         offsetGridX = 0f,
         offsetGridY = 0f,
         offsetGridZ = 0f;
+
+
+    [Header("Piece Information")]
+    public GameObject infoPanel;
+    public Text pieceNameText;
+    public Toggle positionToggle;
+    public InputField inputPosX;
+    public InputField inputPosY;
+    public InputField inputPosZ;
+    public Toggle rotationToggle;
+    public InputField inputRotX;
+    public InputField inputRotY;
+    public InputField inputRotZ;
+    public Toggle spinningPieceToggle;
+    public InputField inputSpinTime;
+    public InputField inputSpinPauseTime;
+    public InputField inputSpinNbRota;
+
+    private static GameObject _infoPanel;
+    private static Text _pieceNameText;
+    private static Toggle _positionToggle;
+    private static InputField _inputPosX;
+    private static InputField _inputPosY;
+    private static InputField _inputPosZ;
+    private static Toggle _rotationToggle;
+    private static InputField _inputRotX;
+    private static InputField _inputRotY;
+    private static InputField _inputRotZ;
+    private static Toggle _spinningPieceToggle;
+    private static InputField _inputSpinTime;
+    private static InputField _inputSpinPauseTime;
+    private static InputField _inputSpinNbRota;
+
+    private const float epsilon = 0.0001f;
+
+    private bool flagNoUndoDeselect = false;
 
     // Use this for initialization
     void Start()
@@ -104,7 +141,7 @@ public class EditorManager : MonoBehaviour
             // /!\ CHANGES THE PREFAB ITSELF /!\
             foreach (Renderer r in pref.GetComponentsInChildren<Renderer>())
             {
-                if(r.gameObject.GetComponent<MaterialSwaperoo>() == null)
+                if (r.gameObject.GetComponent<MaterialSwaperoo>() == null)
                     r.gameObject.AddComponent<MaterialSwaperoo>();
             }
 
@@ -134,6 +171,23 @@ public class EditorManager : MonoBehaviour
         layerWall = LayerMask.NameToLayer("Wall");
         layerBoosterPad = LayerMask.NameToLayer("BoosterPad");
         layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerBoosterPad);
+
+
+        // Setup the variables for the info panel
+        _infoPanel = infoPanel;
+        _pieceNameText = pieceNameText;
+        _positionToggle = positionToggle;
+        _inputPosX = inputPosX;
+        _inputPosY = inputPosY;
+        _inputPosZ = inputPosZ;
+        _rotationToggle = rotationToggle;
+        _inputRotX = inputRotX;
+        _inputRotY = inputRotY;
+        _inputRotZ = inputRotZ;
+        _spinningPieceToggle = spinningPieceToggle;
+        _inputSpinTime = inputSpinTime;
+        _inputSpinPauseTime = inputSpinPauseTime;
+        _inputSpinNbRota = inputSpinNbRota;
     }
 
     // Update is called once per frame
@@ -257,6 +311,7 @@ public class EditorManager : MonoBehaviour
                                 if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
                                 {
                                     currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
+                                    currParams.result.transform.parent = rayHit.transform;
                                 }
 
                             }
@@ -333,56 +388,61 @@ public class EditorManager : MonoBehaviour
                     }
                 }
 
-                // Click alone selects a single piece while deselecting other pieces
-                // Use shift + click to select additional pieces
-                if (Input.GetMouseButtonDown(0))
+
+                // No left-click interaction with mouse over UI
+                if (!EventSystem.current.IsPointerOverGameObject())
                 {
-                    // We use a raycast to find the pieces
-                    RaycastHit rayHitPiece;
-                    Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                    // Click alone selects a single piece while deselecting other pieces
+                    // Use shift + click to select additional pieces
+                    if (Input.GetMouseButtonDown(0))
                     {
-                        //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
-                        GameObject piece = rayHitPiece.transform.gameObject;
-
-                        // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
-                        //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
-                        //{
-                        string pName = piece.name.Split(' ')[0];
-                        while (piece.transform.parent != null && pName != "Hole")
+                        // We use a raycast to find the pieces
+                        RaycastHit rayHitPiece;
+                        Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
+                        if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
                         {
-                            pName = piece.transform.parent.gameObject.name.Split(' ')[0];
-                            if (pName != "Hole")
-                                piece = piece.transform.parent.gameObject;
-                        }
-                        //}
+                            //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
+                            GameObject piece = rayHitPiece.transform.gameObject;
 
-                        // Debug.Log(piece.name);
-
-                        // Add to the selection or remove from the selection if the piece was already selected
-                        if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
-                        {
-                            if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                            // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
+                            //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
+                            //{
+                            string pName = piece.name.Split(' ')[0];
+                            while (piece.transform.parent != null && pName != "Hole")
                             {
-                                currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                                if (pName != "Hole")
+                                    piece = piece.transform.parent.gameObject;
+                            }
+                            //}
+
+                            // Debug.Log(piece.name);
+
+                            // Add to the selection or remove from the selection if the piece was already selected
+                            if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
+                            {
+                                if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                                {
+                                    currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                }
+                                else
+                                {
+                                    currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                                }
                             }
                             else
                             {
-                                currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                                currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
                             }
                         }
                         else
                         {
-                            currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
-                        }
-                    }
-                    else
-                    {
-                        // Click on an empty space => deselect all pieces
-                        // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
-                        if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
-                        {
-                            currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
+                            // Click on an empty space => deselect all pieces
+                            // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
+                            if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
+                            {
+                                currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
+                            }
                         }
                     }
                 }
@@ -426,7 +486,7 @@ public class EditorManager : MonoBehaviour
                         // Debug.Log(piece.name);
 
                         // We highlight the selected piece
-                        currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                        currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
                     }
                 }
             }
@@ -570,10 +630,31 @@ public class EditorManager : MonoBehaviour
                 }
                 else
                 {
+                    outl.eraseRenderer = !active;
                     outl.color = outlColor;
                     outl.enabled = active;
                 }
             }
+        }
+    }
+
+
+    // Fixes a weird bug with object that uses png textures and outline effect (fucking flag)
+    public void setSelection(bool b)
+    {
+        if (b)
+        {
+            if (selectedPiecesInPlace.Count >= 1)
+                currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
+            else
+                flagNoUndoDeselect = true;
+        }
+        else
+        {
+            if (flagNoUndoDeselect)
+                flagNoUndoDeselect = false;
+            else
+                currParams = undoRedoStack.Undo(currParams);
         }
     }
 
@@ -588,6 +669,415 @@ public class EditorManager : MonoBehaviour
         offsetGridY = offY;
         offsetGridZ = offZ;
     }
+
+
+    // Enables/Disables the piece information panel
+    private static void SetPieceInfoPanelVisibility()
+    {
+        //Debug.Log("SetPieceInfoPanelVisibility");
+        if (selectedPiecesInPlace.Count >= 1)
+            _infoPanel.SetActive(true);
+        else
+            _infoPanel.SetActive(false);
+    }
+
+    // Sets the name of the piece on top of the piece info panel
+    // If multiple pieces are selected => "Multiple pieces selected"
+    private static void SetPieceInfoPanelName()
+    {
+        //Debug.Log("SetPieceInfoPanelName");
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            _pieceNameText.text = selectedPiecesInPlace[0].name.Split('(')[0];
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            _pieceNameText.text = "Multiple pieces selected";
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the name for the piece information display");
+    }
+
+    // Sets the piece info such as position, rotation, booster pad, spinning piece parameters
+    private static void SetPieceInfoData()
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            // Position and rotation are displayed by default
+            _positionToggle.isOn = true;
+            _rotationToggle.isOn = true;
+
+            GameObject piece = selectedPiecesInPlace[0];
+
+            // Fill the inputs based on the piece values
+            _inputPosX.text = piece.transform.position.x.ToString("F");
+            _inputPosY.text = piece.transform.position.y.ToString("F");
+            _inputPosZ.text = piece.transform.position.z.ToString("F");
+            _inputRotX.text = piece.transform.eulerAngles.x.ToString("F");
+            _inputRotY.text = piece.transform.eulerAngles.y.ToString("F");
+            _inputRotZ.text = piece.transform.eulerAngles.z.ToString("F");
+
+            // All position and rotation values can be edited in single-selection mode
+            _inputPosX.interactable = true;
+            _inputPosY.interactable = true;
+            _inputPosZ.interactable = true;
+            _inputRotX.interactable = true;
+            _inputRotY.interactable = true;
+            _inputRotZ.interactable = true;
+
+            // Check if the piece has the RotatePiece component to display or not the related values
+            RotatePiece rtp = piece.GetComponent<RotatePiece>();
+            if (rtp != null)
+            {
+                _spinningPieceToggle.isOn = true;
+                _inputSpinTime.text = rtp.spinTime.ToString("F");
+                _inputSpinPauseTime.text = rtp.pauseTime.ToString("F");
+                _inputSpinNbRota.text = rtp.nbRotations.ToString("D");
+            }
+            else
+            {
+                _spinningPieceToggle.isOn = false;
+            }
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            _positionToggle.isOn = true;
+            _rotationToggle.isOn = true;
+
+            // We display the values only they are equal across all selected pieces (ex : all pieces have pos.x=150)
+            float xPos = selectedPiecesInPlace[0].transform.position.x;
+            float yPos = selectedPiecesInPlace[0].transform.position.y;
+            float zPos = selectedPiecesInPlace[0].transform.position.z;
+            float xRot = selectedPiecesInPlace[0].transform.eulerAngles.x;
+            float yRot = selectedPiecesInPlace[0].transform.eulerAngles.y;
+            float zRot = selectedPiecesInPlace[0].transform.eulerAngles.z;
+            bool[] sameVals = new bool[6];
+            for (int i = 0; i < 6; i++) sameVals[i] = true;
+
+            foreach (GameObject piece in selectedPiecesInPlace)
+            {
+                sameVals[0] &= ApproximatelyEquals(xPos,piece.transform.position.x);
+                sameVals[1] &= ApproximatelyEquals(yPos, piece.transform.position.y);
+                sameVals[2] &= ApproximatelyEquals(zPos, piece.transform.position.z);
+                sameVals[3] &= ApproximatelyEquals(xRot, piece.transform.eulerAngles.x);
+                sameVals[4] &= ApproximatelyEquals(yRot, piece.transform.eulerAngles.y);
+                sameVals[5] &= ApproximatelyEquals(zRot, piece.transform.eulerAngles.z);
+            }
+
+            _inputPosX.text = (sameVals[0]) ? xPos.ToString("F") : "";
+            _inputPosY.text = (sameVals[1]) ? yPos.ToString("F") : "";
+            _inputPosZ.text = (sameVals[2]) ? zPos.ToString("F") : "";
+            _inputRotX.text = (sameVals[3]) ? xRot.ToString("F") : "";
+            _inputRotY.text = (sameVals[4]) ? yRot.ToString("F") : "";
+            _inputRotZ.text = (sameVals[5]) ? zRot.ToString("F") : "";
+
+            _inputPosX.interactable = sameVals[0];
+            _inputPosY.interactable = sameVals[1];
+            _inputPosZ.interactable = sameVals[2];
+            _inputRotX.interactable = sameVals[3];
+            _inputRotY.interactable = sameVals[4];
+            _inputRotZ.interactable = sameVals[5];
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the data for the piece information display");
+    }
+
+    // We have almost-zero value differences (like some pieces will have y=0 and others y=4e-17)
+    private static bool ApproximatelyEquals(float a, float b)
+    {
+        return Mathf.Abs(a - b) < epsilon;
+    }
+
+    public void updatePosX(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float x = 0f;
+            float.TryParse(val, out x);
+            piece.transform.position = new Vector3(x, piece.transform.position.y, piece.transform.position.z);
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            float xPos = selectedPiecesInPlace[0].transform.position.x;
+            bool sameVal = true;
+            foreach (GameObject piece in selectedPiecesInPlace)
+            {
+                sameVal &= ApproximatelyEquals(xPos, piece.transform.position.x);
+            }
+            if(sameVal)
+            {
+                float x = 0f;
+                float.TryParse(val, out x);
+                foreach (GameObject piece in selectedPiecesInPlace)
+                {
+                    piece.transform.position = new Vector3(x, piece.transform.position.y, piece.transform.position.z);
+                }
+            }
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the position X");
+    }
+
+
+    public void updatePosY(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float y = 0f;
+            float.TryParse(val, out y);
+            piece.transform.position = new Vector3(piece.transform.position.x, y, piece.transform.position.z);
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            float yPos = selectedPiecesInPlace[0].transform.position.y;
+            bool sameVal = true;
+            foreach (GameObject piece in selectedPiecesInPlace)
+            {
+                sameVal &= ApproximatelyEquals(yPos, piece.transform.position.y);
+            }
+            if (sameVal)
+            {
+                float y = 0f;
+                float.TryParse(val, out y);
+                foreach (GameObject piece in selectedPiecesInPlace)
+                {
+                    piece.transform.position = new Vector3(piece.transform.position.x, y, piece.transform.position.z);
+                }
+            }
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the position Y");
+    }
+
+
+    public void updatePosZ(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float z = 0f;
+            float.TryParse(val, out z);
+            piece.transform.position = new Vector3(piece.transform.position.x, piece.transform.position.y, z);
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            float zPos = selectedPiecesInPlace[0].transform.position.z;
+            bool sameVal = true;
+            foreach (GameObject piece in selectedPiecesInPlace)
+            {
+                sameVal &= ApproximatelyEquals(zPos, piece.transform.position.z);
+            }
+            if (sameVal)
+            {
+                float z = 0f;
+                float.TryParse(val, out z);
+                foreach (GameObject piece in selectedPiecesInPlace)
+                {
+                    piece.transform.position = new Vector3(piece.transform.position.x, piece.transform.position.y, z);
+                }
+            }
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the position Z");
+    }
+
+
+    public void updateRotX(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float x = 0f;
+            float.TryParse(val, out x);
+            piece.transform.eulerAngles = new Vector3(x, piece.transform.eulerAngles.y, piece.transform.eulerAngles.z);
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            float xRot = selectedPiecesInPlace[0].transform.eulerAngles.x;
+            bool sameVal = true;
+            foreach (GameObject piece in selectedPiecesInPlace)
+            {
+                sameVal &= ApproximatelyEquals(xRot, piece.transform.eulerAngles.x);
+            }
+            if (sameVal)
+            {
+                float x = 0f;
+                float.TryParse(val, out x);
+                foreach (GameObject piece in selectedPiecesInPlace)
+                {
+                    piece.transform.eulerAngles = new Vector3(x, piece.transform.eulerAngles.y, piece.transform.eulerAngles.z);
+                }
+            }
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the rotation X");
+    }
+
+
+    public void updateRotY(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float y = 0f;
+            float.TryParse(val, out y);
+            piece.transform.eulerAngles = new Vector3(piece.transform.eulerAngles.x, y, piece.transform.eulerAngles.z);
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            float yRot = selectedPiecesInPlace[0].transform.eulerAngles.y;
+            bool sameVal = true;
+            foreach (GameObject piece in selectedPiecesInPlace)
+            {
+                sameVal &= ApproximatelyEquals(yRot, piece.transform.eulerAngles.y);
+            }
+            if (sameVal)
+            {
+                float y = 0f;
+                float.TryParse(val, out y);
+                foreach (GameObject piece in selectedPiecesInPlace)
+                {
+                    piece.transform.eulerAngles = new Vector3(piece.transform.eulerAngles.x, y, piece.transform.eulerAngles.z);
+                }
+            }
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the rotation Y");
+    }
+
+
+    public void updateRotZ(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float z = 0f;
+            float.TryParse(val, out z);
+            piece.transform.eulerAngles = new Vector3(piece.transform.eulerAngles.x, piece.transform.eulerAngles.y, z);
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            float zRot = selectedPiecesInPlace[0].transform.eulerAngles.z;
+            bool sameVal = true;
+            foreach (GameObject piece in selectedPiecesInPlace)
+            {
+                sameVal &= ApproximatelyEquals(zRot, piece.transform.eulerAngles.z);
+            }
+            if (sameVal)
+            {
+                float z = 0f;
+                float.TryParse(val, out z);
+                foreach (GameObject piece in selectedPiecesInPlace)
+                {
+                    piece.transform.eulerAngles = new Vector3(piece.transform.eulerAngles.x, piece.transform.eulerAngles.y, z);
+                }
+            }
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the rotation Z");
+    }
+
+
+    public void spinningPieceToggleValueChanged(bool tog)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            RotatePiece rtp = piece.GetComponent<RotatePiece>();
+            if (tog)
+            {
+                if (rtp == null)
+                {
+                    piece.AddComponent<RotatePiece>();
+                }
+                else
+                {
+                    rtp.enabled = true;
+                }
+            }
+            else
+            {
+                if (rtp != null)
+                    rtp.enabled = false;
+            }
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to activate/deactivate the spinning");
+    }
+
+
+    public void updateSpinTime(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            RotatePiece rtp = piece.GetComponent<RotatePiece>();
+            if (rtp != null)
+            {
+                rtp.spinTime = float.Parse(val);
+            }
+            else
+                Debug.LogError("We try to change the spinning time but there's no RotatePiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the spin time");
+    }
+
+
+    public void updatePauseTime(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            RotatePiece rtp = piece.GetComponent<RotatePiece>();
+            if (rtp != null)
+            {
+                rtp.pauseTime = float.Parse(val);
+            }
+            else
+                Debug.LogError("We try to change the pause time but there's no RotatePiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the spin time");
+    }
+
+
+    public void updateNbRotations(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            RotatePiece rtp = piece.GetComponent<RotatePiece>();
+            if (rtp != null)
+            {
+                rtp.nbRotations = int.Parse(val);
+                rtp.updateRotations();
+            }
+            else
+                Debug.LogError("We try to change the nbRotations but there's no RotatePiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the spin time");
+    }
+
 
     #region Undo/Redo Stack
     public interface ICommand<T>
@@ -694,6 +1184,10 @@ public class EditorManager : MonoBehaviour
                 go.SetActive(false);
                 SetHighlight(false, go);
             }
+
+            // Hide the piece info
+            SetPieceInfoPanelVisibility();
+
             return _CP;
         }
 
@@ -705,6 +1199,12 @@ public class EditorManager : MonoBehaviour
                 SetHighlight(true, go);
                 selectedPiecesInPlace.Add(go);
             }
+
+            // Display the piece info
+            SetPieceInfoPanelVisibility();
+            SetPieceInfoPanelName();
+            SetPieceInfoData();
+
             return _CP;
         }
     }
@@ -723,6 +1223,12 @@ public class EditorManager : MonoBehaviour
         {
             SetHighlight(true, _CP.result);
             selectedPiecesInPlace.Add(_CP.result);
+
+            // Display the piece info
+            SetPieceInfoPanelVisibility();
+            SetPieceInfoPanelName();
+            SetPieceInfoData();
+
             return _CP;
         }
 
@@ -760,6 +1266,12 @@ public class EditorManager : MonoBehaviour
             // Add the new piece to the selection
             SetHighlight(true, _CP.result);
             selectedPiecesInPlace.Add(_CP.result);
+
+            // Display the piece info
+            SetPieceInfoPanelVisibility();
+            SetPieceInfoPanelName();
+            SetPieceInfoData();
+
             return _CP;
         }
 
@@ -775,6 +1287,15 @@ public class EditorManager : MonoBehaviour
                 SetHighlight(true, go);
                 selectedPiecesInPlace.Add(go);
             }
+
+            // Hide the piece info in no pieces were selected before otherwise display the info of the previous selection
+            SetPieceInfoPanelVisibility();
+            if (_CP.selectedPieces.Count > 0)
+            {
+                SetPieceInfoPanelName();
+                SetPieceInfoData();
+            }
+
             return _CP;
         }
     }
@@ -794,6 +1315,12 @@ public class EditorManager : MonoBehaviour
             // Remove the piece from the selection
             selectedPiecesInPlace.Remove(_CP.result);
             SetHighlight(false, _CP.result);
+
+            // Display the piece info
+            SetPieceInfoPanelVisibility();
+            SetPieceInfoPanelName();
+            SetPieceInfoData();
+
             return _CP;
         }
 
@@ -802,6 +1329,12 @@ public class EditorManager : MonoBehaviour
             // Add the piece to the selection
             SetHighlight(true, _CP.result);
             selectedPiecesInPlace.Add(_CP.result);
+
+            // Display the piece info
+            SetPieceInfoPanelVisibility();
+            SetPieceInfoPanelName();
+            SetPieceInfoData();
+
             return _CP;
         }
     }
@@ -821,12 +1354,17 @@ public class EditorManager : MonoBehaviour
 
         public CommandParams Do(CommandParams input = null)
         {
+            //Debug.Log("DESELECT_ALL");
             // Remove all pieces from the selection
             selectedPiecesInPlace.Clear();
             foreach (GameObject go in _CP.selectedPieces)
             {
                 SetHighlight(false, go);
             }
+
+            // Hide the piece info
+            SetPieceInfoPanelVisibility();
+
             return _CP;
         }
 
@@ -838,6 +1376,12 @@ public class EditorManager : MonoBehaviour
                 SetHighlight(true, go);
                 selectedPiecesInPlace.Add(go);
             }
+
+            // Display the piece info
+            SetPieceInfoPanelVisibility();
+            SetPieceInfoPanelName();
+            SetPieceInfoData();
+
             return _CP;
         }
     }
@@ -861,6 +1405,10 @@ public class EditorManager : MonoBehaviour
             {
                 go.transform.Rotate(new Vector3(0f, 90f, 0f));
             }
+
+            // Update the piece information window
+            SetPieceInfoData();
+
             return _CP;
         }
 
@@ -870,6 +1418,10 @@ public class EditorManager : MonoBehaviour
             {
                 go.transform.Rotate(new Vector3(0f, -90f, 0f));
             }
+
+            // Update the piece information window
+            SetPieceInfoData();
+
             return _CP;
         }
     }
