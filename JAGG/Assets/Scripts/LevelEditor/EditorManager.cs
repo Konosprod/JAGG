@@ -311,7 +311,7 @@ public class EditorManager : MonoBehaviour
                                 if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
                                 {
                                     currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
-                                    currParams.result.transform.parent = rayHit.transform;
+                                    currParams.result.transform.parent = rayHit.transform.parent;
                                 }
 
                             }
