@@ -5,18 +5,21 @@ using UnityEngine;
 
 // Allows a piece to rotate on itself
 // Turns in increments defined by the user
-public class RotatePiece : MonoBehaviour {
+public class RotatePiece : CustomScript {
 
     public const float defaultSpinTime = 1.0f;
     public const float defaultPauseTime = 0.2f;
     public const int defaultNbRotations = 4;
 
     // Amount of seconds it takes to perform a single rotation 
+    [CustomProp]
     public float spinTime = 1.0f;
     // Amount of seconds a piece will stay in place
+    [CustomProp]
     public float pauseTime = 0.2f;
 
     // The amount of rotations required to perform a full turn (4 means 90 degrees each time)
+    [CustomProp]
     public int nbRotations = 4;
 
 

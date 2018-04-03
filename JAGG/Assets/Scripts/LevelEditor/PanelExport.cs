@@ -5,14 +5,19 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using SimpleJSON;
 using System;
+using System.IO;
 
 public class PanelExport : MonoBehaviour {
 
+    public Canvas canvasUi;
     public Image imagePreview;
     public InputField tagsInput;
     public InputField nameInput;
     public Button saveLocalButton;
     public Button uploadButton;
+    public GameObject grid;
+
+    public ExportLevel levelExporter;
 
     private bool isAuthenticated = false;
     private string sessionCookie = "";
@@ -30,13 +35,14 @@ public class PanelExport : MonoBehaviour {
 
     void OnEnable()
     {
+        StartCoroutine(TakeScreenShot());
         StartCoroutine(GetAuthentication());
     }
 
     public void UploadMap()
     {
+        levelExporter.CreateCustomLevel(nameInput.text, SteamFriends.GetPersonaName(), Path.Combine(Application.persistentDataPath, "Levels"));
         StartCoroutine(Upload());
-        //this.gameObject.SetActive(false);
     }
 
     IEnumerator Authenticate()
@@ -110,27 +116,26 @@ public class PanelExport : MonoBehaviour {
 
     IEnumerator Upload()
     {
+        string filename = nameInput.text + ".map";
         WWWForm data = new WWWForm();
 
-        byte[] fileData = System.IO.File.ReadAllBytes(@"C:\Users\Kono\Desktop\TestLevel.map");
+        byte[] fileData = System.IO.File.ReadAllBytes(Path.Combine(Application.persistentDataPath, "Levels") + "/" + filename);
 
-        data.AddBinaryData("map", fileData, nameInput.text+".map");
+        data.AddBinaryData("map", fileData, filename);
         data.AddBinaryData("thumb", imagePreview.sprite.texture.EncodeToJPG());
-        data.AddField("tag", tagsInput.text);
+        data.AddField("tags", tagsInput.text);
         data.AddField("steamid", Steamworks.SteamUser.GetSteamID().m_SteamID.ToString());
-        data.AddField("name", "Kono");
+        data.AddField("name", SteamFriends.GetPersonaName());
 
         UnityWebRequest uwr = UnityWebRequest.Post("https://jagg.konosprod.fr/api/maps", data);
 
         uwr.SetRequestHeader("Cookie", sessionCookie);
-        //uwr.chunkedTransfer = false;
         uwr.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
 
         AsyncOperation request = uwr.SendWebRequest();
 
         while (!request.isDone)
         {
-            Debug.Log(request.progress * 100);
             yield return null;
         }
 
@@ -142,8 +147,23 @@ public class PanelExport : MonoBehaviour {
         }
         else
         {
-            Debug.Log("done");
+            this.gameObject.SetActive(false);
         }
+    }
+
+    IEnumerator TakeScreenShot()
+    {
+        yield return null;
+        canvasUi.enabled = false;
+        grid.SetActive(false);
+        yield return new WaitForEndOfFrame();
+
+        Texture2D texture = ScreenCapture.CaptureScreenshotAsTexture();
+
+        texture.Apply();
+        imagePreview.sprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0f, 0f));
+        grid.SetActive(true);
+        canvasUi.enabled = true;
     }
 
     public void SaveLocal()

@@ -38,7 +38,7 @@ public class EditorManager : MonoBehaviour
     private static int currentHole = 0; // The hole that the player is currently editing
     private const int maxHoles = 18;
 
-    private GameObject holesObject = null;
+    public GameObject holesObject = null;
     private static GameObject currentHoleObject = null;
 
     private GameObject currentPiece = null; // Piece that the player wants to place
@@ -98,9 +98,6 @@ public class EditorManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        // Create Holes GameObject for easier debugging
-        holesObject = new GameObject("Holes");
-
         List<string> dropOptions = new List<string>();
 
         piecesInPlace = new List<GameObject>[maxHoles];

@@ -92,10 +92,6 @@ public class ExportLevel : MonoBehaviour {
 
         customLevel.Add("holes", jholes);
 
-        /**
-         * @TODO: Use BSON
-         * */
-
         MemoryStream ms = new MemoryStream();
 
         using (BsonWriter writer = new BsonWriter(ms))
