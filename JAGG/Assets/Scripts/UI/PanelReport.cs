@@ -62,7 +62,10 @@ public class PanelReport : MonoBehaviour {
         MemoryStream ms = new MemoryStream(imageData);
         ms.Seek(0, SeekOrigin.Begin);
 
-        message.Body = mailContent;
+        message.Body = mailContent + "\n\n\n";
+
+        message.Body += GetSystemInfo();
+
         message.Subject = "Bug";
         message.Attachments.Add(new Attachment(ms, "preview.jpg", "image/jpeg"));
 
@@ -84,5 +87,31 @@ public class PanelReport : MonoBehaviour {
         texture.Apply();
         imagePreview.sprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0f, 0f));
         canvasUi.enabled = true;
+    }
+
+    public string GetSystemInfo()
+    {
+        string str = "System Info:\n---------------";
+
+        str += "\n[type]" + SystemInfo.deviceType;
+        str += "\n[os version]" + SystemInfo.operatingSystem;
+        str += "\n[system memory size]" + SystemInfo.systemMemorySize;
+        str += "\n[graphic device name]" + SystemInfo.graphicsDeviceName + " (version " + SystemInfo.graphicsDeviceVersion + ")";
+        str += "\n[graphic memory size]" + SystemInfo.graphicsMemorySize;
+        //str += "\n[graphic pixel fill rate]" + SystemInfo.graphicsPixelFillrate;
+        str += "\n[graphic max texSize]" + SystemInfo.maxTextureSize;
+        str += "\n[graphic shader level]" + SystemInfo.graphicsShaderLevel;
+        str += "\n[support compute shader]" + SystemInfo.supportsComputeShaders;
+
+        str += "\n[processor count]" + SystemInfo.processorCount;
+        str += "\n[processor type]" + SystemInfo.processorType;
+        str += "\n[support 3d texture]" + SystemInfo.supports3DTextures;
+        str += "\n[support shadow]" + SystemInfo.supportsShadows;
+
+        str += "\n[platform] " + Application.platform;
+        str += "\n[screen size] " + Screen.width + " x " + Screen.height;
+        str += "\n[screen pixel density dpi] " + Screen.dpi;
+
+        return str;
     }
 }
