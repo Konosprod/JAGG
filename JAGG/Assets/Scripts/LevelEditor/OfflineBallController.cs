@@ -138,6 +138,61 @@ public class OfflineBallController : MonoBehaviour {
         }
     }
 
+
+
+    void OnCollisionStay(Collision collisionInfo)
+    {
+
+        IsGrounded = true;
+
+
+        GameObject piece = collisionInfo.gameObject;
+        TerrainPiece tp = piece.GetComponent<TerrainPiece>();
+        while(tp == null)
+        {
+            piece = piece.transform.parent.gameObject;
+            tp = piece.GetComponent<TerrainPiece>();
+        }
+        
+        RotatePiece rtp = piece.GetComponent<RotatePiece>();
+
+        if (rtp != null && rtp.enabled)
+        {
+            transform.parent = collisionInfo.transform.parent;
+        }
+    }
+
+    void OnCollisionExit(Collision collisionInfo)
+    {
+        IsGrounded = false;
+
+        if (transform.parent != null)
+        {
+            transform.parent = null;
+
+        }
+    }
+
+    /*void OnTriggerStay(Collider other)
+    {
+
+        if (other.transform.parent.gameObject.GetComponent<RotatePiece>()!=null)
+        {
+            transform.parent = other.transform.parent;
+
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (transform.parent != null)
+        {
+            transform.parent = null;
+
+        }
+    }*/
+
+
     public void resetTest()
     {
         shots = 0;
@@ -374,14 +429,5 @@ public class OfflineBallController : MonoBehaviour {
         i++;
     }
 
-    void OnCollisionStay(Collision collisionInfo)
-    {
-        IsGrounded = true;
-    }
-
-    void OnCollisionExit(Collision collisionInfo)
-    {
-        IsGrounded = false;
-    }
 
 }

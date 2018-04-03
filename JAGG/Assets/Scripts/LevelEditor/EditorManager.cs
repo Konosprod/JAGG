@@ -32,6 +32,7 @@ public class EditorManager : MonoBehaviour
     private static GameObject[] prefabs;
 
     public GameObject prefabSpawnPoint;
+    public GameObject prefabSpawnPointNoNetworkStart;
     public GameObject prefabLevelProperties;
 
     private static int currentHole = 0; // The hole that the player is currently editing
@@ -114,7 +115,7 @@ public class EditorManager : MonoBehaviour
             lvlProp.transform.parent = go.transform;
             lvlProp.name = prefabLevelProperties.name;
             levelsProperties[i] = lvlProp;
-            GameObject spwn = Instantiate(prefabSpawnPoint);
+            GameObject spwn = Instantiate((i == 0) ? prefabSpawnPoint:prefabSpawnPointNoNetworkStart);
             spwn.transform.parent = go.transform;
             spwn.name = prefabSpawnPoint.name;
             spawnPoints[i] = spwn;
@@ -727,7 +728,7 @@ public class EditorManager : MonoBehaviour
 
             // Check if the piece has the RotatePiece component to display or not the related values
             RotatePiece rtp = piece.GetComponent<RotatePiece>();
-            if (rtp != null)
+            if (rtp != null && rtp.enabled) // If the component is disabled it means it was added THEN removed from the piece (we only disable the script instead of removing it)
             {
                 _spinningPieceToggle.isOn = true;
                 _inputSpinTime.text = rtp.spinTime.ToString("F");

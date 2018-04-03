@@ -91,6 +91,7 @@ public class TestMode : MonoBehaviour {
             ball.transform.position = editorMan.getSpawnPosition();
 
             ball.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            ball.transform.parent = null;
 
             ball.SetActive(start);
             slider.SetActive(start);
