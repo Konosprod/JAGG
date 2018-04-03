@@ -1634,9 +1634,37 @@ public class EditorManager : MonoBehaviour
         return spawnPoints[currentHole].transform.position;
     }
 
+
+    // holeNb goes from 0 to 17
+    public bool isHoleValid(int holeNb)
+    {
+        bool test = spawnPoints[holeNb].transform.GetChild(0).gameObject.activeSelf; // The spawnpoint must be placed
+        if (test)
+        {
+            bool foundHole = false;
+            List<GameObject> currentHolePieces = piecesInPlace[holeNb];
+            foreach (GameObject piece in currentHolePieces)
+            {
+                if (piece.activeSelf)
+                {
+                    TerrainPiece tp = piece.GetComponent<TerrainPiece>();
+                    if (tp.id.Substring(0, 4) == "Hole")
+                    {
+                        foundHole = true;
+                        break;
+                    }
+                }
+            }
+
+            test &= foundHole;
+        }
+
+        return test;
+    }
+
     public bool canStartTestMode()
     {
-        return spawnPoints[currentHole].transform.GetChild(0).gameObject.activeSelf;
+        return isHoleValid(currentHole);
     }
 
     public GameObject getCurrentHoleLevelProp()
