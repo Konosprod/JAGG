@@ -123,7 +123,7 @@ public class PanelExport : MonoBehaviour {
 
         data.AddBinaryData("map", fileData, filename);
         data.AddBinaryData("thumb", imagePreview.sprite.texture.EncodeToJPG());
-        data.AddField("tag", tagsInput.text);
+        data.AddField("tags", tagsInput.text);
         data.AddField("steamid", Steamworks.SteamUser.GetSteamID().m_SteamID.ToString());
         data.AddField("name", SteamFriends.GetPersonaName());
 
