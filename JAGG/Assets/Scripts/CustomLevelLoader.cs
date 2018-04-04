@@ -11,6 +11,8 @@ public class CustomLevelLoader : MonoBehaviour {
 
     public GameObject holes;
 
+    private Dictionary<string, GameObject> cachePiece;
+
     // Use this for initialization
     void Awake()
     {
@@ -68,7 +70,7 @@ public class CustomLevelLoader : MonoBehaviour {
             {
                 GameObject objectToLoad = null;
 
-                objectToLoad = Resources.Load("Prefabs/Terrain/" + jPiece["id"]) as GameObject;
+                objectToLoad = LoadPiece(jPiece["id"]);
 
 
                 if (objectToLoad == null)
@@ -106,4 +108,21 @@ public class CustomLevelLoader : MonoBehaviour {
     void Update () {
 		
 	}
+
+    private GameObject LoadPiece(string id)
+    {
+        GameObject ret = null;
+
+        if (cachePiece.ContainsKey(id))
+        {
+            return cachePiece[id];
+        }
+
+
+        ret = Resources.Load("Prefabs/Terrain/" + id) as GameObject;
+
+        cachePiece.Add(id, ret);
+
+        return ret;
+    }
 }
