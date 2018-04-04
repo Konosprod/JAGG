@@ -47,7 +47,6 @@ public class PanelExport : MonoBehaviour {
 
     IEnumerator Authenticate()
     {
-        Debug.Log("Authenticate");
         byte[] ticket = new byte[1024];
         uint ticketSize = 0;
         SteamUser.GetAuthSessionTicket(ticket, 1000, out ticketSize);
@@ -57,6 +56,9 @@ public class PanelExport : MonoBehaviour {
         form.AddField("steamid", (SteamUser.GetSteamID().m_SteamID).ToString());
 
         UnityWebRequest www = UnityWebRequest.Post("https://jagg.konosprod.fr/api/auth", form);
+        www.SetRequestHeader("Cookie", sessionCookie);
+        www.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
+
         yield return www.SendWebRequest();
 
         if (www.isNetworkError || www.isHttpError)
@@ -71,7 +73,6 @@ public class PanelExport : MonoBehaviour {
 
             if (node["auth"].AsBool)
             {
-                Debug.Log("Authenticated");
                 sessionCookie = www.GetResponseHeader("Set-Cookie");
                 isAuthenticated = true;
             }
@@ -86,8 +87,9 @@ public class PanelExport : MonoBehaviour {
 
     IEnumerator GetAuthentication()
     {
-        Debug.Log("GetAuthentication");
         UnityWebRequest request = UnityWebRequest.Get("https://jagg.konosprod.fr/api/auth");
+        request.SetRequestHeader("Cookie", sessionCookie);
+        request.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
 
         yield return request.SendWebRequest();
 
@@ -99,17 +101,17 @@ public class PanelExport : MonoBehaviour {
         }
         else
         {
+            Debug.Log(request.downloadHandler.text);
             JSONNode node = JSON.Parse(request.downloadHandler.text);
             isAuthenticated = node["auth"].AsBool;
 
             if (!isAuthenticated)
             {
-                Debug.Log("Not Authenticated");
                 StartCoroutine(Authenticate());
             }
             else
             {
-                Debug.Log("authenticated");
+
             }
         }
     }
