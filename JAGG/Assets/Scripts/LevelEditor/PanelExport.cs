@@ -101,7 +101,6 @@ public class PanelExport : MonoBehaviour {
         }
         else
         {
-            Debug.Log(request.downloadHandler.text);
             JSONNode node = JSON.Parse(request.downloadHandler.text);
             isAuthenticated = node["auth"].AsBool;
 
@@ -149,6 +148,11 @@ public class PanelExport : MonoBehaviour {
         }
         else
         {
+            JSONNode n = JSON.Parse(uwr.downloadHandler.text);
+            string mapId = n["id"];
+            File.Move(Path.Combine(Application.persistentDataPath, "Levels") + "/" + filename, 
+                Path.Combine(Application.persistentDataPath, "Levels") + "/" + mapId + "_" + filename);
+
             this.gameObject.SetActive(false);
         }
     }
