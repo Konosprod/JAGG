@@ -16,6 +16,8 @@ public class CustomLevelLoader : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
+        cachePiece = new Dictionary<string, GameObject>();
+
         string levelDirectory = Path.Combine(Application.persistentDataPath, "levels");
 
         if(!Directory.Exists(levelDirectory))
@@ -70,7 +72,7 @@ public class CustomLevelLoader : MonoBehaviour {
             {
                 GameObject objectToLoad = null;
 
-                objectToLoad = LoadPiece(jPiece["id"]);
+                objectToLoad = LoadPiece(jPiece["id"].ToString());
 
 
                 if (objectToLoad == null)
@@ -111,6 +113,7 @@ public class CustomLevelLoader : MonoBehaviour {
 
     private GameObject LoadPiece(string id)
     {
+        Debug.Log(id);
         GameObject ret = null;
 
         if (cachePiece.ContainsKey(id))
