@@ -11,26 +11,22 @@ public class CustomLevelLoader : MonoBehaviour {
 
     public GameObject holes;
 
-    private Dictionary<string, GameObject> cachePiece;
+    private Dictionary<string, GameObject> cachePiece = new Dictionary<string, GameObject>();
 
     // Use this for initialization
     void Awake()
     {
-        cachePiece = new Dictionary<string, GameObject>();
+ 
+    }
+    
 
-        string levelDirectory = Path.Combine(Application.persistentDataPath, "levels");
-
-        if(!Directory.Exists(levelDirectory))
-        {
-            Directory.CreateDirectory(levelDirectory);
-        }
-
-
-        ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile +".map"));
-        //ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, "TestLevel.map"));
+    public void LoadLevel(string path)
+    {
+        //ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile + ".map"));
+        ZipFile mapFile = new ZipFile(path);
 
         //Don't forget to create the directory maybe
-        string tmpPath = Path.Combine(Application.temporaryCachePath, LobbyManager._instance.customMapFile);
+        string tmpPath = Path.Combine(Application.temporaryCachePath, Path.GetFileName(path));
         //string tmpPath = Path.Combine(Application.temporaryCachePath, "test");
 
         mapFile.ExtractAll(tmpPath, ExtractExistingFileAction.OverwriteSilently);
@@ -51,9 +47,16 @@ public class CustomLevelLoader : MonoBehaviour {
         List<GameObject> spawnPositions = new List<GameObject>();
 
         int i = 0;
-        foreach(JObject jHole in level["holes"])
+        foreach (JObject jHole in level["holes"])
         {
-            GameObject hole = new GameObject("Hole " + (i + 1).ToString());
+            GameObject hole = null;
+
+            Transform transform = holes.transform.Find("Hole " + (i + 1).ToString());
+            if (transform != null)
+                hole = transform.gameObject;
+            else
+                hole = new GameObject("Hole " + (i + 1).ToString());
+
             hole.transform.SetParent(holes.transform);
 
             GameObject startPoint = new GameObject("Spawn Point");
@@ -63,12 +66,12 @@ public class CustomLevelLoader : MonoBehaviour {
 
             spawnPositions.Add(startPoint);
 
-            if(i == 0)
+            if (i == 0)
             {
                 startPoint.AddComponent<NetworkStartPosition>();
             }
 
-            foreach(JObject jPiece in jHole["pieces"])
+            foreach (JObject jPiece in jHole["pieces"])
             {
                 GameObject objectToLoad = null;
 
@@ -77,7 +80,7 @@ public class CustomLevelLoader : MonoBehaviour {
 
                 if (objectToLoad == null)
                 {
-                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath,"obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
+                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
                 }
 
                 GameObject o = GameObject.Instantiate<GameObject>(objectToLoad, hole.transform);
@@ -104,7 +107,6 @@ public class CustomLevelLoader : MonoBehaviour {
         }
         holes.transform.GetChild(((JArray)level["holes"]).Count - 1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = endOfGame.transform;
     }
-    
 
     // Update is called once per frame
     void Update () {

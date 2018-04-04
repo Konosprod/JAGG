@@ -41,7 +41,9 @@ public class PanelExport : MonoBehaviour {
 
     public void UploadMap()
     {
-        levelExporter.CreateCustomLevel(nameInput.text, SteamFriends.GetPersonaName(), Path.Combine(Application.persistentDataPath, "Levels"));
+        Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Levels/local"));
+        levelExporter.CreateCustomLevel(nameInput.text, SteamFriends.GetPersonaName(), Path.Combine(Application.persistentDataPath, "Levels/local"));
+        //levelExporter.CreateCustomLevel(nameInput.text, SteamFriends.GetPersonaName(), Path.Combine(Application.persistentDataPath, "Levels"));
         StartCoroutine(Upload());
     }
 
@@ -120,7 +122,7 @@ public class PanelExport : MonoBehaviour {
         string filename = nameInput.text + ".map";
         WWWForm data = new WWWForm();
 
-        byte[] fileData = System.IO.File.ReadAllBytes(Path.Combine(Application.persistentDataPath, "Levels") + "/" + filename);
+        byte[] fileData = System.IO.File.ReadAllBytes(Path.Combine(Application.persistentDataPath, "Levels/local") + "/" + filename);
 
         data.AddBinaryData("map", fileData, filename);
         data.AddBinaryData("thumb", imagePreview.sprite.texture.EncodeToJPG());
@@ -150,7 +152,7 @@ public class PanelExport : MonoBehaviour {
         {
             JSONNode n = JSON.Parse(uwr.downloadHandler.text);
             string mapId = n["id"];
-            File.Move(Path.Combine(Application.persistentDataPath, "Levels") + "/" + filename, 
+            File.Move(Path.Combine(Application.persistentDataPath, "Levels/local") + "/" + filename, 
                 Path.Combine(Application.persistentDataPath, "Levels") + "/" + mapId + "_" + filename);
 
             this.gameObject.SetActive(false);
@@ -174,6 +176,8 @@ public class PanelExport : MonoBehaviour {
 
     public void SaveLocal()
     {
+        Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Levels/local"));
+        levelExporter.CreateCustomLevel(nameInput.text, SteamFriends.GetPersonaName(), Path.Combine(Application.persistentDataPath, "Levels/local"));
         this.gameObject.SetActive(false);
     }
 

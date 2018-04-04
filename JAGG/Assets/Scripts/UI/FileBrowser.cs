@@ -26,9 +26,9 @@ public class FileBrowser : MonoBehaviour {
 
     void Awake()
     {
-        currentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + Path.DirectorySeparatorChar;
+        currentDirectory = Path.Combine(Application.persistentDataPath, "Levels/local") + Path.DirectorySeparatorChar;
 
-        directoryText.text = currentDirectory;
+        directoryText.text = "Local levels";
     }
 
 	// Use this for initialization
@@ -79,7 +79,7 @@ public class FileBrowser : MonoBehaviour {
     }
 
     public void ParentDirectory()
-    {
+    {/*
         currentDirectory = currentDirectory.Remove(currentDirectory.Length - 1);
         DirectoryInfo info = Directory.GetParent(currentDirectory);
 
@@ -88,7 +88,7 @@ public class FileBrowser : MonoBehaviour {
             currentDirectory = info.FullName + Path.DirectorySeparatorChar;
             directoryText.text = currentDirectory;
             BrowseDirectory();
-        }
+        }*/
     }
 
     public void BrowseDirectory()
