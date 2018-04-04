@@ -113,7 +113,6 @@ public class CustomLevelLoader : MonoBehaviour {
 
     private GameObject LoadPiece(string id)
     {
-        Debug.Log(id);
         GameObject ret = null;
 
         if (cachePiece.ContainsKey(id))
