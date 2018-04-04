@@ -24,8 +24,16 @@ public class RotatePiece : CustomScript
     public int nbRotations = 4;
 
 
+    [CustomProp]
+    public float initX = -1f;
+    [CustomProp]
+    public float initY = -1f;
+    [CustomProp]
+    public float initZ = -1f;
+
+    public Vector3 initialRotation = Vector3.one;
+
     private bool flagStopRotation = false;
-    public Vector3 initialRotation = new Vector3();
 
     private bool isRotation = true;
     private float timer;
@@ -33,10 +41,18 @@ public class RotatePiece : CustomScript
 
     private Transform targetRot;
 
+    private IEnumerator coroutine;
+    
+
     // Use this for initialization
     void Start()
     {
-        initialRotation = transform.eulerAngles;
+        if (initX != -1f && initY != -1f && initZ != -1f)
+        {
+            transform.eulerAngles = new Vector3(initX, initY, initZ);
+        }
+        
+        UpdateInitialRotation();
         timer = 0f;
         rotationAngle = 360 / nbRotations;
     }
@@ -54,13 +70,10 @@ public class RotatePiece : CustomScript
                 timer = 0f;
                 if (isRotation)
                 {
-                    StartCoroutine(RotateMe(Vector3.up * rotationAngle, spinTime));
+                    coroutine = RotateMe(Vector3.up * rotationAngle, spinTime);
+                    StartCoroutine(coroutine);
                 }
             }
-        }
-        else
-        {
-            transform.eulerAngles = initialRotation;
         }
     }
 
@@ -87,6 +100,9 @@ public class RotatePiece : CustomScript
     public void UpdateInitialRotation()
     {
         initialRotation = transform.eulerAngles;
+        initX = initialRotation.x;
+        initY = initialRotation.y;
+        initZ = initialRotation.z;
     }
 
     // true stops the piece from spinning
@@ -94,5 +110,8 @@ public class RotatePiece : CustomScript
     public void SetStopSpinFlag(bool f)
     {
         flagStopRotation = f;
+        if(coroutine != null)
+            StopCoroutine(coroutine);
+        transform.eulerAngles = initialRotation;
     }
 }
