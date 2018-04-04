@@ -112,7 +112,7 @@ public class EditorManager : MonoBehaviour
             lvlProp.transform.parent = go.transform;
             lvlProp.name = prefabLevelProperties.name;
             levelsProperties[i] = lvlProp;
-            GameObject spwn = Instantiate((i == 0) ? prefabSpawnPoint:prefabSpawnPointNoNetworkStart);
+            GameObject spwn = Instantiate((i == 0) ? prefabSpawnPoint : prefabSpawnPointNoNetworkStart);
             spwn.transform.parent = go.transform;
             spwn.name = prefabSpawnPoint.name;
             spawnPoints[i] = spwn;
@@ -731,6 +731,8 @@ public class EditorManager : MonoBehaviour
                 _inputSpinTime.text = rtp.spinTime.ToString("F");
                 _inputSpinPauseTime.text = rtp.pauseTime.ToString("F");
                 _inputSpinNbRota.text = rtp.nbRotations.ToString("D");
+
+                rtp.SetStopSpinFlag(true);
             }
             else
             {
@@ -754,12 +756,19 @@ public class EditorManager : MonoBehaviour
 
             foreach (GameObject piece in selectedPiecesInPlace)
             {
-                sameVals[0] &= ApproximatelyEquals(xPos,piece.transform.position.x);
+                sameVals[0] &= ApproximatelyEquals(xPos, piece.transform.position.x);
                 sameVals[1] &= ApproximatelyEquals(yPos, piece.transform.position.y);
                 sameVals[2] &= ApproximatelyEquals(zPos, piece.transform.position.z);
                 sameVals[3] &= ApproximatelyEquals(xRot, piece.transform.eulerAngles.x);
                 sameVals[4] &= ApproximatelyEquals(yRot, piece.transform.eulerAngles.y);
                 sameVals[5] &= ApproximatelyEquals(zRot, piece.transform.eulerAngles.z);
+
+                RotatePiece rtp = piece.GetComponent<RotatePiece>();
+                if (rtp != null && rtp.enabled) // If the component is disabled it means it was added THEN removed from the piece (we only disable the script instead of removing it)
+                {
+                    // Just prevent the pieces from spinning while selected
+                    rtp.SetStopSpinFlag(true);
+                }
             }
 
             _inputPosX.text = (sameVals[0]) ? xPos.ToString("F") : "";
@@ -786,6 +795,9 @@ public class EditorManager : MonoBehaviour
         return Mathf.Abs(a - b) < epsilon;
     }
 
+
+    #region PieceInformationEdit
+
     public void updatePosX(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
@@ -803,7 +815,7 @@ public class EditorManager : MonoBehaviour
             {
                 sameVal &= ApproximatelyEquals(xPos, piece.transform.position.x);
             }
-            if(sameVal)
+            if (sameVal)
             {
                 float x = 0f;
                 float.TryParse(val, out x);
@@ -1063,7 +1075,7 @@ public class EditorManager : MonoBehaviour
             if (rtp != null)
             {
                 rtp.nbRotations = int.Parse(val);
-                rtp.updateRotations();
+                rtp.UpdateRotations();
             }
             else
                 Debug.LogError("We try to change the nbRotations but there's no RotatePiece script on the object");
@@ -1076,6 +1088,7 @@ public class EditorManager : MonoBehaviour
             Debug.LogError("No piece are selected and we try to set the spin time");
     }
 
+    #endregion
 
     #region Undo/Redo Stack
     public interface ICommand<T>
@@ -1259,6 +1272,12 @@ public class EditorManager : MonoBehaviour
             foreach (GameObject go in _CP.selectedPieces)
             {
                 SetHighlight(false, go);
+
+                RotatePiece rtp = go.GetComponent<RotatePiece>();
+                if (rtp != null && rtp.enabled)
+                {
+                    rtp.SetStopSpinFlag(false);
+                }
             }
 
             // Add the new piece to the selection
@@ -1284,6 +1303,12 @@ public class EditorManager : MonoBehaviour
             {
                 SetHighlight(true, go);
                 selectedPiecesInPlace.Add(go);
+
+                RotatePiece rtp = go.GetComponent<RotatePiece>();
+                if (rtp != null && rtp.enabled)
+                {
+                    rtp.SetStopSpinFlag(true);
+                }
             }
 
             // Hide the piece info in no pieces were selected before otherwise display the info of the previous selection
@@ -1313,6 +1338,12 @@ public class EditorManager : MonoBehaviour
             // Remove the piece from the selection
             selectedPiecesInPlace.Remove(_CP.result);
             SetHighlight(false, _CP.result);
+
+            RotatePiece rtp = _CP.result.GetComponent<RotatePiece>();
+            if(rtp != null && rtp.enabled)
+            {
+                rtp.SetStopSpinFlag(false);
+            }
 
             // Display the piece info
             SetPieceInfoPanelVisibility();
@@ -1358,6 +1389,12 @@ public class EditorManager : MonoBehaviour
             foreach (GameObject go in _CP.selectedPieces)
             {
                 SetHighlight(false, go);
+
+                RotatePiece rtp = go.GetComponent<RotatePiece>();
+                if (rtp != null && rtp.enabled)
+                {
+                    rtp.SetStopSpinFlag(false);
+                }
             }
 
             // Hide the piece info
@@ -1373,6 +1410,12 @@ public class EditorManager : MonoBehaviour
             {
                 SetHighlight(true, go);
                 selectedPiecesInPlace.Add(go);
+
+                RotatePiece rtp = go.GetComponent<RotatePiece>();
+                if (rtp != null && rtp.enabled)
+                {
+                    rtp.SetStopSpinFlag(true);
+                }
             }
 
             // Display the piece info
@@ -1402,6 +1445,11 @@ public class EditorManager : MonoBehaviour
             foreach (GameObject go in _CP.selectedPieces)
             {
                 go.transform.Rotate(new Vector3(0f, 90f, 0f));
+                RotatePiece rtp = go.GetComponent<RotatePiece>();
+                if (rtp != null && rtp.enabled)
+                {
+                    rtp.UpdateInitialRotation();
+                }
             }
 
             // Update the piece information window
@@ -1415,6 +1463,11 @@ public class EditorManager : MonoBehaviour
             foreach (GameObject go in _CP.selectedPieces)
             {
                 go.transform.Rotate(new Vector3(0f, -90f, 0f));
+                RotatePiece rtp = go.GetComponent<RotatePiece>();
+                if (rtp != null && rtp.enabled)
+                {
+                    rtp.UpdateInitialRotation();
+                }
             }
 
             // Update the piece information window
@@ -1648,7 +1701,7 @@ public class EditorManager : MonoBehaviour
                 if (piece.activeSelf)
                 {
                     TerrainPiece tp = piece.GetComponent<TerrainPiece>();
-                    if (tp.id.Substring(0, 4) == "Hole")
+                    if (tp.id.Substring(0, 4) == "Hole")    // /!\ ALL HOLE-TYPE PREFABS WILL NEED AN ID THAT STARTS WITH HOLE /!\
                     {
                         foundHole = true;
                         break;

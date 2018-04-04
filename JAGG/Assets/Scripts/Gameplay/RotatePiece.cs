@@ -5,7 +5,8 @@ using UnityEngine;
 
 // Allows a piece to rotate on itself
 // Turns in increments defined by the user
-public class RotatePiece : CustomScript {
+public class RotatePiece : CustomScript
+{
 
     public const float defaultSpinTime = 1.0f;
     public const float defaultPauseTime = 0.2f;
@@ -23,32 +24,45 @@ public class RotatePiece : CustomScript {
     public int nbRotations = 4;
 
 
+    private bool flagStopRotation = false;
+    public Vector3 initialRotation = new Vector3();
+
     private bool isRotation = true;
     private float timer;
     private float rotationAngle;
 
     private Transform targetRot;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
+        initialRotation = transform.eulerAngles;
         timer = 0f;
         rotationAngle = 360 / nbRotations;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        timer += Time.deltaTime;
+    }
 
-        if((isRotation && timer>spinTime) || (!isRotation && timer>pauseTime))
+    // Update is called once per frame
+    void Update()
+    {
+        if (!flagStopRotation)
         {
-            isRotation = !isRotation;
-            timer = 0f;
-            if(isRotation)
+            timer += Time.deltaTime;
+
+            if ((isRotation && timer > spinTime) || (!isRotation && timer > pauseTime))
             {
-                StartCoroutine(RotateMe(Vector3.up * rotationAngle, spinTime));
+                isRotation = !isRotation;
+                timer = 0f;
+                if (isRotation)
+                {
+                    StartCoroutine(RotateMe(Vector3.up * rotationAngle, spinTime));
+                }
             }
         }
-	}
+        else
+        {
+            transform.eulerAngles = initialRotation;
+        }
+    }
 
 
     IEnumerator RotateMe(Vector3 byAngles, float inTime)
@@ -64,9 +78,21 @@ public class RotatePiece : CustomScript {
         transform.rotation = toAngle;
     }
 
-    public void updateRotations()
+    public void UpdateRotations()
     {
         transform.rotation = Quaternion.identity;
         rotationAngle = 360 / nbRotations;
+    }
+
+    public void UpdateInitialRotation()
+    {
+        initialRotation = transform.eulerAngles;
+    }
+
+    // true stops the piece from spinning
+    // we put the piece back to its original rotation either way
+    public void SetStopSpinFlag(bool f)
+    {
+        flagStopRotation = f;
     }
 }
