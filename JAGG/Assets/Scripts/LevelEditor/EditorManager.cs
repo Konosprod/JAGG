@@ -102,39 +102,7 @@ public class EditorManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        List<string> dropOptions = new List<string>();
-
-        piecesInPlace = new List<GameObject>[maxHoles];
-        for (int i = 0; i < maxHoles; i++)
-        {
-            piecesInPlace[i] = new List<GameObject>();
-            GameObject go = new GameObject("Hole " + (i + 1));
-            go.transform.parent = holesObject.transform;
-
-            // Add levelProperties and spawnPoint to holes
-            GameObject lvlProp = Instantiate(prefabLevelProperties);
-            lvlProp.transform.parent = go.transform;
-            lvlProp.name = prefabLevelProperties.name;
-            levelsProperties[i] = lvlProp;
-            GameObject spwn = Instantiate((i == 0) ? prefabSpawnPoint : prefabSpawnPointNoNetworkStart);
-            spwn.transform.parent = go.transform;
-            spwn.name = prefabSpawnPoint.name;
-            spawnPoints[i] = spwn;
-
-            // Add "Hole i+1" to the hole selection dropdown
-            dropOptions.Add("Hole " + (i + 1));
-        }
-
-        // Setup the dropdown
-        holeSelection.AddOptions(dropOptions);
-        holeSelection.onValueChanged.AddListener(delegate
-        {
-            DropdownValueChanged(holeSelection);
-        });
-
-        selectedPiecesInPlace = new List<GameObject>();
-
-        currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
+        SetupHoles();
 
         // Grab all prefabs previews
         prefabs = Resources.LoadAll<GameObject>("Prefabs/Terrain");
@@ -1749,9 +1717,52 @@ public class EditorManager : MonoBehaviour
 
     public void LoadLevel(string path)
     {
+        foreach (Transform hole in holesObject.transform)
+        {
+            DestroyImmediate(hole.gameObject);
+        }
+        SetupHoles();
+
         loader.LoadLevel(path);
         panelExport.steamid = loader.steamid;
         panelExport.mapid = loader.mapid;
         panelExport.mapName = System.IO.Path.GetFileNameWithoutExtension(path);
+    }
+
+    private void SetupHoles()
+    {
+        List<string> dropOptions = new List<string>();
+
+        piecesInPlace = new List<GameObject>[maxHoles];
+        for (int i = 0; i < maxHoles; i++)
+        {
+            piecesInPlace[i] = new List<GameObject>();
+            GameObject go = new GameObject("Hole " + (i + 1));
+            go.transform.parent = holesObject.transform;
+
+            // Add levelProperties and spawnPoint to holes
+            GameObject lvlProp = Instantiate(prefabLevelProperties);
+            lvlProp.transform.parent = go.transform;
+            lvlProp.name = prefabLevelProperties.name;
+            levelsProperties[i] = lvlProp;
+            GameObject spwn = Instantiate((i == 0) ? prefabSpawnPoint : prefabSpawnPointNoNetworkStart);
+            spwn.transform.parent = go.transform;
+            spwn.name = prefabSpawnPoint.name;
+            spawnPoints[i] = spwn;
+
+            // Add "Hole i+1" to the hole selection dropdown
+            dropOptions.Add("Hole " + (i + 1));
+        }
+
+        // Setup the dropdown
+        holeSelection.AddOptions(dropOptions);
+        holeSelection.onValueChanged.AddListener(delegate
+        {
+            DropdownValueChanged(holeSelection);
+        });
+
+        selectedPiecesInPlace = new List<GameObject>();
+
+        currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
     }
 }

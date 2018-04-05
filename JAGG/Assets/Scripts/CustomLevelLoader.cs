@@ -49,7 +49,7 @@ public class CustomLevelLoader : MonoBehaviour {
             level = (JObject)JToken.ReadFrom(reader);
         }
 
-        //Debug.Log(level.ToString(Formatting.None));
+        Debug.Log(level.ToString(Formatting.None));
 
         steamid = level["steamid"].ToString();
         mapid = (int)level["mapid"];
@@ -111,7 +111,7 @@ public class CustomLevelLoader : MonoBehaviour {
             i++;
         }
 
-        for (int j = 1; j < holes.transform.childCount; j++)
+        for (int j = 1; j < ((JArray)level["holes"]).Count; j++)
         {
             holes.transform.GetChild(j - 1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = spawnPositions[j].transform;
         }
