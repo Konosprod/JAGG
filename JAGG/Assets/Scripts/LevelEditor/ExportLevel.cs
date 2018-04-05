@@ -10,10 +10,11 @@ using Newtonsoft.Json.Bson;
 public class ExportLevel : MonoBehaviour {
     public Transform holes;
     public GameObject prefabEndOfGame;
-
+    private EditorManager editorManager;
 
     void Start()
     {
+        editorManager = gameObject.GetComponent<EditorManager>();
         //Debug.Log(CreateCustomLevel());
         //SaveLevel();
     }
@@ -21,12 +22,11 @@ public class ExportLevel : MonoBehaviour {
     //Test function
     public void SaveLevel()
     {
-        CreateCustomLevel("TestLevel", "TestAuthor", Path.Combine(Application.persistentDataPath, "Levels"));
+        //CreateCustomLevel("TestLevel", "TestAuthor", Path.Combine(Application.persistentDataPath, "Levels"));
     }
 
-    public string CreateCustomLevel(string name = "", string author = "", string location = "")
+    public byte[] CreateCustomLevel(string name = "", string author = "", bool checkHoleValidity = false)
     {
-        string json = "";
         string levelName = name;
 
         if (name == "")
@@ -43,7 +43,16 @@ public class ExportLevel : MonoBehaviour {
 
         JArray jholes = new JArray();
 
-        foreach(Transform holeTransform in holes)
+        if(checkHoleValidity)
+        {
+            for(int i = 0; i < 17; i++)
+            {
+                if (!editorManager.isHoleValid(i))
+                    return null;
+            }
+        }
+
+        foreach (Transform holeTransform in holes)
         {
             GameObject hole = holeTransform.gameObject;
 
@@ -58,11 +67,11 @@ public class ExportLevel : MonoBehaviour {
             {
                 piece.ToJson(jPieces);
 
-                if(!piece.prefab)
+                if (!piece.prefab)
                 {
                     //Copy .obj, .mtl, .png to obj/
                     string path = Path.GetDirectoryName(ObjImporter.GetObjPath(piece.id)) + Path.DirectorySeparatorChar;
-                    
+
                     mapFile.AddFile(path + piece.id + ".obj", "obj");
                     mapFile.AddFile(path + piece.id + ".mtl", "obj");
                     mapFile.AddFile(path + piece.id + ".png", "obj");
@@ -93,6 +102,7 @@ public class ExportLevel : MonoBehaviour {
         customLevel.Add("holes", jholes);
 
         MemoryStream ms = new MemoryStream();
+        MemoryStream outZip = new MemoryStream();
 
         using (BsonWriter writer = new BsonWriter(ms))
         {
@@ -100,8 +110,11 @@ public class ExportLevel : MonoBehaviour {
         }
 
         mapFile.AddEntry("level.json", ms.ToArray());
-        mapFile.Save(location + Path.DirectorySeparatorChar + levelName + ".map");
 
-        return json;
+        mapFile.Save(outZip);
+        outZip.Seek(0, SeekOrigin.Begin);
+        //mapFile.Save(location + Path.DirectorySeparatorChar + levelName + ".map");
+
+        return outZip.ToArray();
     }
 }

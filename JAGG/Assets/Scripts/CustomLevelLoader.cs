@@ -11,6 +11,11 @@ public class CustomLevelLoader : MonoBehaviour {
 
     public GameObject holes;
 
+    [HideInInspector]
+    public string steamid = "";
+    [HideInInspector]
+    public int mapid = 0;
+
     private Dictionary<string, GameObject> cachePiece = new Dictionary<string, GameObject>();
 
     // Use this for initialization
@@ -43,6 +48,11 @@ public class CustomLevelLoader : MonoBehaviour {
         {
             level = (JObject)JToken.ReadFrom(reader);
         }
+
+        //Debug.Log(level.ToString(Formatting.None));
+
+        steamid = level["steamid"].ToString();
+        mapid = (int)level["mapid"];
 
         List<GameObject> spawnPositions = new List<GameObject>();
 

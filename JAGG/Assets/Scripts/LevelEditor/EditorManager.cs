@@ -95,6 +95,10 @@ public class EditorManager : MonoBehaviour
 
     private bool flagNoUndoDeselect = false;
 
+    [Header("Custom Level")]
+    public CustomLevelLoader loader;
+    public PanelExport panelExport;
+
     // Use this for initialization
     void Start()
     {
@@ -1681,5 +1685,11 @@ public class EditorManager : MonoBehaviour
         return Mathf.Clamp(angle, min, max);
     }
 
-
+    public void LoadLevel(string path)
+    {
+        loader.LoadLevel(path);
+        panelExport.steamid = loader.steamid;
+        panelExport.mapid = loader.mapid;
+        panelExport.mapName = System.IO.Path.GetFileNameWithoutExtension(path);
+    }
 }
