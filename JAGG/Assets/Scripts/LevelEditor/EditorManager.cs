@@ -1796,4 +1796,9 @@ public class EditorManager : MonoBehaviour
 
         currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
     }
+
+    public void ReturnToMainMenu()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+    }
 }
