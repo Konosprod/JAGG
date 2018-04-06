@@ -69,7 +69,15 @@ public class CustomLevelLoader : MonoBehaviour {
 
             hole.transform.SetParent(holes.transform);
 
-            GameObject startPoint = new GameObject("Spawn Point");
+            GameObject startPoint = null;
+
+            Transform hasStartPoint = hole.transform.Find("Spawn Point");
+
+            if (hasStartPoint == null)
+                startPoint = new GameObject("Spawn Point");
+            else
+                startPoint = hasStartPoint.gameObject;
+
             startPoint.transform.SetParent(hole.transform);
 
             startPoint.transform.position = new Vector3((float)jHole["properties"]["spawnPoint"]["x"], (float)jHole["properties"]["spawnPoint"]["y"], (float)jHole["properties"]["spawnPoint"]["z"]);
@@ -78,7 +86,8 @@ public class CustomLevelLoader : MonoBehaviour {
 
             if (i == 0)
             {
-                startPoint.AddComponent<NetworkStartPosition>();
+                if(startPoint.GetComponent<NetworkStartPosition>() == null)
+                    startPoint.AddComponent<NetworkStartPosition>();
             }
 
             foreach (JObject jPiece in jHole["pieces"])
@@ -100,7 +109,13 @@ public class CustomLevelLoader : MonoBehaviour {
                 o.SetActive(true);
             }
 
-            GameObject goLevelProp = GameObject.Instantiate(Resources.Load("Prefabs/Level Properties") as GameObject, hole.transform);
+            GameObject goLevelProp = null;
+            Transform hasLevelProperties = hole.transform.Find("Level Properties");
+
+            if (hasLevelProperties == null)
+                goLevelProp = GameObject.Instantiate(Resources.Load("Prefabs/Level Properties") as GameObject, hole.transform);
+            else
+                goLevelProp = hasLevelProperties.gameObject;
 
             LevelProperties levelProperties = goLevelProp.GetComponent<LevelProperties>();
 

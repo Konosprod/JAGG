@@ -1717,16 +1717,47 @@ public class EditorManager : MonoBehaviour
 
     public void LoadLevel(string path)
     {
-        foreach (Transform hole in holesObject.transform)
-        {
-            DestroyImmediate(hole.gameObject);
-        }
-        SetupHoles();
+        CleanHoles();
 
         loader.LoadLevel(path);
         panelExport.steamid = loader.steamid;
         panelExport.mapid = loader.mapid;
         panelExport.mapName = System.IO.Path.GetFileNameWithoutExtension(path);
+    }
+
+    private void CleanHoles()
+    {
+        List<GameObject> gos = new List<GameObject>();
+        for(int i = 0; i < maxHoles; i++)
+        {
+            foreach(Transform t in holesObject.transform.Find("Hole " + (i + 1)))
+            {
+                gos.Add(t.gameObject);
+            }
+        }
+
+        foreach(GameObject g in gos)
+        {
+            Destroy(g);
+        }
+
+        for (int i = 0; i < maxHoles; i++)
+        {
+            piecesInPlace[i].Clear();
+            GameObject go = holesObject.transform.Find("Hole " + (i + 1)).gameObject;
+
+            GameObject lvlProp = Instantiate(prefabLevelProperties);
+            lvlProp.transform.parent = go.transform;
+            lvlProp.name = prefabLevelProperties.name;
+            levelsProperties[i] = lvlProp;
+
+            GameObject spwn = Instantiate((i == 0) ? prefabSpawnPoint : prefabSpawnPointNoNetworkStart);
+            spwn.transform.parent = go.transform;
+            spwn.name = prefabSpawnPoint.name;
+            spawnPoints[i] = spwn;
+        }
+
+        selectedPiecesInPlace.Clear();
     }
 
     private void SetupHoles()
@@ -1757,7 +1788,7 @@ public class EditorManager : MonoBehaviour
         // Setup the dropdown
         holeSelection.AddOptions(dropOptions);
         holeSelection.onValueChanged.AddListener(delegate
-        {
+        {   
             DropdownValueChanged(holeSelection);
         });
 
