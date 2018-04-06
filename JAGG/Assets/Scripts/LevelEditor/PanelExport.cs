@@ -20,6 +20,7 @@ public class PanelExport : MonoBehaviour {
     public Button saveLocalButton;
     public Button uploadButton;
     public GameObject grid;
+    public LoadingOverlay loadingOverlay;
 
     public ExportLevel levelExporter;
 
@@ -108,10 +109,16 @@ public class PanelExport : MonoBehaviour {
             {
                 sessionCookie = www.GetResponseHeader("Set-Cookie");
                 isAuthenticated = true;
+                loadingOverlay.gameObject.SetActive(false);
+                loadingOverlay.StopAnimation();
+                loadingOverlay.messageText.text = "";
             }
             else
             {
                 Debug.Log("error while authenticating");
+                loadingOverlay.gameObject.SetActive(false);
+                loadingOverlay.StopAnimation();
+                loadingOverlay.messageText.text = "";
                 isAuthenticated = false;
             }
         }
@@ -120,6 +127,10 @@ public class PanelExport : MonoBehaviour {
 
     IEnumerator GetAuthentication()
     {
+        loadingOverlay.gameObject.SetActive(true);
+        loadingOverlay.PlayAnimation();
+        loadingOverlay.messageText.text = "Authentification...";
+
         UnityWebRequest request = UnityWebRequest.Get("https://jagg.konosprod.fr/api/auth");
         request.SetRequestHeader("Cookie", sessionCookie);
         request.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
@@ -144,7 +155,9 @@ public class PanelExport : MonoBehaviour {
             }
             else
             {
-
+                loadingOverlay.gameObject.SetActive(false);
+                loadingOverlay.StopAnimation();
+                loadingOverlay.messageText.text = "";
             }
         }
     }
