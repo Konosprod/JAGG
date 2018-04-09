@@ -1720,6 +1720,24 @@ public class EditorManager : MonoBehaviour
         CleanHoles();
 
         loader.LoadLevel(path);
+
+        for(int i = 0; i < maxHoles; i++)
+        {
+            GameObject hole = holesObject.transform.Find("Hole " + (i + 1).ToString()).gameObject;
+            GameObject spawnPoint =  hole.transform.Find("Spawn Point").gameObject;
+            spawnPoint.transform.GetChild(0).gameObject.SetActive(true);
+            spawnPoints[i] = spawnPoint;
+            levelsProperties[i] = hole.transform.Find("Level Properties").gameObject;
+
+            foreach(Transform p in hole.transform)
+            {
+                if(!p.name.Equals("Spawn Point") && !p.name.Equals("Level Properties"))
+                {
+                    piecesInPlace[i].Add(p.gameObject);
+                }
+            }
+        }
+
         panelExport.steamid = loader.steamid;
         panelExport.mapid = loader.mapid;
         panelExport.mapName = System.IO.Path.GetFileNameWithoutExtension(path);
@@ -1738,7 +1756,7 @@ public class EditorManager : MonoBehaviour
 
         foreach(GameObject g in gos)
         {
-            Destroy(g);
+            DestroyImmediate(g);
         }
 
         for (int i = 0; i < maxHoles; i++)
