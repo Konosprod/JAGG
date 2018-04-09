@@ -17,7 +17,9 @@ public class LobbyControls : NetworkBehaviour {
     public Button selectButton;
     public Button rulesButton;
 
+    [Header("List Scene")]
     public Text labelLevelName;
+    public Image imageScenePreview;
     public Text lobbyLevelName;
 
     [Header("Game Logic")]
@@ -57,7 +59,7 @@ public class LobbyControls : NetworkBehaviour {
                 GameObject newButton = Instantiate(prefabButton, contentPanel);
 
                 SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-                entry.SetUp(Path.GetFileNameWithoutExtension(path), labelLevelName, this);
+                entry.SetUp(Path.GetFileNameWithoutExtension(path), labelLevelName, imageScenePreview, this);
             }
         }
 
@@ -71,7 +73,7 @@ public class LobbyControls : NetworkBehaviour {
             GameObject newButton = Instantiate(prefabButton, contentPanel);
 
             SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-            entry.SetUp(Path.GetFileNameWithoutExtension(file), labelLevelName, this);
+            entry.SetUp(Path.GetFileNameWithoutExtension(file), labelLevelName, imageScenePreview, this);
         }
     }
 
@@ -127,12 +129,12 @@ public class LobbyControls : NetworkBehaviour {
         Regex r = new Regex(@"(\d+)_*");
         string id = r.Match(lobbyLevelName.text).Groups[1].Value;
 
-        StartCoroutine(LoadMapPreview("https://jagg.konosprod.fr/thumbs/" + id + ".png"));
+        StartCoroutine(LoadMapPreview(id));
     }
 
-    IEnumerator LoadMapPreview(string url)
+    IEnumerator LoadMapPreview(string id)
     {
-        WWW www = new WWW(url);
+        WWW www = new WWW("https://jagg.konosprod.fr/thumbs/" + id + ".png");
         yield return www;
         editButton.image.sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0, 0));
     }

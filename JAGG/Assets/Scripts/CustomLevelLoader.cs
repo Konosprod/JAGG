@@ -49,7 +49,7 @@ public class CustomLevelLoader : MonoBehaviour {
             level = (JObject)JToken.ReadFrom(reader);
         }
 
-        Debug.Log(level.ToString(Formatting.None));
+        //Debug.Log(level.ToString(Formatting.None));
 
         steamid = level["steamid"].ToString();
         mapid = (int)level["mapid"];
