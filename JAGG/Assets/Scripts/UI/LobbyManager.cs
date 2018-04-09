@@ -13,6 +13,7 @@ public class LobbyManager : NetworkLobbyManager
     [Header("Game Logic")]
     public Transform EndOfGamePos;
     public PlayerManager playerManager;
+    public RotatePieceManager rtpManager;
 
     [Header("UI")]
     public GameObject mainPanel;

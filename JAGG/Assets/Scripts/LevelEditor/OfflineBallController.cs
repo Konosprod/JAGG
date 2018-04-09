@@ -147,18 +147,21 @@ public class OfflineBallController : MonoBehaviour {
 
 
         GameObject piece = collisionInfo.gameObject;
-        TerrainPiece tp = piece.GetComponent<TerrainPiece>();
-        while(tp == null)
+        if (piece.layer == LayerMask.NameToLayer("Floor"))
         {
-            piece = piece.transform.parent.gameObject;
-            tp = piece.GetComponent<TerrainPiece>();
-        }
-        
-        RotatePiece rtp = piece.GetComponent<RotatePiece>();
+            TerrainPiece tp = piece.GetComponent<TerrainPiece>();
+            while (tp == null)
+            {
+                piece = piece.transform.parent.gameObject;
+                tp = piece.GetComponent<TerrainPiece>();
+            }
 
-        if (rtp != null && rtp.enabled)
-        {
-            transform.parent = collisionInfo.transform.parent;
+            RotatePiece rtp = piece.GetComponent<RotatePiece>();
+
+            if (rtp != null && rtp.enabled)
+            {
+                transform.parent = collisionInfo.transform.parent;
+            }
         }
     }
 
