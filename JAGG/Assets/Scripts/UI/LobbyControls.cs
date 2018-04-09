@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Collections;
 
 public class LobbyControls : NetworkBehaviour {
 
@@ -15,7 +17,9 @@ public class LobbyControls : NetworkBehaviour {
     public Button selectButton;
     public Button rulesButton;
 
+    [Header("List Scene")]
     public Text labelLevelName;
+    public Image imageScenePreview;
     public Text lobbyLevelName;
 
     [Header("Game Logic")]
@@ -55,7 +59,7 @@ public class LobbyControls : NetworkBehaviour {
                 GameObject newButton = Instantiate(prefabButton, contentPanel);
 
                 SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-                entry.SetUp(Path.GetFileNameWithoutExtension(path), labelLevelName, this);
+                entry.SetUp(Path.GetFileNameWithoutExtension(path), labelLevelName, imageScenePreview, this);
             }
         }
 
@@ -69,7 +73,7 @@ public class LobbyControls : NetworkBehaviour {
             GameObject newButton = Instantiate(prefabButton, contentPanel);
 
             SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-            entry.SetUp(Path.GetFileNameWithoutExtension(file), labelLevelName, this);
+            entry.SetUp(Path.GetFileNameWithoutExtension(file), labelLevelName, imageScenePreview, this);
         }
     }
 
@@ -115,7 +119,23 @@ public class LobbyControls : NetworkBehaviour {
         {
             lobbyManager.playScene = "Custom";
             lobbyManager.customMapFile = selectedScene;
+
         }
         lobbyLevelName.text = selectedScene;
+    }
+
+    public void UpdateMapPreview()
+    {
+        Regex r = new Regex(@"(\d+)_*");
+        string id = r.Match(lobbyLevelName.text).Groups[1].Value;
+
+        StartCoroutine(LoadMapPreview(id));
+    }
+
+    IEnumerator LoadMapPreview(string id)
+    {
+        WWW www = new WWW("https://jagg.konosprod.fr/thumbs/" + id + ".png");
+        yield return www;
+        editButton.image.sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0, 0));
     }
 }

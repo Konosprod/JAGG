@@ -49,7 +49,7 @@ public class CustomLevelLoader : MonoBehaviour {
             level = (JObject)JToken.ReadFrom(reader);
         }
 
-        Debug.Log(level.ToString(Formatting.None));
+        //Debug.Log(level.ToString(Formatting.None));
 
         steamid = level["steamid"].ToString();
         mapid = (int)level["mapid"];
@@ -73,7 +73,7 @@ public class CustomLevelLoader : MonoBehaviour {
 
             Transform hasStartPoint = hole.transform.Find("Spawn Point");
 
-            if (hasStartPoint == null)
+            if (!hasStartPoint)
                 startPoint = new GameObject("Spawn Point");
             else
                 startPoint = hasStartPoint.gameObject;
@@ -102,7 +102,7 @@ public class CustomLevelLoader : MonoBehaviour {
                     objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
                 }
 
-                GameObject o = GameObject.Instantiate<GameObject>(objectToLoad, hole.transform);
+                GameObject o = Instantiate(objectToLoad, hole.transform);
 
                 o.GetComponent<TerrainPiece>().FromJson(jPiece.ToString());
 
@@ -112,10 +112,16 @@ public class CustomLevelLoader : MonoBehaviour {
             GameObject goLevelProp = null;
             Transform hasLevelProperties = hole.transform.Find("Level Properties");
 
-            if (hasLevelProperties == null)
-                goLevelProp = GameObject.Instantiate(Resources.Load("Prefabs/Level Properties") as GameObject, hole.transform);
+            if (!hasLevelProperties)
+            {
+                goLevelProp = Instantiate(Resources.Load("Prefabs/Level Properties") as GameObject, hole.transform);
+                goLevelProp.name = "Level Properties"; //Remove the (Clone) shit
+                goLevelProp.transform.SetParent(hole.transform);
+            }
             else
+            {
                 goLevelProp = hasLevelProperties.gameObject;
+            }
 
             LevelProperties levelProperties = goLevelProp.GetComponent<LevelProperties>();
 

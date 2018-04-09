@@ -152,6 +152,8 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     {
         lobbyControls.labelLevelName.text = value;
         lobbyControls.lobbyLevelName.text = value;
+        lobbyControls.UpdateMapPreview();
+
         LobbyManager._instance.customMapFile = value;
     }
 }
