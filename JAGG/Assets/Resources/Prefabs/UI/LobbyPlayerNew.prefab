@@ -297,7 +297,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1397236246323698}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -370.1167, y: 197.04616, z: -104.72254}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4363247249156910}
@@ -618,9 +618,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowLobbyGUI: 1
+  socle: {fileID: 1122506391861470}
+  canvas: {fileID: 1554806575379730}
+  ball: {fileID: 1032880545020056}
   playerNameLabel: {fileID: 114215543327012490}
   toggleReady: {fileID: 114404263674630300}
   readyText: {fileID: 114780442596075626}
+  position: {x: 0, y: 0, z: 0}
   localPlayerColor: {r: 1, g: 0, b: 0, a: 1}
   playerName: 
   lobbyControls: {fileID: 0}
@@ -695,7 +699,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1397236246323698}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
   m_Name: 

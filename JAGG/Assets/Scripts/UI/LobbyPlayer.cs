@@ -5,11 +5,15 @@ using Steamworks;
 
 public class LobbyPlayer : NetworkLobbyPlayer {
 
+    public GameObject socle;
+    public GameObject canvas;
+    public GameObject ball;
+
     public Text playerNameLabel;
     public Toggle toggleReady;
     public Text readyText;
 
-    [SyncVar(hook = "OnPosition")]
+    [SyncVar/*(hook = "OnPosition")*/]
     public Vector3 position;
 
     public Color localPlayerColor = new Color(1, 1, 1);
@@ -22,6 +26,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     // Use this for initialization
     void Start () {
         LobbyPlayerList._instance.AddPlayer(this);
+        DontDestroyOnLoad(this);
 
         lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
 
@@ -48,7 +53,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     {
         OnMyName(playerName);
         OnClientReady(toggleReady.isOn);
-        OnPosition(this.position);
+        OnPosition(position);
     }
 
     private void SetupLocalPlayer()
@@ -91,9 +96,9 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         }
     }
 
-    private void OnPosition(Vector3 position)
+    private void OnPosition(Vector3 pos)
     {
-        gameObject.transform.position = position;
+        transform.position = pos;
     }
 
     private void OnReadyClicked(bool newValue)
@@ -120,6 +125,13 @@ public class LobbyPlayer : NetworkLobbyPlayer {
             toggleReady.isOn = false;
             readyText.text = "Not Ready";
         }
+    }
+
+    public void SetVisibility(bool visi)
+    {
+        socle.SetActive(visi);
+        canvas.SetActive(visi);
+        ball.SetActive(visi);
     }
 
     #region Command

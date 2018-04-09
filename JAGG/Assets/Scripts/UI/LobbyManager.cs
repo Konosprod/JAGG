@@ -17,7 +17,6 @@ public class LobbyManager : NetworkLobbyManager
 
     [Header("UI")]
     public GameObject mainPanel;
-    public GameObject lobbyPanel;
     public GameObject controlPanel;
     public PanelJoin joinPanel;
     public InputField InputIP;
@@ -45,10 +44,10 @@ public class LobbyManager : NetworkLobbyManager
     public string winnerName = "";
 
     private static Vector3[] positions = new Vector3[] {
-        new Vector3(-320, -79, 220),
-        new Vector3(-118, -79, 220),
-        new Vector3(97, -79, 220),
-        new Vector3(315, -79, 220)
+        new Vector3(-320, 0, 220),
+        new Vector3(-118, 0, 220),
+        new Vector3(97, 0, 220),
+        new Vector3(315, 0, 220)
     };
 
     //0 = normal, 1 = low, 2 = high
@@ -207,7 +206,7 @@ public class LobbyManager : NetworkLobbyManager
             Cursor.visible = true;
 
             mainPanel.SetActive(false);
-            lobbyPanel.SetActive(true);
+            LobbyPlayerList._instance.SetLobbyPlayersVisibility(true);
             controlPanel.SetActive(true);
         }
         else
@@ -245,7 +244,7 @@ public class LobbyManager : NetworkLobbyManager
             }
 
             mainPanel.SetActive(false);
-            lobbyPanel.SetActive(false);
+            LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
             controlPanel.SetActive(false);
         }
     }
@@ -258,8 +257,8 @@ public class LobbyManager : NetworkLobbyManager
         {
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
-
-            lobbyPanel.SetActive(true);
+            
+            LobbyPlayerList._instance.SetLobbyPlayersVisibility(true);
             controlPanel.SetActive(true);
             
             for(int i = 0; i < lobbySlots.Length; i++)
@@ -273,14 +272,14 @@ public class LobbyManager : NetworkLobbyManager
         else if(SceneManager.GetSceneAt(0).name == "Victory")
         {
             mainPanel.SetActive(false);
-            lobbyPanel.SetActive(false);
+            LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
             controlPanel.SetActive(false);
         }
         else
         {
             isStarted = false;
             mainPanel.SetActive(false);
-            lobbyPanel.SetActive(false);
+            LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
             controlPanel.SetActive(false);
         }
     }
@@ -319,7 +318,7 @@ public class LobbyManager : NetworkLobbyManager
     public override void OnClientConnect(NetworkConnection conn)
     {
         mainPanel.SetActive(false);
-        lobbyPanel.SetActive(true);
+        LobbyPlayerList._instance.SetLobbyPlayersVisibility(true);
         controlPanel.SetActive(true);
         base.OnClientConnect(conn);
     }
@@ -342,7 +341,7 @@ public class LobbyManager : NetworkLobbyManager
         }
 
         mainPanel.SetActive(true);
-        lobbyPanel.SetActive(false);
+        LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
         controlPanel.SetActive(false);
 
         Cursor.lockState = CursorLockMode.Confined;
