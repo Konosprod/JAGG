@@ -1049,7 +1049,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a0caa300e7abec49b4bc56c45a70dae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: IP Adress
 --- !u!114 &114152632539652414
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1440,7 +1439,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a0caa300e7abec49b4bc56c45a70dae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Join Lobby
 --- !u!114 &114404330416044366
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2235,7 +2233,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a0caa300e7abec49b4bc56c45a70dae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: IP
 --- !u!114 &114665181029272960
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2336,7 +2333,9 @@ MonoBehaviour:
   prefabButton: {fileID: 1786686125445562, guid: 1e897a195aef20344b8fe4c620731ea4,
     type: 2}
   editButton: {fileID: 114450583046959830}
+  returnButton: {fileID: 0}
   selectButton: {fileID: 114494549682133248}
+  rulesButton: {fileID: 0}
   labelLevelName: {fileID: 114622533902587220}
   lobbyLevelName: {fileID: 114321064053259966}
   selectedScene: 
@@ -2381,7 +2380,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a0caa300e7abec49b4bc56c45a70dae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Create Lobby
 --- !u!114 &114730395208566308
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2684,13 +2682,20 @@ MonoBehaviour:
     type: 2}
   playerManager: {fileID: 0}
   mainPanel: {fileID: 1515938221541862}
-  joinPanel: {fileID: 1475023467728888}
   lobbyPanel: {fileID: 1472478823900236}
   controlPanel: {fileID: 1693245733150978}
+  joinPanel: {fileID: 0}
   InputIP: {fileID: 114642748496420668}
   joinPort: {fileID: 114982292362565556}
   createPort: {fileID: 114989950207989444}
+  customMapFile: 
   hole: {fileID: 0}
+  ruleSet:
+    name: 
+    author: 
+    holes: []
+  winnerName: 
+  gravity: 0
 --- !u!114 &114841940721395162
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2835,7 +2840,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a0caa300e7abec49b4bc56c45a70dae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Create Lobby
 --- !u!114 &114961610166915092
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3141,7 +3145,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a0caa300e7abec49b4bc56c45a70dae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Join Lobby
 --- !u!114 &114998690884729378
 MonoBehaviour:
   m_ObjectHideFlags: 1

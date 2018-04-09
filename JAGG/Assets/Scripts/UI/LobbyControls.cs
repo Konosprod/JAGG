@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Collections;
 
 public class LobbyControls : NetworkBehaviour {
 
@@ -115,7 +117,23 @@ public class LobbyControls : NetworkBehaviour {
         {
             lobbyManager.playScene = "Custom";
             lobbyManager.customMapFile = selectedScene;
+
         }
         lobbyLevelName.text = selectedScene;
+    }
+
+    public void UpdateMapPreview()
+    {
+        Regex r = new Regex(@"(\d+)_*");
+        string id = r.Match(lobbyLevelName.text).Groups[1].Value;
+
+        StartCoroutine(LoadMapPreview("https://jagg.konosprod.fr/thumbs/" + id + ".png"));
+    }
+
+    IEnumerator LoadMapPreview(string url)
+    {
+        WWW www = new WWW(url);
+        yield return www;
+        editButton.image.sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0, 0));
     }
 }
