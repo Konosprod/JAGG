@@ -100,6 +100,10 @@ public class EditorManager : MonoBehaviour
     public CustomLevelLoader loader;
     public PanelExport panelExport;
 
+    [Header("Escape Menu")]
+    public GameObject escapeMenu;
+
+    [HideInInspector]
     public bool canEdit = true;
 
     // Use this for initialization
@@ -1827,5 +1831,10 @@ public class EditorManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+    }
+
+    public void ShowEscapeMenu()
+    {
+        escapeMenu.SetActive(true);
     }
 }
