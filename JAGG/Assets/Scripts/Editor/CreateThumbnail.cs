@@ -19,15 +19,14 @@ public class CreateThumbnail : Editor {
             Texture2D prev_copy = new Texture2D(prev.width, prev.height, prev.format, prev.mipmapCount > 1);
             prev_copy.LoadRawTextureData(prev.GetRawTextureData());
             byte[] b_prev = prev_copy.EncodeToPNG();
-            Debug.Log(Path.Combine(Application.dataPath, path));
+
             File.WriteAllBytes(Application.dataPath+"/"+ path, b_prev);
             AssetDatabase.Refresh();
             AssetDatabase.ImportAsset("Assets/" + path);
 
             TextureImporter importer = AssetImporter.GetAtPath("Assets/"+path) as TextureImporter;
             importer.textureType = TextureImporterType.Sprite;
-
-            AssetDatabase.WriteImportSettingsIfDirty(path);
+            importer.SaveAndReimport();
 
         }
     }
