@@ -100,6 +100,8 @@ public class EditorManager : MonoBehaviour
     public CustomLevelLoader loader;
     public PanelExport panelExport;
 
+    public bool canEdit = true;
+
     // Use this for initialization
     void Start()
     {
@@ -166,7 +168,7 @@ public class EditorManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!testMode.isInTest())
+        if (!testMode.isInTest() && canEdit)
         {
             // Handle ctrl + Z
             // Unity editor will catch the ctrl + Z so Z alone will be the input for the editor

@@ -25,6 +25,8 @@ public class PlayerController : NetworkBehaviour {
 
     public SyncListInt score;
 
+    private GameObject guiCam;
+
     private Rigidbody rb;
     private PreviewLine line;
     private LobbyManager lobbyManager;
@@ -101,10 +103,14 @@ public class PlayerController : NetworkBehaviour {
         {
             if (!isPaused)
             {
+                Camera.main.GetComponent<BallCamera>().shouldFollow = false;
+                guiCam.GetComponent<BallCamera>().shouldFollow = false;
                 canShoot = false;
                 ui.ShowPause(
                     delegate()
                     {
+                        Camera.main.GetComponent<BallCamera>().shouldFollow = true;
+                        guiCam.GetComponent<BallCamera>().shouldFollow = true;
                         isPaused = false;
                         canShoot = true;
                     },
@@ -122,6 +128,8 @@ public class PlayerController : NetworkBehaviour {
             }
             else
             {
+                Camera.main.GetComponent<BallCamera>().shouldFollow = true;
+                guiCam.GetComponent<BallCamera>().shouldFollow = true;
                 ui.HidePauseMenu();
                 isPaused = false;
                 canShoot = true;
@@ -258,7 +266,7 @@ public class PlayerController : NetworkBehaviour {
 
     public override void OnStartLocalPlayer()
     {
-        GameObject guiCam = GameObject.FindWithTag("GUICamera");
+        guiCam = GameObject.FindWithTag("GUICamera");
         guiCam.GetComponent<BallCamera>().target = transform;
         Camera.main.GetComponent<BallCamera>().target = transform;
         line = GetComponent<PreviewLine>();

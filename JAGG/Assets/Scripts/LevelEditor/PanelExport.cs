@@ -21,6 +21,7 @@ public class PanelExport : MonoBehaviour {
     public Button uploadButton;
     public GameObject grid;
     public LoadingOverlay loadingOverlay;
+    public EditorManager editorManager;
 
     public ExportLevel levelExporter;
 
@@ -52,6 +53,7 @@ public class PanelExport : MonoBehaviour {
 
     void OnEnable()
     {
+        editorManager.canEdit = false;
         if(mapName != "")
         {
             nameInput.text = mapName;
@@ -61,6 +63,11 @@ public class PanelExport : MonoBehaviour {
 
         StartCoroutine(TakeScreenShot());
         StartCoroutine(GetAuthentication());
+    }
+
+    void OnDisable()
+    {
+        editorManager.canEdit = true;
     }
 
     public void UploadMap()

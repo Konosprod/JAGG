@@ -1332,6 +1332,7 @@ MonoBehaviour:
   distanceMax: 7
   shakingTime: 0.75
   isShaking: 0
+  shouldFollow: 1
 --- !u!124 &240689142
 Behaviour:
   m_ObjectHideFlags: 0
@@ -5319,7 +5320,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
       - m_Target: {fileID: 0}
         m_MethodName: PlayOneShot
@@ -8860,6 +8861,7 @@ MonoBehaviour:
   distanceMax: 7
   shakingTime: 0.75
   isShaking: 0
+  shouldFollow: 1
 --- !u!81 &1777191546
 AudioListener:
   m_ObjectHideFlags: 0
