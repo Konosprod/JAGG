@@ -41,6 +41,8 @@ public class BallCamera : MonoBehaviour
     private float originalShakingtime;
     public bool isShaking = false;
 
+    public bool shouldFollow = true;
+
     // Use this for initialization
     void Start()
     {
@@ -73,7 +75,7 @@ public class BallCamera : MonoBehaviour
 
     void LateUpdate()
     {
-        if (target)
+        if (target && shouldFollow)
         {
             float trueXSpeed = (isAccurateMode) ? xSpeedAccurate : xSpeed;
             float trueYSpeed = (isAccurateMode) ? ySpeedAccurate : ySpeed;
