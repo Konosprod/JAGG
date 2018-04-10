@@ -29,7 +29,8 @@ public class EditorManager : MonoBehaviour
     public Dropdown holeSelection;
 
     // Contains the list of terrain prefabs
-    private static GameObject[] prefabs;
+    private static Dictionary<string, GameObject> prefabs;
+    //private static GameObject[] prefabs;
 
     public GameObject prefabSpawnPoint;
     public GameObject prefabSpawnPointNoNetworkStart;
@@ -103,11 +104,13 @@ public class EditorManager : MonoBehaviour
     void Start()
     {
         SetupHoles();
-
+        prefabs = new Dictionary<string, GameObject>();
         // Grab all prefabs previews
-        prefabs = Resources.LoadAll<GameObject>("Prefabs/Terrain");
-        foreach (GameObject pref in prefabs)
+        //prefabs = Resources.LoadAll<GameObject>("Prefabs/Terrain");
+
+        foreach (GameObject pref in Resources.LoadAll<GameObject>("Prefabs/Terrain"))
         {
+            prefabs.Add(pref.name, pref);
             // /!\ CHANGES THE PREFAB ITSELF /!\
             foreach (Renderer r in pref.GetComponentsInChildren<Renderer>())
             {
@@ -489,13 +492,14 @@ public class EditorManager : MonoBehaviour
         {
             //Debug.Log(pieceName);
 
-            GameObject piece = null;
+            GameObject piece = prefabs[pieceName];
 
+            /*
             foreach (GameObject pref in prefabs)
             {
                 if (pref.name == pieceName)
                     piece = pref;
-            }
+            }*/
 
             if (piece != null)
             {
@@ -1117,13 +1121,16 @@ public class EditorManager : MonoBehaviour
             string prName = pr.name.Split('(')[0];
             // We must find the reference in prefabs because the pr from the parameters is an instance used temporarily to display at the mouse cursor position (currentPiece)
             // This way the ctrl + Z will work even if the player selects another piece
-            foreach (GameObject pref in prefabs)
+
+            /*foreach (GameObject pref in prefabs)
             {
                 if (pref.name == prName)
                 {
                     _CP.prefab = pref;
                 }
-            }
+            }*/
+
+            _CP.prefab = prefabs[prName];
             _CP.position = pos;
             _CP.rotation = rot;
             _CP.result = null;
