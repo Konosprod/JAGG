@@ -223,7 +223,7 @@ public class EditorManager : MonoBehaviour
                                 Vector3 pos = new Vector3(x, y, z);
                                 //Debug.Log("pos : " + pos);
                                 targetNormal = Vector3.up;
-                                //currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
+                                currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
                                 currentPiece.transform.position = pos;
 
                                 // If you left-click and the position is free, place the piece
@@ -504,7 +504,7 @@ public class EditorManager : MonoBehaviour
             if (piece != null)
             {
                 Destroy(currentPiece);
-                currentPiece = Instantiate(piece, piece.transform.position, Quaternion.Euler(piece.transform.localEulerAngles));
+                currentPiece = Instantiate(piece, piece.transform.position, piece.transform.rotation);
                 // Disable all colliders so that Raycasts can go through the currentPiece
                 SetAllCollidersStatus(false, currentPiece);
 
@@ -1140,7 +1140,7 @@ public class EditorManager : MonoBehaviour
         {
             if (_CP.result == null)
             {
-                _CP.result = Instantiate(_CP.prefab, _CP.position, Quaternion.Euler(_CP.prefab.transform.localEulerAngles));
+                _CP.result = Instantiate(_CP.prefab, _CP.position, _CP.rotation);
                 // Enable all colliders so that Raycasts do hit the piece
                 _CP.result.transform.parent = currentHoleObject.transform;
                 SetAllCollidersStatus(true, _CP.result);
