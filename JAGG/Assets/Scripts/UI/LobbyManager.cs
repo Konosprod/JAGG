@@ -265,6 +265,8 @@ public class LobbyManager : NetworkLobbyManager
             {
                 if (lobbySlots[i] != null)
                     (lobbySlots[i] as LobbyPlayer).ResetStatus();
+                else
+                    LobbyPlayerList._instance.RemovePlayer(lobbySlots[i] as LobbyPlayer);
             }
 
             playerManager.ClearPlayers();
@@ -312,6 +314,7 @@ public class LobbyManager : NetworkLobbyManager
     public override void OnServerDisconnect(NetworkConnection conn)
     {
         playerManager.RemovePlayer(conn.connectionId);
+        LobbyPlayerList._instance.RemovePlayerByConnectionID(conn.connectionId);
         base.OnServerDisconnect(conn);
     }
 
@@ -330,7 +333,6 @@ public class LobbyManager : NetworkLobbyManager
 
     public override void OnClientDisconnect(NetworkConnection conn)
     {
-
         if (conn.lastError == NetworkError.Ok)
         {
             playerManager.RemovePlayer(conn.connectionId);
@@ -353,7 +355,15 @@ public class LobbyManager : NetworkLobbyManager
     public override void OnStopHost()
     {
         playerManager.ClearPlayers();
+        LobbyPlayerList._instance.ClearPlayers();
         base.OnStopHost();
+    }
+
+    public override void OnStopClient()
+    {
+        playerManager.ClearPlayers();
+        LobbyPlayerList._instance.ClearPlayers();
+        base.OnStopClient();
     }
 
     public void CreateRoom()
