@@ -146,7 +146,7 @@ public class OfflineBallController : MonoBehaviour {
         IsGrounded = true;
 
 
-        GameObject piece = collisionInfo.gameObject;
+        /*GameObject piece = collisionInfo.gameObject;
         if (piece.layer == LayerMask.NameToLayer("Floor"))
         {
             TerrainPiece tp = piece.GetComponent<TerrainPiece>();
@@ -162,18 +162,18 @@ public class OfflineBallController : MonoBehaviour {
             {
                 transform.parent = collisionInfo.transform.parent;
             }
-        }
+        }*/
     }
 
     void OnCollisionExit(Collision collisionInfo)
     {
         IsGrounded = false;
 
-        if (transform.parent != null)
+        /*if (transform.parent != null)
         {
             transform.parent = null;
 
-        }
+        }*/
     }
 
     /*void OnTriggerStay(Collider other)

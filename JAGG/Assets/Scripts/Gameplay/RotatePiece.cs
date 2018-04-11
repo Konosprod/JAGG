@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 // Allows a piece to rotate on itself
 // Turns in increments defined by the user
@@ -19,6 +19,10 @@ public class RotatePiece : CustomScript
     [CustomProp]
     public float pauseTime = 0.2f;
 
+    // The amount of time the piece will wait before cycling
+    [CustomProp]
+    public float timerOffset = 0f;
+
     // The amount of rotations required to perform a full turn (4 means 90 degrees each time)
     [CustomProp]
     public int nbRotations = 4;
@@ -33,16 +37,27 @@ public class RotatePiece : CustomScript
 
     public Vector3 initialRotation = Vector3.one;
 
-    private bool flagStopRotation = false;
-
-    private bool isRotation = true;
-    private float timer;
-    private float rotationAngle;
+    [HideInInspector]
+    public bool flagStopRotation = false;
+    [HideInInspector]
+    public bool isRotation = false;
+    [HideInInspector]
+    public float timer;
+    [HideInInspector]
+    public float rotationAngle;
 
     private Transform targetRot;
 
-    private IEnumerator coroutine;
+    [HideInInspector]
+    public Coroutine coroutine;
+
+    private List<ChildColliderRotatePiece> ccrtps;
     
+    // List of the balls that are currently on top on the piece
+    [HideInInspector]
+    public List<GameObject> ballsOnTop;
+
+    public Quaternion goalAngle = Quaternion.identity;
 
     // Use this for initialization
     void Start()
@@ -53,14 +68,25 @@ public class RotatePiece : CustomScript
         }
         
         UpdateInitialRotation();
-        timer = 0f;
+        timer = -timerOffset;
         rotationAngle = 360 / nbRotations;
+
+        ballsOnTop = new List<GameObject>();
+
+        ccrtps = new List<ChildColliderRotatePiece>();
+        Collider[] cols = GetComponentsInChildren<Collider>();
+        foreach(Collider col in cols)
+        {
+            ChildColliderRotatePiece ccrtp = col.gameObject.AddComponent<ChildColliderRotatePiece>();
+            ccrtp.SetRtpParent(this);
+            ccrtps.Add(ccrtp);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!flagStopRotation)
+        /*if (!flagStopRotation)
         {
             timer += Time.deltaTime;
 
@@ -74,21 +100,21 @@ public class RotatePiece : CustomScript
                     StartCoroutine(coroutine);
                 }
             }
-        }
+        }*/
     }
 
 
-    IEnumerator RotateMe(Vector3 byAngles, float inTime)
+    public IEnumerator RotateMe(Vector3 byAngles, float inTime)
     {
         Quaternion fromAngle = transform.rotation;
-        Quaternion toAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
+        goalAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
         for (float t = 0f; t < 1f; t += Time.deltaTime / inTime)
         {
-            transform.rotation = Quaternion.Slerp(fromAngle, toAngle, t);
+            transform.rotation = Quaternion.Slerp(fromAngle, goalAngle, t);
             yield return null;
         }
 
-        transform.rotation = toAngle;
+        transform.rotation = goalAngle;
     }
 
     public void UpdateRotations()
@@ -110,8 +136,34 @@ public class RotatePiece : CustomScript
     public void SetStopSpinFlag(bool f)
     {
         flagStopRotation = f;
-        if(coroutine != null)
-            StopCoroutine(coroutine);
+        if (coroutine != null)
+        {
+            if (SceneManager.GetSceneAt(0).name == "LevelEditor")
+                LevelEditorRotatePieceManager._instance.StopMyCoroutine(this);
+            else
+                RotatePieceManager._instance.StopMyCoroutine(this);
+        }
+
+
         transform.eulerAngles = initialRotation;
     }
+
+
+    public void Reset()
+    {
+        if (coroutine != null)
+        {
+            if (SceneManager.GetSceneAt(0).name == "LevelEditor")
+                LevelEditorRotatePieceManager._instance.StopMyCoroutine(this);
+            else
+                RotatePieceManager._instance.StopMyCoroutine(this);
+        }
+
+        transform.eulerAngles = initialRotation;
+        timer = -timerOffset;
+        isRotation = false;
+        rotationAngle = 360 / nbRotations;
+        ballsOnTop.Clear();
+    }
+
 }

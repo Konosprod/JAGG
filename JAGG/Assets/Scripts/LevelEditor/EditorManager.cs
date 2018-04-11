@@ -96,6 +96,8 @@ public class EditorManager : MonoBehaviour
 
     private bool flagNoUndoDeselect = false;
 
+    private static LevelEditorRotatePieceManager rtpManager;
+
     [Header("Custom Level")]
     public CustomLevelLoader loader;
     public PanelExport panelExport;
@@ -163,6 +165,9 @@ public class EditorManager : MonoBehaviour
         _inputSpinTime = inputSpinTime;
         _inputSpinPauseTime = inputSpinPauseTime;
         _inputSpinNbRota = inputSpinNbRota;
+
+        // Grab the rtpManager instance
+        rtpManager = LevelEditorRotatePieceManager._instance;
     }
 
     // Update is called once per frame
@@ -987,7 +992,8 @@ public class EditorManager : MonoBehaviour
             {
                 if (rtp == null)
                 {
-                    piece.AddComponent<RotatePiece>();
+                    rtp = piece.AddComponent<RotatePiece>();
+                    rtpManager.AddRotatePiece(rtp);
                 }
                 else
                 {

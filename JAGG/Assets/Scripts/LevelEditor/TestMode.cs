@@ -95,6 +95,8 @@ public class TestMode : MonoBehaviour {
 
             ball.SetActive(start);
             slider.SetActive(start);
+
+            LevelEditorRotatePieceManager._instance.ResetAllRTPs();
         }
     }
 

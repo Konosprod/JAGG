@@ -1,14 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class RotatePieceManager : NetworkBehaviour {
+public class LevelEditorRotatePieceManager : MonoBehaviour
+{
 
-    public static RotatePieceManager _instance;
+    public static LevelEditorRotatePieceManager _instance;
 
     private List<RotatePiece> rotatePieces;
-    
+
     void Awake()
     {
         if (_instance == null)
@@ -21,6 +21,8 @@ public class RotatePieceManager : NetworkBehaviour {
         }
 
         DontDestroyOnLoad(this.gameObject);
+
+        rotatePieces = new List<RotatePiece>();
     }
 
     public void grabAllRotatePieces()
@@ -68,6 +70,31 @@ public class RotatePieceManager : NetworkBehaviour {
                         if (rtp.isRotation)
                         {
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+                        }
+                    }
+
+                    if (rtp.isRotation)
+                    {
+                        if (rtp.ballsOnTop.Count > 0)
+                        {
+                            foreach (GameObject ball in rtp.ballsOnTop)
+                            {
+                                Vector3 ballPos = ball.transform.position;
+                                Vector3 piecePos = rtp.transform.position;
+
+                                Quaternion fromAngle = Quaternion.Euler(rtp.goalAngle.eulerAngles - new Vector3(0f, rtp.rotationAngle, 0f));
+                                Quaternion toAngle = rtp.goalAngle;
+                                Quaternion step = Quaternion.Inverse(fromAngle) * Quaternion.Slerp(fromAngle, toAngle, Time.deltaTime / rtp.spinTime);
+
+
+                                Vector3 currentOffset = ballPos - piecePos;
+                                Vector3 nextStepOffset = step * currentOffset;
+                                Vector3 movement = nextStepOffset - currentOffset;
+
+                                //Debug.Log("BallPos : " + ballPos + ", piecePos : " + piecePos + ", fromAngle : " + fromAngle.eulerAngles + ", toAngle : " + toAngle.eulerAngles + ", step : " + step.eulerAngles + ", currentOffset : " + currentOffset + ", nextStepOffset : " + nextStepOffset + ", movement : " + movement);
+
+                                ball.transform.position += movement;
+                            }
                         }
                     }
                 }
