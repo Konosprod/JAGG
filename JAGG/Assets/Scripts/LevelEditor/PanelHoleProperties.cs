@@ -28,14 +28,21 @@ public class PanelHoleProperties : MonoBehaviour {
 
     public void Load(GameObject spawnPoint, GameObject levelProperties)
     {
-        if (spawnPoint == null)
+        if (!spawnPoint.transform.GetChild(0).gameObject.activeSelf)
         {
-            spawnXInput.text = "0";
-            spawnYInput.text = "0";
-            spawnZInput.text = "0";
+            spawnXInput.text = "None";
+            spawnXInput.interactable = false;
+            spawnYInput.text = "None";
+            spawnYInput.interactable = false;
+            spawnZInput.text = "None";
+            spawnZInput.interactable = false;
         }
         else
         {
+            spawnXInput.interactable = true;
+            spawnYInput.interactable = true;
+            spawnZInput.interactable = true;
+
             Vector3 position = spawnPoint.transform.position;
             spawnXInput.text = position.x.ToString();
             spawnYInput.text = position.y.ToString();
