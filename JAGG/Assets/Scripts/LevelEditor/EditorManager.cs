@@ -22,6 +22,7 @@ public class EditorManager : MonoBehaviour
     // Required things in the scene
     //public GameObject scrollviewContent;
     public ListPrefabPanel listPrefabPanel;
+    public PanelHoleProperties panelHoleProperties;
     public GameObject grid;
     public GameObject plane;
     private static GameObject gridGO;
@@ -1839,5 +1840,34 @@ public class EditorManager : MonoBehaviour
     public void ShowEscapeMenu()
     {
         escapeMenu.SetActive(true);
+    }
+
+    public void ShowHoleProperties()
+    {
+        if (panelHoleProperties.gameObject.activeSelf)
+            panelHoleProperties.gameObject.SetActive(false);
+        else
+        {
+            panelHoleProperties.Load(spawnPoints[currentHole], levelsProperties[currentHole]);
+            panelHoleProperties.gameObject.SetActive(true);
+        }
+    }
+
+    public void UpdateSpawnPoint(Vector3 newPos)
+    {
+        spawnPoints[currentHole].transform.position = newPos;
+    }
+
+    public void UpdateLevelProperties(int par, int maxshot, int time)
+    {
+        GameObject currentLevelProperties = levelsProperties[currentHole];
+
+        LevelProperties levelProp = currentLevelProperties.GetComponent<LevelProperties>();
+
+        levelProp.par = par;
+        levelProp.maxShot = maxshot;
+        levelProp.maxTime = time;
+
+        levelsProperties[currentHole] = currentLevelProperties;
     }
 }
