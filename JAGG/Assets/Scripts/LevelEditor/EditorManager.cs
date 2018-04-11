@@ -20,7 +20,9 @@ public class EditorManager : MonoBehaviour
     private static int layerMaskPieceSelection;
 
     // Required things in the scene
-    public GameObject scrollviewContent;
+    //public GameObject scrollviewContent;
+    public ListPrefabPanel listPrefabPanel;
+    public PanelHoleProperties panelHoleProperties;
     public GameObject grid;
     public GameObject plane;
     private static GameObject gridGO;
@@ -102,6 +104,10 @@ public class EditorManager : MonoBehaviour
     public CustomLevelLoader loader;
     public PanelExport panelExport;
 
+    [Header("Escape Menu")]
+    public GameObject escapeMenu;
+
+    [HideInInspector]
     public bool canEdit = true;
 
     // Use this for initialization
@@ -122,7 +128,9 @@ public class EditorManager : MonoBehaviour
                     r.gameObject.AddComponent<MaterialSwaperoo>();
             }
 
-            //Debug.Log(pref.name);
+            listPrefabPanel.AddPiece(pref);
+
+            /*//Debug.Log(pref.name);
             //string preview = Application.dataPath + "/Resources/Previews/" + pref.name + "Preview.png";
             GameObject previewImage = new GameObject(pref.name);
 
@@ -135,7 +143,7 @@ public class EditorManager : MonoBehaviour
             UIPieceHandler uiph = previewImage.AddComponent<UIPieceHandler>();
             uiph.editorMan = this;
 
-            previewImage.transform.SetParent(scrollviewContent.transform);
+            previewImage.transform.SetParent(scrollviewContent.transform);*/
         }
 
         // GameObjects
@@ -1833,5 +1841,39 @@ public class EditorManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+    }
+
+    public void ShowEscapeMenu()
+    {
+        escapeMenu.SetActive(true);
+    }
+
+    public void ShowHoleProperties()
+    {
+        if (panelHoleProperties.gameObject.activeSelf)
+            panelHoleProperties.gameObject.SetActive(false);
+        else
+        {
+            panelHoleProperties.Load(spawnPoints[currentHole], levelsProperties[currentHole]);
+            panelHoleProperties.gameObject.SetActive(true);
+        }
+    }
+
+    public void UpdateSpawnPoint(Vector3 newPos)
+    {
+        spawnPoints[currentHole].transform.position = newPos;
+    }
+
+    public void UpdateLevelProperties(int par, int maxshot, int time)
+    {
+        GameObject currentLevelProperties = levelsProperties[currentHole];
+
+        LevelProperties levelProp = currentLevelProperties.GetComponent<LevelProperties>();
+
+        levelProp.par = par;
+        levelProp.maxShot = maxshot;
+        levelProp.maxTime = time;
+
+        levelsProperties[currentHole] = currentLevelProperties;
     }
 }
