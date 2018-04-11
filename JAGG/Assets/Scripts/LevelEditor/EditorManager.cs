@@ -20,7 +20,8 @@ public class EditorManager : MonoBehaviour
     private static int layerMaskPieceSelection;
 
     // Required things in the scene
-    public GameObject scrollviewContent;
+    //public GameObject scrollviewContent;
+    public ListPrefabPanel listPrefabPanel;
     public GameObject grid;
     public GameObject plane;
     private static GameObject gridGO;
@@ -124,7 +125,9 @@ public class EditorManager : MonoBehaviour
                     r.gameObject.AddComponent<MaterialSwaperoo>();
             }
 
-            //Debug.Log(pref.name);
+            listPrefabPanel.AddPiece(pref);
+
+            /*//Debug.Log(pref.name);
             //string preview = Application.dataPath + "/Resources/Previews/" + pref.name + "Preview.png";
             GameObject previewImage = new GameObject(pref.name);
 
@@ -137,7 +140,7 @@ public class EditorManager : MonoBehaviour
             UIPieceHandler uiph = previewImage.AddComponent<UIPieceHandler>();
             uiph.editorMan = this;
 
-            previewImage.transform.SetParent(scrollviewContent.transform);
+            previewImage.transform.SetParent(scrollviewContent.transform);*/
         }
 
         // GameObjects
