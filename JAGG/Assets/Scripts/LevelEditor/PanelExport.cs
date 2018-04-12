@@ -20,7 +20,6 @@ public class PanelExport : MonoBehaviour {
     public Button saveLocalButton;
     public Button uploadButton;
     public GameObject grid;
-    public LoadingOverlay loadingOverlay;
     public EditorManager editorManager;
 
     public ExportLevel levelExporter;
@@ -37,14 +36,16 @@ public class PanelExport : MonoBehaviour {
     public string steamid = "";
     public int mapid = 0;
 
-    private bool isAuthenticated = false;
-    private string sessionCookie = "";
+    private AuthenticationManager authenticationManager;
+
 
     // Use this for initialization
     void Start () {
         uploadButton.onClick.AddListener(UploadMap);
         saveLocalButton.onClick.AddListener(SaveLocal);
-	}
+
+        authenticationManager = AuthenticationManager._instance;
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -62,7 +63,6 @@ public class PanelExport : MonoBehaviour {
         }
 
         StartCoroutine(TakeScreenShot());
-        StartCoroutine(GetAuthentication());
     }
 
     void OnDisable()
@@ -83,89 +83,6 @@ public class PanelExport : MonoBehaviour {
         else
         {
             Debug.Log("All holes are not valid");
-        }
-    }
-
-    IEnumerator Authenticate()
-    {
-        byte[] ticket = new byte[1024];
-        uint ticketSize = 0;
-        SteamUser.GetAuthSessionTicket(ticket, 1000, out ticketSize);
-
-        WWWForm form = new WWWForm();
-        form.AddField("ticket", ByteArrayToString(ticket));
-        form.AddField("steamid", (SteamUser.GetSteamID().m_SteamID).ToString());
-
-        UnityWebRequest www = UnityWebRequest.Post("https://jagg.konosprod.fr/api/auth", form);
-        www.SetRequestHeader("Cookie", sessionCookie);
-        www.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
-
-        yield return www.SendWebRequest();
-
-        if (www.isNetworkError || www.isHttpError)
-        {
-            Debug.Log(www.error);
-            Debug.Log(www.responseCode);
-            Debug.Log(www.downloadHandler.text);
-        }
-        else
-        {
-            JSONNode node = JSON.Parse(www.downloadHandler.text);
-
-            if (node["auth"].AsBool)
-            {
-                sessionCookie = www.GetResponseHeader("Set-Cookie");
-                isAuthenticated = true;
-                loadingOverlay.gameObject.SetActive(false);
-                loadingOverlay.StopAnimation();
-                loadingOverlay.messageText.text = "";
-            }
-            else
-            {
-                Debug.Log("error while authenticating");
-                loadingOverlay.gameObject.SetActive(false);
-                loadingOverlay.StopAnimation();
-                loadingOverlay.messageText.text = "";
-                isAuthenticated = false;
-            }
-        }
-    }
-
-
-    IEnumerator GetAuthentication()
-    {
-        loadingOverlay.gameObject.SetActive(true);
-        loadingOverlay.PlayAnimation();
-        loadingOverlay.messageText.text = "Authentification...";
-
-        UnityWebRequest request = UnityWebRequest.Get("https://jagg.konosprod.fr/api/auth");
-        request.SetRequestHeader("Cookie", sessionCookie);
-        request.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
-
-        yield return request.SendWebRequest();
-
-
-        if (request.isHttpError || request.isNetworkError)
-        {
-            Debug.Log(request.error);
-            Debug.Log(request.responseCode);
-            Debug.Log(request.downloadHandler.text);
-        }
-        else
-        {
-            JSONNode node = JSON.Parse(request.downloadHandler.text);
-            isAuthenticated = node["auth"].AsBool;
-
-            if (!isAuthenticated)
-            {
-                StartCoroutine(Authenticate());
-            }
-            else
-            {
-                loadingOverlay.gameObject.SetActive(false);
-                loadingOverlay.StopAnimation();
-                loadingOverlay.messageText.text = "";
-            }
         }
     }
 
@@ -218,7 +135,7 @@ public class PanelExport : MonoBehaviour {
         else
             uwr = UnityWebRequest.Post("https://jagg.konosprod.fr/api/maps/" + mapid.ToString(), data);
 
-        uwr.SetRequestHeader("Cookie", sessionCookie);
+        uwr.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
         uwr.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
 
         AsyncOperation request = uwr.SendWebRequest();
