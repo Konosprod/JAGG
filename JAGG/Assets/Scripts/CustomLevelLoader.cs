@@ -49,10 +49,11 @@ public class CustomLevelLoader : MonoBehaviour {
             level = (JObject)JToken.ReadFrom(reader);
         }
 
-        //Debug.Log(level.ToString(Formatting.None));
+        if(level["steamid"] != null)
+            steamid = level["steamid"].ToString();
 
-        steamid = level["steamid"].ToString();
-        mapid = (int)level["mapid"];
+        if(level["mapid"] != null)
+            mapid = (int)level["mapid"];
 
         List<GameObject> spawnPositions = new List<GameObject>();
 

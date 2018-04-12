@@ -16,6 +16,9 @@ public class LobbyControls : NetworkBehaviour {
     public Button returnButton;
     public Button selectButton;
     public Button rulesButton;
+    public LoadingOverlay mapDownloading;
+    public Slider progressBar;
+    public Text percentageText;
 
     [Header("List Scene")]
     public Text labelLevelName;

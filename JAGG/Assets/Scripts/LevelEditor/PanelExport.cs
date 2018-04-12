@@ -166,6 +166,8 @@ public class PanelExport : MonoBehaviour {
             if(steamid != "" && json["steamid"] == null)
                 json.Add("steamid", steamid);
 
+            Debug.Log(json);
+
             s = new MemoryStream();
             bw = new BsonWriter(s);
             json.WriteTo(bw);

@@ -1305,6 +1305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isAuthenticated: 0
   loadingOverlay: {fileID: 827299904}
+  sessionCookie: 
 --- !u!114 &1007908439
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1779,12 +1780,12 @@ Prefab:
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: -0.000015258578
       objectReference: {fileID: 0}
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.009819001
       objectReference: {fileID: 0}
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
@@ -1794,7 +1795,7 @@ Prefab:
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 23.716614
+      value: 23.738
       objectReference: {fileID: 0}
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
@@ -1833,17 +1834,17 @@ Prefab:
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
       propertyPath: m_LocalScale.x
-      value: 0.95116997
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
       propertyPath: m_LocalScale.y
-      value: 0.95116997
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224395429060963282, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
       propertyPath: m_LocalScale.z
-      value: 0.95116997
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114040692843521744, guid: 6a0f2f2ef35328a4182412c8cde048c3,
         type: 2}
