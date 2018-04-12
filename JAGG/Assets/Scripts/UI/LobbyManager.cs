@@ -159,6 +159,7 @@ public class LobbyManager : NetworkLobbyManager
 
     private void EndOfGame()
     {
+        RotatePieceManager._instance.ClearRotatePieces();
         playerManager.isStarted = false;
         isStarted = false;
         gameTimer.StopTimer();
@@ -196,6 +197,8 @@ public class LobbyManager : NetworkLobbyManager
             gameTimer = GameObject.Find("GameTimer").GetComponent<GameTimer>();
 
             gameTimer.StartTimer(GetMaxTime());
+
+            RotatePieceManager._instance.GrabAllRotatePieces();
 
         }
         else if(sceneName == lobbyScene)

@@ -140,9 +140,11 @@ public class PlayerController : NetworkBehaviour {
         if(isServer)
         {
             isMoving = rb.velocity.magnitude >= 0.001f;
-            if(isMoving)
+            /*if(isMoving)
                 RpcUpdatePosition(transform.position);
-            else
+            else*/
+            RpcUpdatePosition(transform.position); // Toujours update la position
+            if (!isMoving)
             {
                 // Update the last position where the ball stopped
                 lastStopPos = transform.position;

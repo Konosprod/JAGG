@@ -23,7 +23,7 @@ public class LevelEditorRotatePieceManager : MonoBehaviour
         rotatePieces = new List<RotatePiece>();
     }
 
-    public void grabAllRotatePieces()
+    public void GrabAllRotatePieces()
     {
         rotatePieces = new List<RotatePiece>(FindObjectsOfType<RotatePiece>());
     }

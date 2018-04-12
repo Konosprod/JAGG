@@ -12,14 +12,13 @@ public class ChildColliderRotatePiece : MonoBehaviour
     private const int layerBall3 = 11;
     private const int layerBall4 = 12;
 
-
-    private Collider col;
+    
     private RotatePiece rtpParent;
 
     // Use this for initialization
     void Start()
     {
-        col = GetComponent<Collider>();
+
     }
 
     public void SetRtpParent(RotatePiece rotatePieceParent)
