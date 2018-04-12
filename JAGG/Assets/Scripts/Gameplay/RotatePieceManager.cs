@@ -21,6 +21,8 @@ public class RotatePieceManager : NetworkBehaviour {
         }
 
         DontDestroyOnLoad(this.gameObject);
+        
+        rotatePieces = new List<RotatePiece>();
     }
 
     public void grabAllRotatePieces()

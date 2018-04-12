@@ -20,8 +20,6 @@ public class LevelEditorRotatePieceManager : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        DontDestroyOnLoad(this.gameObject);
-
         rotatePieces = new List<RotatePiece>();
     }
 

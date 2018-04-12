@@ -46,7 +46,7 @@ public class TestMode : MonoBehaviour {
             ball.GetComponent<OfflineBallController>().resetTest();
         }
 
-        if(endOfTestPanel.activeSelf)
+        if(endOfTestPanel != null  && endOfTestPanel.activeSelf)
         {
             panelTimer -= Time.deltaTime;
             if(panelTimer < 0f)
