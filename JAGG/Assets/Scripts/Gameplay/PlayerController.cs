@@ -80,7 +80,7 @@ public class PlayerController : NetworkBehaviour {
         lobbyManager = LobbyManager._instance;
 
         playerNameText.text = playerName;
-        guiCam = guiCam = GameObject.FindWithTag("GUICamera");
+        guiCam = GameObject.FindWithTag("GUICamera");
 
         if (!isServer)
             rb.isKinematic = true;
