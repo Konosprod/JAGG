@@ -23,6 +23,7 @@ public class EditorManager : MonoBehaviour
     //public GameObject scrollviewContent;
     public ListPrefabPanel listPrefabPanel;
     public PanelHoleProperties panelHoleProperties;
+    public SaveBeforeExit saveBeforeExit;
     public GameObject grid;
     public GameObject plane;
     private static GameObject gridGO;
@@ -109,6 +110,8 @@ public class EditorManager : MonoBehaviour
 
     [HideInInspector]
     public bool canEdit = true;
+    [HideInInspector]
+    public static bool isModified = false;
 
     // Use this for initialization
     void Start()
@@ -1166,6 +1169,9 @@ public class EditorManager : MonoBehaviour
             {
                 _CP.result.SetActive(true);
             }
+
+            isModified = true;
+
             return _CP;
         }
 
@@ -1840,7 +1846,14 @@ public class EditorManager : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        if (isModified)
+        {
+            saveBeforeExit.gameObject.SetActive(true);
+        }
+        else
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        }
     }
 
     public void ShowEscapeMenu()

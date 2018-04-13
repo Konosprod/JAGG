@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using Ionic.Zip;
+using UnityEngine.Events;
 
 public class PanelExport : MonoBehaviour {
 
@@ -23,6 +24,8 @@ public class PanelExport : MonoBehaviour {
     public EditorManager editorManager;
 
     public ExportLevel levelExporter;
+
+    public UnityAction saveCallback = null;
 
     [Header("DEBUG")]
     [Tooltip("Should be true on production")]
@@ -179,7 +182,14 @@ public class PanelExport : MonoBehaviour {
             File.Copy(Path.Combine(Application.persistentDataPath, "Levels") + "/" + mapId + "_" + filename, 
                 Path.Combine(Application.persistentDataPath, "Levels/local") + "/" + filename, true);
 
+
+            EditorManager.isModified = false;
             this.gameObject.SetActive(false);
+
+            if(saveCallback != null)
+            {
+                saveCallback.Invoke();
+            }
         }
     }
 
@@ -245,6 +255,11 @@ public class PanelExport : MonoBehaviour {
 
         ms = new MemoryStream();
         mapFile.Save(Path.Combine(Application.persistentDataPath, "Levels/local") + "/" + filename);
+
+        EditorManager.isModified = false;
+
+        if (saveCallback != null)
+            saveCallback.Invoke();
 
         this.gameObject.SetActive(false);
     }
