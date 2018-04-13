@@ -80,6 +80,7 @@ public class PlayerController : NetworkBehaviour {
         lobbyManager = LobbyManager._instance;
 
         playerNameText.text = playerName;
+        guiCam = guiCam = GameObject.FindWithTag("GUICamera");
 
         if (!isServer)
             rb.isKinematic = true;
@@ -270,6 +271,7 @@ public class PlayerController : NetworkBehaviour {
     {
         guiCam = GameObject.FindWithTag("GUICamera");
         guiCam.GetComponent<BallCamera>().target = transform;
+
         Camera.main.GetComponent<BallCamera>().target = transform;
         line = GetComponent<PreviewLine>();
         line.enabled = true;
