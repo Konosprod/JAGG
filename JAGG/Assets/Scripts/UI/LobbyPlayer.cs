@@ -25,7 +25,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     [SyncVar(hook = "OnMyName")]
     public string playerName = "";
 
-    public LobbyControls lobbyControls;
+    public LobbyControls lobbyControls = null;
 
     private AuthenticationManager authenticationManager;
 
@@ -33,8 +33,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     void Start () {
         LobbyPlayerList._instance.AddPlayer(this);
         DontDestroyOnLoad(this);
-
-        lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
 
         if (isLocalPlayer)
         {
@@ -59,6 +57,12 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     public override void OnClientEnterLobby()
     {
+        if(lobbyControls == null)
+            lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
+
+        if (lobbyControls.selectedScene != "")
+            lobbyControls.SetSelectedScene();
+
         OnMyName(playerName);
         OnClientReady(toggleReady.isOn);
         OnPosition(position);

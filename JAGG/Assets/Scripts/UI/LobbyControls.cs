@@ -82,6 +82,9 @@ public class LobbyControls : NetworkBehaviour {
 
     public void OnSelectedSceneChange(string newValue)
     {
+        if (newValue == "")
+            return;
+
         selectedScene = newValue;
         levelName = newValue;
         lobbyLevelName.text = newValue;
