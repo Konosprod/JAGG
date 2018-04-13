@@ -132,10 +132,17 @@ public class LobbyControls : NetworkBehaviour {
 
     public void UpdateMapPreview()
     {
-        Regex r = new Regex(@"(\d+)_*");
-        string id = r.Match(lobbyLevelName.text).Groups[1].Value;
+        if (lobbyLevelName.text.Contains("_"))
+        {
+            Regex r = new Regex(@"(\d+)_*");
+            string id = r.Match(lobbyLevelName.text).Groups[1].Value;
 
-        StartCoroutine(LoadMapPreview(id));
+            StartCoroutine(LoadMapPreview(id));
+        }
+        else
+        {
+            editButton.image.sprite = Resources.Load<Sprite>("Levels/Previews/" + lobbyLevelName.text);
+        }
     }
 
     IEnumerator LoadMapPreview(string id)
