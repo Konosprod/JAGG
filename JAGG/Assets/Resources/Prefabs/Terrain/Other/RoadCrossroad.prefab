@@ -9,78 +9,75 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1212054396735804}
+  m_RootGameObject: {fileID: 1229768694697254}
   m_IsPrefabParent: 1
---- !u!1 &1212054396735804
+--- !u!1 &1229768694697254
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4098201630528576}
-  - component: {fileID: 114146383290930458}
+  - component: {fileID: 4856009951443762}
+  - component: {fileID: 114084026872611104}
   m_Layer: 0
-  m_Name: PavementTurn
+  m_Name: RoadCrossroad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1787806772795242
+--- !u!1 &1964586612509892
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4689620771795190}
-  - component: {fileID: 33244699827875202}
-  - component: {fileID: 23452832472108354}
-  - component: {fileID: 114063672708097384}
-  - component: {fileID: 65428918209738402}
-  - component: {fileID: 65783536927729450}
-  - component: {fileID: 65313979532833596}
+  - component: {fileID: 4927862362997336}
+  - component: {fileID: 33685549008305380}
+  - component: {fileID: 23560600845718026}
+  - component: {fileID: 65746642585769580}
   m_Layer: 0
-  m_Name: troittoir-virage
+  m_Name: crossroad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4098201630528576
+--- !u!4 &4856009951443762
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1212054396735804}
+  m_GameObject: {fileID: 1229768694697254}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children:
-  - {fileID: 4689620771795190}
+  - {fileID: 4927862362997336}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4689620771795190
+--- !u!4 &4927862362997336
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1787806772795242}
+  m_GameObject: {fileID: 1964586612509892}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4098201630528576}
+  m_Father: {fileID: 4856009951443762}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23452832472108354
+--- !u!23 &23560600845718026
 MeshRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1787806772795242}
+  m_GameObject: {fileID: 1964586612509892}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -89,7 +86,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 25abd2234b22eb8448e9d5c1a38264b6, type: 2}
+  - {fileID: 2100000, guid: 14fc5fea61ee3214d9b9440ec9cb53e5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -109,70 +106,35 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &33244699827875202
+--- !u!33 &33685549008305380
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1787806772795242}
-  m_Mesh: {fileID: 4300000, guid: 699c19a2415a3ec47ba484e9051f3653, type: 3}
---- !u!65 &65313979532833596
+  m_GameObject: {fileID: 1964586612509892}
+  m_Mesh: {fileID: 4300000, guid: f4b7d12a9d05fc241a7bf405af9f2afe, type: 3}
+--- !u!65 &65746642585769580
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1787806772795242}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 20, y: 1, z: 2}
-  m_Center: {x: 0, y: 2.5, z: -9}
---- !u!65 &65428918209738402
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1787806772795242}
+  m_GameObject: {fileID: 1964586612509892}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 20, y: 2, z: 20}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!65 &65783536927729450
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1787806772795242}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 2, y: 1, z: 20}
-  m_Center: {x: 9, y: 2.5, z: 0}
---- !u!114 &114063672708097384
+--- !u!114 &114084026872611104
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1787806772795242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114146383290930458
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1212054396735804}
+  m_GameObject: {fileID: 1229768694697254}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 535c3d22cc697964e969de852b193c5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: Other/PavementTurn
+  id: Other/RoadCrossroad
   prefab: 1
