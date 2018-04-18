@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33691723506265218}
   - component: {fileID: 23124324270665562}
   - component: {fileID: 65062207034590448}
+  - component: {fileID: 114312542758097480}
   m_Layer: 0
   m_Name: troittoir-plain
   m_TagString: Untagged
@@ -125,6 +126,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 20, y: 2, z: 20}
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &114312542758097480
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1878466936106624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114646333709457070
 MonoBehaviour:
   m_ObjectHideFlags: 1

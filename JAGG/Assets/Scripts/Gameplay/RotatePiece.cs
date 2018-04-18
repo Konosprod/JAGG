@@ -51,10 +51,9 @@ public class RotatePiece : CustomScript
     [HideInInspector]
     public Coroutine coroutine;
 
-    private List<ChildColliderRotatePiece> ccrtps;
+    private List<ChildColliderMovingPiece> ccmvps;
     
     // List of the balls that are currently on top on the piece
-    [HideInInspector]
     public List<GameObject> ballsOnTop;
 
     public Quaternion goalAngle = Quaternion.identity;
@@ -73,13 +72,13 @@ public class RotatePiece : CustomScript
 
         ballsOnTop = new List<GameObject>();
 
-        ccrtps = new List<ChildColliderRotatePiece>();
+        ccmvps = new List<ChildColliderMovingPiece>();
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach(Collider col in cols)
         {
-            ChildColliderRotatePiece ccrtp = col.gameObject.AddComponent<ChildColliderRotatePiece>();
-            ccrtp.SetRtpParent(this);
-            ccrtps.Add(ccrtp);
+            ChildColliderMovingPiece ccmvp = col.gameObject.AddComponent<ChildColliderMovingPiece>();
+            ccmvp.SetRtpParent(this);
+            ccmvps.Add(ccmvp);
         }
     }
 
@@ -133,15 +132,15 @@ public class RotatePiece : CustomScript
 
     // true stops the piece from spinning
     // we put the piece back to its original rotation either way
-    public void SetStopSpinFlag(bool f)
+    public void SetFlagStopSpin(bool f)
     {
         flagStopRotation = f;
         if (coroutine != null)
         {
             if (SceneManager.GetSceneAt(0).name == "LevelEditor")
-                LevelEditorRotatePieceManager._instance.StopMyCoroutine(this);
+                LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
             else
-                RotatePieceManager._instance.StopMyCoroutine(this);
+                MovingPieceManager._instance.StopMyCoroutine(this);
         }
 
 
@@ -154,9 +153,9 @@ public class RotatePiece : CustomScript
         if (coroutine != null)
         {
             if (SceneManager.GetSceneAt(0).name == "LevelEditor")
-                LevelEditorRotatePieceManager._instance.StopMyCoroutine(this);
+                LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
             else
-                RotatePieceManager._instance.StopMyCoroutine(this);
+                MovingPieceManager._instance.StopMyCoroutine(this);
         }
 
         transform.eulerAngles = initialRotation;

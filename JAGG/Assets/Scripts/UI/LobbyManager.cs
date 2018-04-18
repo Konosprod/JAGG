@@ -13,7 +13,7 @@ public class LobbyManager : NetworkLobbyManager
     [Header("Game Logic")]
     public Transform EndOfGamePos;
     public PlayerManager playerManager;
-    public RotatePieceManager rtpManager;
+    public MovingPieceManager mvpManager;
 
     [Header("UI")]
     public GameObject mainPanel;
@@ -159,7 +159,7 @@ public class LobbyManager : NetworkLobbyManager
 
     private void EndOfGame()
     {
-        RotatePieceManager._instance.ClearRotatePieces();
+        MovingPieceManager._instance.ClearRotatePieces();
         playerManager.isStarted = false;
         isStarted = false;
         gameTimer.StopTimer();
@@ -198,7 +198,7 @@ public class LobbyManager : NetworkLobbyManager
 
             gameTimer.StartTimer(GetMaxTime());
 
-            RotatePieceManager._instance.GrabAllRotatePieces();
+            MovingPieceManager._instance.GrabAllRotatePieces();
 
         }
         else if(sceneName == lobbyScene)

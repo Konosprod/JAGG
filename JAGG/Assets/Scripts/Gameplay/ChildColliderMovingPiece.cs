@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 [RequireComponent(typeof(Collider))]
-public class ChildColliderRotatePiece : MonoBehaviour
+public class ChildColliderMovingPiece : MonoBehaviour
 {
 
     private const int layerBall = 9;
@@ -13,7 +13,8 @@ public class ChildColliderRotatePiece : MonoBehaviour
     private const int layerBall4 = 12;
 
     
-    private RotatePiece rtpParent;
+    private RotatePiece rtpParent = null;
+    private MovingPiece mvpParent = null;
 
     // Use this for initialization
     void Start()
@@ -26,6 +27,11 @@ public class ChildColliderRotatePiece : MonoBehaviour
         rtpParent = rotatePieceParent;
     }
 
+    public void SetMvpParent(MovingPiece movingPieceParent)
+    {
+        mvpParent = movingPieceParent;
+    }
+
 
     void OnCollisionStay(Collision collisionInfo)
     {
@@ -33,8 +39,18 @@ public class ChildColliderRotatePiece : MonoBehaviour
         if (ball.layer >= layerBall && ball.layer <= layerBall4)
         {
             //Debug.Log("Collision with ball");
-            if(!rtpParent.ballsOnTop.Contains(ball))
-                rtpParent.ballsOnTop.Add(ball);
+            if (rtpParent != null)
+            {
+                if (!rtpParent.ballsOnTop.Contains(ball))
+                    rtpParent.ballsOnTop.Add(ball);
+            }
+            else if (mvpParent != null)
+            {
+                if (!mvpParent.ballsOnTop.Contains(ball))
+                    mvpParent.ballsOnTop.Add(ball);
+            }
+            else
+                Debug.LogError("Impossibru !?!");
         }
     }
 
@@ -44,7 +60,16 @@ public class ChildColliderRotatePiece : MonoBehaviour
         if (ball.layer >= layerBall && ball.layer <= layerBall4)
         {
             //Debug.Log("End of collision with ball");
-            rtpParent.ballsOnTop.Remove(ball);
+            if (rtpParent != null)
+            {
+                rtpParent.ballsOnTop.Remove(ball);
+            }
+            else if (mvpParent != null)
+            {
+                mvpParent.ballsOnTop.Remove(ball);
+            }
+            else
+                Debug.LogError("Impossibru !?!");
         }
     }
 }

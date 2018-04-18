@@ -39,6 +39,7 @@ GameObject:
   - component: {fileID: 23489990029280890}
   - component: {fileID: 65096771177392646}
   - component: {fileID: 65480598164077692}
+  - component: {fileID: 114276501691300562}
   m_Layer: 0
   m_Name: troittoir-corner
   m_TagString: Untagged
@@ -138,6 +139,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 1, z: 2}
   m_Center: {x: 9, y: 2.5, z: 9}
+--- !u!114 &114276501691300562
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1471899950491562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114506176184917150
 MonoBehaviour:
   m_ObjectHideFlags: 1

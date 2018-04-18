@@ -11,6 +11,7 @@ public class EditorManager : MonoBehaviour
     private static int layerPlane;
     private static int layerFloor;
     private static int layerWall;
+    private static int layerDecor;
 
     // Specific pieces that go on top of other pieces and/or have a special layer due to their behaviour
     // Only instance to date are booster pads
@@ -67,39 +68,60 @@ public class EditorManager : MonoBehaviour
     [Header("Piece Information")]
     public GameObject infoPanel;
     public Text pieceNameText;
+    // Position of the piece (transform.position)
     public Toggle positionToggle;
     public InputField inputPosX;
     public InputField inputPosY;
     public InputField inputPosZ;
+    // Rotation of the piece (transform.quaternion)
     public Toggle rotationToggle;
     public InputField inputRotX;
     public InputField inputRotY;
     public InputField inputRotZ;
+    // Spinning piece (RotatePiece)
     public Toggle spinningPieceToggle;
     public InputField inputSpinTime;
     public InputField inputSpinPauseTime;
     public InputField inputSpinNbRota;
+    // Moving piece (MovingPiece)
+    public Toggle movingPieceToggle;
+    public InputField inputMoveDestX;
+    public InputField inputMoveDestY;
+    public InputField inputMoveDestZ;
+    public InputField inputTravelTime;
+    public InputField inputMovePauseTime;
+
 
     private static GameObject _infoPanel;
     private static Text _pieceNameText;
+    // Position of the piece (transform.position)
     private static Toggle _positionToggle;
     private static InputField _inputPosX;
     private static InputField _inputPosY;
     private static InputField _inputPosZ;
+    // Rotation of the piece (transform.quaternion)
     private static Toggle _rotationToggle;
     private static InputField _inputRotX;
     private static InputField _inputRotY;
     private static InputField _inputRotZ;
+    // Spinning piece (RotatePiece)
     private static Toggle _spinningPieceToggle;
     private static InputField _inputSpinTime;
     private static InputField _inputSpinPauseTime;
     private static InputField _inputSpinNbRota;
+    // Moving piece (MovingPiece)
+    private static Toggle _movingPieceToggle;
+    private static InputField _inputMoveDestX;
+    private static InputField _inputMoveDestY;
+    private static InputField _inputMoveDestZ;
+    private static InputField _inputTravelTime;
+    private static InputField _inputMovePauseTime;
 
     private const float epsilon = 0.0001f;
 
     private bool flagNoUndoDeselect = false;
 
-    private static LevelEditorRotatePieceManager rtpManager;
+    private static LevelEditorMovingPieceManager lemvpManager;
 
     [Header("Custom Level")]
     public CustomLevelLoader loader;
@@ -157,8 +179,9 @@ public class EditorManager : MonoBehaviour
         layerPlane = LayerMask.NameToLayer("LevelEditor");
         layerFloor = LayerMask.NameToLayer("Floor");
         layerWall = LayerMask.NameToLayer("Wall");
+        layerDecor = LayerMask.NameToLayer("Decor");
         layerBoosterPad = LayerMask.NameToLayer("BoosterPad");
-        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerBoosterPad);
+        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerBoosterPad | 1 << layerDecor);
 
 
         // Setup the variables for the info panel
@@ -176,9 +199,15 @@ public class EditorManager : MonoBehaviour
         _inputSpinTime = inputSpinTime;
         _inputSpinPauseTime = inputSpinPauseTime;
         _inputSpinNbRota = inputSpinNbRota;
+        _movingPieceToggle = movingPieceToggle;
+        _inputMoveDestX = inputMoveDestX;
+        _inputMoveDestY = inputMoveDestY;
+        _inputMoveDestZ = inputMoveDestZ;
+        _inputTravelTime = inputTravelTime;
+        _inputMovePauseTime = inputMovePauseTime;
 
-        // Grab the rtpManager instance
-        rtpManager = LevelEditorRotatePieceManager._instance;
+        // Grab the lemvpManager instance
+        lemvpManager = LevelEditorMovingPieceManager._instance;
     }
 
     // Update is called once per frame
@@ -710,11 +739,29 @@ public class EditorManager : MonoBehaviour
                 _inputSpinPauseTime.text = rtp.pauseTime.ToString("F");
                 _inputSpinNbRota.text = rtp.nbRotations.ToString("D");
 
-                rtp.SetStopSpinFlag(true);
+                rtp.SetFlagStopSpin(true);
             }
             else
             {
                 _spinningPieceToggle.isOn = false;
+            }
+
+            // Check if the piece has the MovingPiece component to display or not the related values
+            MovingPiece mvp = piece.GetComponent<MovingPiece>();
+            if (mvp != null && mvp.enabled) // If the component is disabled it means it was added THEN removed from the piece (we only disable the script instead of removing it)
+            {
+                _movingPieceToggle.isOn = true;
+                _inputMoveDestX.text = (mvp.destX - mvp.initX).ToString("F");
+                _inputMoveDestY.text = (mvp.destY - mvp.initY).ToString("F");
+                _inputMoveDestZ.text = (mvp.destZ - mvp.initZ).ToString("F");
+                _inputTravelTime.text = mvp.travelTime.ToString("F");
+                _inputMovePauseTime.text = mvp.pauseTime.ToString("F");
+
+                mvp.SetFlagStopMove(true);
+            }
+            else
+            {
+                _movingPieceToggle.isOn = false;
             }
 
             // Fill the inputs based on the piece values
@@ -733,7 +780,7 @@ public class EditorManager : MonoBehaviour
             _inputRotY.interactable = true;
             _inputRotZ.interactable = true;
 
-            
+
         }
         else if (selectedPiecesInPlace.Count > 1)
         {
@@ -744,7 +791,13 @@ public class EditorManager : MonoBehaviour
             if (rtp != null && rtp.enabled) // If the component is disabled it means it was added THEN removed from the piece (we only disable the script instead of removing it)
             {
                 // Just prevent the pieces from spinning while selected
-                rtp.SetStopSpinFlag(true); // Also resets rotation to the initial value of the piece
+                rtp.SetFlagStopSpin(true); // Also resets rotation to the initial value of the piece
+            }
+            MovingPiece mvp = selectedPiecesInPlace[0].GetComponent<MovingPiece>();
+            if (mvp != null && mvp.enabled) // If the component is disabled it means it was added THEN removed from the piece (we only disable the script instead of removing it)
+            {
+                // Just prevent the pieces from moving while selected
+                mvp.SetFlagStopMove(true); // Also resets position to the initial value of the piece
             }
 
             // We display the values only they are equal across all selected pieces (ex : all pieces have pos.x=150)
@@ -763,7 +816,13 @@ public class EditorManager : MonoBehaviour
                 if (rtp != null && rtp.enabled) // If the component is disabled it means it was added THEN removed from the piece (we only disable the script instead of removing it)
                 {
                     // Just prevent the pieces from spinning while selected
-                    rtp.SetStopSpinFlag(true);
+                    rtp.SetFlagStopSpin(true); // Also resets rotation to the initial value of the piece
+                }
+                mvp = piece.GetComponent<MovingPiece>();
+                if (mvp != null && mvp.enabled) // If the component is disabled it means it was added THEN removed from the piece (we only disable the script instead of removing it)
+                {
+                    // Just prevent the pieces from moving while selected
+                    mvp.SetFlagStopMove(true); // Also resets position to the initial value of the piece
                 }
 
                 sameVals[0] &= ApproximatelyEquals(xPos, piece.transform.position.x);
@@ -800,6 +859,10 @@ public class EditorManager : MonoBehaviour
 
 
     #region PieceInformationEdit
+
+    /*****************************
+     *  Piece position
+     *****************************/
 
     public void updatePosX(string val)
     {
@@ -897,6 +960,10 @@ public class EditorManager : MonoBehaviour
     }
 
 
+    /*****************************
+     *  Piece rotation
+     *****************************/
+
     public void updateRotX(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
@@ -992,6 +1059,9 @@ public class EditorManager : MonoBehaviour
             Debug.LogError("No piece are selected and we try to set the rotation Z");
     }
 
+    /*****************************
+     *  SpinningPiece
+     *****************************/
 
     public void spinningPieceToggleValueChanged(bool tog)
     {
@@ -1004,7 +1074,12 @@ public class EditorManager : MonoBehaviour
                 if (rtp == null)
                 {
                     rtp = piece.AddComponent<RotatePiece>();
-                    rtpManager.AddRotatePiece(rtp);
+                    rtp.SetFlagStopSpin(true);
+                    lemvpManager.AddRotatePiece(rtp);
+
+                    _inputSpinTime.text = rtp.spinTime.ToString("F");
+                    _inputSpinPauseTime.text = rtp.pauseTime.ToString("F");
+                    _inputSpinNbRota.text = rtp.nbRotations.ToString("D");
                 }
                 else
                 {
@@ -1083,6 +1158,167 @@ public class EditorManager : MonoBehaviour
             }
             else
                 Debug.LogError("We try to change the nbRotations but there's no RotatePiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the spin time");
+    }
+
+    /*****************************
+     *  MovingPiece
+     *****************************/ 
+    
+    public void movingPieceToggleValueChanged(bool tog)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            MovingPiece mvp = piece.GetComponent<MovingPiece>();
+            if (tog)
+            {
+                if (mvp == null)
+                {
+                    mvp = piece.AddComponent<MovingPiece>();
+                    mvp.UpdateInitialPosition();
+                    mvp.UpdateDestination(mvp.initPos);
+                    mvp.SetFlagStopMove(true);
+                    lemvpManager.AddMovingPiece(mvp);
+
+                    _inputMoveDestX.text = (mvp.destX - mvp.initX).ToString("F");
+                    _inputMoveDestY.text = (mvp.destY - mvp.initY).ToString("F");
+                    _inputMoveDestZ.text = (mvp.destZ - mvp.initZ).ToString("F");
+                    _inputTravelTime.text = mvp.travelTime.ToString("F");
+                    _inputMovePauseTime.text = mvp.pauseTime.ToString("F");
+                }
+                else
+                {
+                    mvp.enabled = true;
+                }
+            }
+            else
+            {
+                if (mvp != null)
+                    mvp.enabled = false;
+            }
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to activate/deactivate the spinning");
+    }
+
+    public void updateMoveDestX(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float x = 0f;
+            float.TryParse(val, out x);
+
+            MovingPiece mvp = piece.GetComponent<MovingPiece>();
+            if (mvp != null)
+            {
+                mvp.UpdateDestination(new Vector3(mvp.initX + x, mvp.destY, mvp.destZ));
+            }
+            else
+                Debug.LogError("We try to change the X coordinate of the destination but there's no MovingPiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+            
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the X coordinate of the destination");
+    }
+
+    public void updateMoveDestY(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float y = 0f;
+            float.TryParse(val, out y);
+
+            MovingPiece mvp = piece.GetComponent<MovingPiece>();
+            if (mvp != null)
+            {
+                mvp.UpdateDestination(new Vector3(mvp.destX, mvp.initY + y, mvp.destZ));
+            }
+            else
+                Debug.LogError("We try to change the Y coordinate of the destination but there's no MovingPiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the Y coordinate of the destination");
+    }
+
+    public void updateMoveDestZ(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            float z = 0f;
+            float.TryParse(val, out z);
+
+            MovingPiece mvp = piece.GetComponent<MovingPiece>();
+            if (mvp != null)
+            {
+                mvp.UpdateDestination(new Vector3(mvp.destX, mvp.destY, mvp.initZ + z));
+            }
+            else
+                Debug.LogError("We try to change the Z coordinate of the destination but there's no MovingPiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the Z coordinate of the destination");
+    }
+
+
+    public void updateMoveTravelTime(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            MovingPiece mvp = piece.GetComponent<MovingPiece>();
+            if (mvp != null)
+            {
+                mvp.travelTime = float.Parse(val);
+            }
+            else
+                Debug.LogError("We try to change the travel time but there's no MovingPiece script on the object");
+        }
+        else if (selectedPiecesInPlace.Count > 1)
+        {
+
+        }
+        else
+            Debug.LogError("No piece are selected and we try to set the travel time");
+    }
+
+
+    public void updateMovePauseTime(string val)
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            MovingPiece mvp = piece.GetComponent<MovingPiece>();
+            if (mvp != null)
+            {
+                mvp.pauseTime = float.Parse(val);
+            }
+            else
+                Debug.LogError("We try to change the pause time but there's no MovingPiece script on the object");
         }
         else if (selectedPiecesInPlace.Count > 1)
         {
@@ -1283,10 +1519,17 @@ public class EditorManager : MonoBehaviour
             {
                 SetHighlight(false, go);
 
+                // Allow the piece to rotate again
                 RotatePiece rtp = go.GetComponent<RotatePiece>();
                 if (rtp != null && rtp.enabled)
                 {
-                    rtp.SetStopSpinFlag(false);
+                    rtp.SetFlagStopSpin(false);
+                }
+                // Allow the piece to move again
+                MovingPiece mvp = go.GetComponent<MovingPiece>();
+                if (mvp != null && mvp.enabled)
+                {
+                    mvp.SetFlagStopMove(false);
                 }
             }
 
@@ -1314,10 +1557,16 @@ public class EditorManager : MonoBehaviour
                 SetHighlight(true, go);
                 selectedPiecesInPlace.Add(go);
 
+                // MAYBE UNNECESSARY (TOO LAZY TO CHECK => MATTHIEU 18/04/2018)
                 RotatePiece rtp = go.GetComponent<RotatePiece>();
                 if (rtp != null && rtp.enabled)
                 {
-                    rtp.SetStopSpinFlag(true);
+                    rtp.SetFlagStopSpin(true);
+                }
+                MovingPiece mvp = go.GetComponent<MovingPiece>();
+                if (mvp != null && mvp.enabled)
+                {
+                    mvp.SetFlagStopMove(true);
                 }
             }
 
@@ -1350,9 +1599,14 @@ public class EditorManager : MonoBehaviour
             SetHighlight(false, _CP.result);
 
             RotatePiece rtp = _CP.result.GetComponent<RotatePiece>();
-            if(rtp != null && rtp.enabled)
+            if (rtp != null && rtp.enabled)
             {
-                rtp.SetStopSpinFlag(false);
+                rtp.SetFlagStopSpin(false);
+            }
+            MovingPiece mvp = _CP.result.GetComponent<MovingPiece>();
+            if (mvp != null && mvp.enabled)
+            {
+                mvp.SetFlagStopMove(false);
             }
 
             // Display the piece info
@@ -1403,7 +1657,12 @@ public class EditorManager : MonoBehaviour
                 RotatePiece rtp = go.GetComponent<RotatePiece>();
                 if (rtp != null && rtp.enabled)
                 {
-                    rtp.SetStopSpinFlag(false);
+                    rtp.SetFlagStopSpin(false);
+                }
+                MovingPiece mvp = go.GetComponent<MovingPiece>();
+                if (mvp != null && mvp.enabled)
+                {
+                    mvp.SetFlagStopMove(false);
                 }
             }
 
@@ -1424,7 +1683,12 @@ public class EditorManager : MonoBehaviour
                 RotatePiece rtp = go.GetComponent<RotatePiece>();
                 if (rtp != null && rtp.enabled)
                 {
-                    rtp.SetStopSpinFlag(true);
+                    rtp.SetFlagStopSpin(true);
+                }
+                MovingPiece mvp = go.GetComponent<MovingPiece>();
+                if (mvp != null && mvp.enabled)
+                {
+                    mvp.SetFlagStopMove(true);
                 }
             }
 
@@ -1750,17 +2014,17 @@ public class EditorManager : MonoBehaviour
 
         loader.LoadLevel(path);
 
-        for(int i = 0; i < maxHoles; i++)
+        for (int i = 0; i < maxHoles; i++)
         {
             GameObject hole = holesObject.transform.Find("Hole " + (i + 1).ToString()).gameObject;
-            GameObject spawnPoint =  hole.transform.Find("Spawn Point").gameObject;
+            GameObject spawnPoint = hole.transform.Find("Spawn Point").gameObject;
             spawnPoint.transform.GetChild(0).gameObject.SetActive(true);
             spawnPoints[i] = spawnPoint;
             levelsProperties[i] = hole.transform.Find("Level Properties").gameObject;
 
-            foreach(Transform p in hole.transform)
+            foreach (Transform p in hole.transform)
             {
-                if(!p.name.Equals("Spawn Point") && !p.name.Equals("Level Properties"))
+                if (!p.name.Equals("Spawn Point") && !p.name.Equals("Level Properties"))
                 {
                     piecesInPlace[i].Add(p.gameObject);
                 }
@@ -1775,15 +2039,15 @@ public class EditorManager : MonoBehaviour
     private void CleanHoles()
     {
         List<GameObject> gos = new List<GameObject>();
-        for(int i = 0; i < maxHoles; i++)
+        for (int i = 0; i < maxHoles; i++)
         {
-            foreach(Transform t in holesObject.transform.Find("Hole " + (i + 1)))
+            foreach (Transform t in holesObject.transform.Find("Hole " + (i + 1)))
             {
                 gos.Add(t.gameObject);
             }
         }
 
-        foreach(GameObject g in gos)
+        foreach (GameObject g in gos)
         {
             DestroyImmediate(g);
         }
@@ -1835,7 +2099,7 @@ public class EditorManager : MonoBehaviour
         // Setup the dropdown
         holeSelection.AddOptions(dropOptions);
         holeSelection.onValueChanged.AddListener(delegate
-        {   
+        {
             DropdownValueChanged(holeSelection);
         });
 
