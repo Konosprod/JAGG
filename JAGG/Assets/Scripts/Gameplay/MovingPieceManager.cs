@@ -1,14 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class LevelEditorRotatePieceManager : MonoBehaviour
-{
+public class MovingPieceManager : NetworkBehaviour {
 
-    public static LevelEditorRotatePieceManager _instance;
+    public static MovingPieceManager _instance;
 
     private List<RotatePiece> rotatePieces;
-
+    
     void Awake()
     {
         if (_instance == null)
@@ -20,12 +20,19 @@ public class LevelEditorRotatePieceManager : MonoBehaviour
             Destroy(this.gameObject);
         }
 
+        DontDestroyOnLoad(this.gameObject);
+        
         rotatePieces = new List<RotatePiece>();
     }
 
     public void GrabAllRotatePieces()
     {
         rotatePieces = new List<RotatePiece>(FindObjectsOfType<RotatePiece>());
+    }
+
+    public void ClearRotatePieces()
+    {
+        rotatePieces.Clear();
     }
 
     public void AddRotatePiece(RotatePiece rtp)
@@ -49,10 +56,19 @@ public class LevelEditorRotatePieceManager : MonoBehaviour
         if (rtp.coroutine != null)
             StopCoroutine(rtp.coroutine);
     }
+    public void StopMyCoroutine(MovingPiece mvp)
+    {
+        if (mvp.coroutine != null)
+            StopCoroutine(mvp.coroutine);
+    }
 
     // Update is called once per frame
     void Update()
     {
+        if (!isServer)
+            return;
+
+
         foreach (RotatePiece rtp in rotatePieces)
         {
             if (rtp.enabled)
@@ -68,8 +84,10 @@ public class LevelEditorRotatePieceManager : MonoBehaviour
                         if (rtp.isRotation)
                         {
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+                            RpcStartCoroutine(rotatePieces.FindIndex(x => x == rtp));
                         }
                     }
+
 
                     if (rtp.isRotation)
                     {
@@ -97,6 +115,19 @@ public class LevelEditorRotatePieceManager : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    [ClientRpc]
+    private void RpcStartCoroutine(int rtpId)
+    {
+        if (!isServer)
+        {
+            if (rotatePieces.Count == 0)
+                GrabAllRotatePieces();
+                    
+            RotatePiece rtp = rotatePieces[rtpId];
+            rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
         }
     }
 }

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
 
-public class CustomPhysics : NetworkBehaviour {
+public class CustomPhysics : NetworkBehaviour
+{
 
     public Rigidbody rb;
     public Transform sphere;
@@ -18,12 +19,13 @@ public class CustomPhysics : NetworkBehaviour {
     //private static float gravity = 9.81f;
     Quaternion serverRota = Quaternion.identity;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         layerWall = LayerMask.NameToLayer("Wall");
-        i = frameHit =  0;
+        i = frameHit = 0;
         lastWallHit = new Vector3(Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
-	}
+    }
 
     void Update()
     {
@@ -54,13 +56,19 @@ public class CustomPhysics : NetworkBehaviour {
         serverRota = rota;
     }
 
-	
-	void FixedUpdate()
+
+    void FixedUpdate()
     {
         if (!isServer)
         {
             sphere.transform.rotation = Quaternion.Slerp(sphere.transform.rotation, serverRota, 15f * Time.deltaTime);
             return;
+        }
+
+        if (rb.IsSleeping())
+        {
+            Debug.LogError(rb.name + " was sleeping");
+            rb.WakeUp();
         }
 
         Vector3 forwardBallSize = new Vector3(rb.velocity.normalized.x, 0f, rb.velocity.normalized.z) / 20f;
@@ -91,7 +99,7 @@ public class CustomPhysics : NetworkBehaviour {
         //Debug.DrawLine(transform.position, transform.position + bestDownwardCheck, Color.red, 10f);
 
 
-        RaycastHit hitForward; 
+        RaycastHit hitForward;
         RaycastHit hitRight;
         RaycastHit hitLeft;
         RaycastHit hitTopRight;
@@ -109,7 +117,7 @@ public class CustomPhysics : NetworkBehaviour {
         // Find all unique walls collided
         if (collision)
         {
-            
+
             /*if (forward)
                 Debug.Log("Frame = " + i + ", hit forward");
             if (left)
@@ -120,7 +128,7 @@ public class CustomPhysics : NetworkBehaviour {
                 Debug.Log("Frame = " + i + ", hit topRight");
             if(topLeft)
                 Debug.Log("Frame = " + i + ", hit topLeft");*/
-            
+
             int nbWallsHit = 0;
             RaycastHit[] walls = new RaycastHit[5];
             if (forward)
@@ -259,7 +267,7 @@ public class CustomPhysics : NetworkBehaviour {
             RaycastHit hitDownward;
             bool downward = Physics.Linecast(transform.position, transform.position + bestDownwardCheck, out hitDownward, 1 << layerWall);
 
-            if(downward)
+            if (downward)
             {
                 Vector3 dir = rb.velocity;
                 Vector3 wallDir = hitDownward.normal;
@@ -281,7 +289,7 @@ public class CustomPhysics : NetworkBehaviour {
 
         bool onEvenGround = false;
 
-        if(grounded)
+        if (grounded)
             onEvenGround = test.normal == Vector3.up;
 
         float stopSpeedThreshold = 0.1f;
@@ -290,10 +298,10 @@ public class CustomPhysics : NetworkBehaviour {
         if (IsGrounded || grounded)
         {
             // Check if we should stop when grounded
-            if (rb.velocity.magnitude < (onEvenGround?stopSpeedThreshold:unevenGroundstopSpeedThreshold))
+            if (rb.velocity.magnitude < (onEvenGround ? stopSpeedThreshold : unevenGroundstopSpeedThreshold))
                 rb.velocity = Vector3.zero;
         }
-        
+
         // Slow down the ball
         rb.velocity = rb.velocity * 0.99f;
 
@@ -324,7 +332,7 @@ public class CustomPhysics : NetworkBehaviour {
             rb.AddForce(grav);
         }
 
-        if(frameHit < i)
+        if (frameHit < i)
             lastWallHit = new Vector3(-Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
 
         i++;

@@ -1,14 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class RotatePieceManager : NetworkBehaviour {
+public class LevelEditorMovingPieceManager : MonoBehaviour
+{
 
-    public static RotatePieceManager _instance;
+    public static LevelEditorMovingPieceManager _instance;
 
     private List<RotatePiece> rotatePieces;
-    
+    private List<MovingPiece> movingPieces;
+
     void Awake()
     {
         if (_instance == null)
@@ -20,9 +21,8 @@ public class RotatePieceManager : NetworkBehaviour {
             Destroy(this.gameObject);
         }
 
-        DontDestroyOnLoad(this.gameObject);
-        
         rotatePieces = new List<RotatePiece>();
+        movingPieces = new List<MovingPiece>();
     }
 
     public void GrabAllRotatePieces()
@@ -30,14 +30,19 @@ public class RotatePieceManager : NetworkBehaviour {
         rotatePieces = new List<RotatePiece>(FindObjectsOfType<RotatePiece>());
     }
 
-    public void ClearRotatePieces()
+    public void GrabAllMovingPieces()
     {
-        rotatePieces.Clear();
+        movingPieces = new List<MovingPiece>(FindObjectsOfType<MovingPiece>());
     }
 
     public void AddRotatePiece(RotatePiece rtp)
     {
         rotatePieces.Add(rtp);
+    }
+
+    public void AddMovingPiece(MovingPiece mvp)
+    {
+        movingPieces.Add(mvp);
     }
 
     public void ResetAllRTPs()
@@ -51,19 +56,32 @@ public class RotatePieceManager : NetworkBehaviour {
         }
     }
 
+    public void ResetAllMVPs()
+    {
+        foreach (MovingPiece mvp in movingPieces)
+        {
+            if (mvp.enabled)
+            {
+                mvp.Reset();
+            }
+        }
+    }
+
     public void StopMyCoroutine(RotatePiece rtp)
     {
         if (rtp.coroutine != null)
             StopCoroutine(rtp.coroutine);
     }
+    public void StopMyCoroutine(MovingPiece mvp)
+    {
+        if (mvp.coroutine != null)
+            StopCoroutine(mvp.coroutine);
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (!isServer)
-            return;
-
-
+        // Handle all RotatePiece
         foreach (RotatePiece rtp in rotatePieces)
         {
             if (rtp.enabled)
@@ -79,11 +97,10 @@ public class RotatePieceManager : NetworkBehaviour {
                         if (rtp.isRotation)
                         {
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
-                            RpcStartCoroutine(rotatePieces.FindIndex(x => x == rtp));
                         }
                     }
 
-
+                    // Apply the rotation the balls on top of the piece
                     if (rtp.isRotation)
                     {
                         if (rtp.ballsOnTop.Count > 0)
@@ -111,18 +128,50 @@ public class RotatePieceManager : NetworkBehaviour {
                 }
             }
         }
-    }
 
-    [ClientRpc]
-    private void RpcStartCoroutine(int rtpId)
-    {
-        if (!isServer)
+
+        // Handle all moving pieces
+        foreach (MovingPiece mvp in movingPieces)
         {
-            if (rotatePieces.Count == 0)
-                GrabAllRotatePieces();
-                    
-            RotatePiece rtp = rotatePieces[rtpId];
-            rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+            if (mvp.enabled)
+            {
+                if (!mvp.flagStopMove)
+                {
+                    mvp.timer += Time.deltaTime;
+
+                    if ((mvp.isMoving && mvp.timer > mvp.travelTime) || (!mvp.isMoving && mvp.timer > mvp.pauseTime))
+                    {
+                        mvp.isMoving = !mvp.isMoving;
+                        mvp.timer = 0f;
+                        if (mvp.isMoving)
+                        {
+                            mvp.forwardMove = !mvp.forwardMove;
+                            mvp.coroutine = StartCoroutine(mvp.MoveMe((mvp.forwardMove) ? mvp.initPos : mvp.destPos,
+                                                                       (mvp.forwardMove) ? mvp.destPos : mvp.initPos,
+                                                                       mvp.travelTime));
+                        }
+                    }
+
+                    // Move the balls on top of the piece while it is moving
+                    if (mvp.isMoving)
+                    {
+                        if (mvp.ballsOnTop.Count > 0)
+                        {
+                            foreach (GameObject ball in mvp.ballsOnTop)
+                            {
+                                Vector3 start = (mvp.forwardMove) ? mvp.initPos : mvp.destPos;
+                                Vector3 end = (mvp.forwardMove) ? mvp.destPos : mvp.initPos;
+                                float lerpFactor = Time.deltaTime * (1.0f / mvp.travelTime);
+                                Vector3 movement = Vector3.Lerp(start, end, lerpFactor) - start;
+
+                                //Debug.Log("Start : " + start + ", end : " + end + ", movement : " + movement);
+
+                                ball.transform.position += movement;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
