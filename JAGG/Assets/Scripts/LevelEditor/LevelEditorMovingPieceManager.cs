@@ -164,8 +164,9 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
                                 float lerpFactor = Time.deltaTime * (1.0f / mvp.travelTime);
                                 Vector3 movement = Vector3.Lerp(start, end, lerpFactor) - start;
 
-                                //Debug.Log("Start : " + start + ", end : " + end + ", movement : " + movement);
 
+                                //Debug.Log("Start : " + start + ", end : " + end + ", movement.x : " + movement.x + ", movement.y : " + movement.y + ", movement.z : " + movement.z);
+                                movement = checkMovementBoundariesExceded(ball.transform.position, movement, end, mvp.transform.position);
                                 ball.transform.position += movement;
                             }
                         }
@@ -173,5 +174,41 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Checks if the movement added to the ball will make it overshoot the endGoal postion
+    // Should help avoiding some of the collision issues
+    private Vector3 checkMovementBoundariesExceded(Vector3 ballPos, Vector3 movement, Vector3 endGoal, Vector3 piecePos)
+    {
+        Vector3 res = movement;
+
+        bool checkX = false;
+        bool checkY = false;
+        bool checkZ = false;
+        float offsetX = ballPos.x - piecePos.x;
+        float offsetY = ballPos.y - piecePos.y;
+        float offsetZ = ballPos.z - piecePos.z;
+        checkX = (movement.x >= 0) ? (ballPos.x + movement.x - endGoal.x) > offsetX : (ballPos.x + movement.x - endGoal.x) < offsetX;
+        checkY = (movement.y >= 0) ? (ballPos.y + movement.y - endGoal.y) > offsetY : (ballPos.y + movement.y - endGoal.y) < offsetY;
+        checkZ = (movement.z >= 0) ? (ballPos.z + movement.z - endGoal.z) > offsetZ : (ballPos.z + movement.z - endGoal.z) < offsetZ;
+
+        //if (checkX) Debug.Log("Excessive movement on x ; ballPos.x : " + ballPos.x + ", movement.x : " + movement.x + ", endGoal.x : " + endGoal.x + "; calc : " + (ballPos.x + movement.x - endGoal.x));
+        //if (checkY) Debug.Log("Excessive movement on y ; ballPos.y : " + ballPos.y + ", movement.y : " + movement.y + ", endGoal.y : " + endGoal.y + "; calc : " + (ballPos.y + movement.y - endGoal.y));
+        //if (checkZ) Debug.Log("Excessive movement on z ; ballPos.z : " + ballPos.z + ", movement.z : " + movement.z + ", endGoal.z : " + endGoal.z + "; calc : " + (ballPos.z + movement.z - endGoal.z));
+
+        if (checkX)
+        {
+            res.x += offsetX - (ballPos.x + movement.x - endGoal.x);
+        }
+        if (checkY)
+        {
+            res.y += offsetY - (ballPos.y + movement.y - endGoal.y);
+        }
+        if (checkZ)
+        {
+            res.z += offsetZ - (ballPos.z + movement.z - endGoal.z);
+        }
+
+        return res;
     }
 }

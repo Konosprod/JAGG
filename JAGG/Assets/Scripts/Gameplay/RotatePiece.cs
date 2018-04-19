@@ -82,6 +82,23 @@ public class RotatePiece : CustomScript
         }
     }
 
+    void OnDisable()
+    {
+        foreach (ChildColliderMovingPiece ccmvp in ccmvps)
+        {
+            ccmvp.enabled = false;
+        }
+    }
+
+    void OnEnable()
+    {
+        foreach (ChildColliderMovingPiece ccmvp in ccmvps)
+        {
+            ccmvp.enabled = true;
+        }
+    }
+
+
     // Update is called once per frame
     void Update()
     {

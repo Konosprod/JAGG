@@ -48,6 +48,9 @@ public class MovingPiece : CustomScript {
     [HideInInspector]
     public Coroutine coroutine;
 
+    public int counterCoroutine = 0;
+    public int counterManager = 0;
+
 
     // Script that goes on every collider and reports when balls collide with the piece
     private List<ChildColliderMovingPiece> ccmvps;
@@ -58,12 +61,12 @@ public class MovingPiece : CustomScript {
     void Awake()
     {
         ballsOnTop = new List<GameObject>();
+        ccmvps = new List<ChildColliderMovingPiece>();
     }
     // Use this for initialization
     void Start () {
         initPos = transform.position;
 
-        ccmvps = new List<ChildColliderMovingPiece>();
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach (Collider col in cols)
         {
@@ -73,9 +76,25 @@ public class MovingPiece : CustomScript {
         }
 
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    void OnDisable()
+    {
+        foreach(ChildColliderMovingPiece ccmvp in ccmvps)
+        {
+            ccmvp.enabled = false;
+        }
+    }
+
+    void OnEnable()
+    {
+        foreach (ChildColliderMovingPiece ccmvp in ccmvps)
+        {
+            ccmvp.enabled = true;
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
 
