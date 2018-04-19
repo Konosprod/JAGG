@@ -12,7 +12,7 @@ public class ChildColliderMovingPiece : MonoBehaviour
     private const int layerBall3 = 11;
     private const int layerBall4 = 12;
 
-    
+
     private RotatePiece rtpParent = null;
     private MovingPiece mvpParent = null;
 
@@ -59,16 +59,47 @@ public class ChildColliderMovingPiece : MonoBehaviour
         GameObject ball = collisionInfo.gameObject;
         if (ball.layer >= layerBall && ball.layer <= layerBall4)
         {
-            //Debug.Log("End of collision with ball");
-            if (rtpParent != null)
+            //Debug.Log("End of collision with ball, frame : " + Time.frameCount);
+
+            // We use a raycast to fix those annoying collision issues (Raycasts are love, Raycasts are life)
+            bool mustRemoveBall = true;
+            RaycastHit hitBallToBottom;
+            bool ballToBottom = Physics.Linecast(ball.GetComponent<Collider>().bounds.max, ball.GetComponent<Collider>().bounds.max + Vector3.down, out hitBallToBottom, ~(1 << 30 | 1 << 9));
+
+            if (ballToBottom)
+            {
+                if (hitBallToBottom.transform.gameObject != gameObject)
+                {
+                    if (hitBallToBottom.transform.parent == transform.parent) // This test assumes that prefabs do not have nested pieces; which isn't always true (TODO Matthieu)
+                    {
+                        //Debug.Log("Same parent, no need to remove the ball from BallsOnTop");
+                        mustRemoveBall = false;
+                    }
+                    /*else
+                        Debug.Log("Didn't hit the piece we were on when raycasting downwards, hit : " + hitBallToBottom.transform.gameObject.name + ", expected : " + gameObject.name);*/
+
+                }
+                else // Same object found with the raycast so this collision exit is bullshits
+                {
+                    mustRemoveBall = false;
+                }
+                    
+            }
+
+
+            if (mustRemoveBall && rtpParent != null)
             {
                 rtpParent.ballsOnTop.Remove(ball);
             }
-            else if (mvpParent != null)
+            else if (mustRemoveBall && mvpParent != null)
             {
+                /*Debug.Log("ballToBottom : " + ballToBottom);
+                if (ballToBottom)
+                    Debug.Log("Object hit : " + hitBallToBottom.transform.gameObject + ", its parent : " + hitBallToBottom.transform.parent + ", myself : " + gameObject + ", my parent : " + transform.parent);*/
+
                 mvpParent.ballsOnTop.Remove(ball);
             }
-            else
+            else if(rtpParent == null && mvpParent == null)
                 Debug.LogError("Impossibru !?!");
         }
     }
