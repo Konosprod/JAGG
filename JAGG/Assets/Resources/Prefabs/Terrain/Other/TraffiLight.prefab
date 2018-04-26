@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 65279522802189358}
   - component: {fileID: 65990443172959958}
   - component: {fileID: 65399238627205494}
+  - component: {fileID: 114599812584959918}
   m_Layer: 0
   m_Name: trafficlight
   m_TagString: Untagged
@@ -164,3 +165,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Other/TrafficLight
   prefab: 1
+--- !u!114 &114599812584959918
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1245712130572326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
