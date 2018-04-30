@@ -90,7 +90,9 @@ public class EditorManager : MonoBehaviour
     public InputField inputMoveDestZ;
     public InputField inputTravelTime;
     public InputField inputMovePauseTime;
-
+    public GizmoRotateScript gizmoRotate;
+    public GizmoScaleScript gizmoScale;
+    public GizmoTranslateScript gizmoTranslate;
 
     private static GameObject _infoPanel;
     private static Text _pieceNameText;
@@ -116,6 +118,9 @@ public class EditorManager : MonoBehaviour
     private static InputField _inputMoveDestZ;
     private static InputField _inputTravelTime;
     private static InputField _inputMovePauseTime;
+    private static GizmoRotateScript _gizmoRotate;
+    private static GizmoScaleScript _gizmoScale;
+    private static GizmoTranslateScript _gizmoTranslate;
 
     private const float epsilon = 0.0001f;
 
@@ -205,6 +210,9 @@ public class EditorManager : MonoBehaviour
         _inputMoveDestZ = inputMoveDestZ;
         _inputTravelTime = inputTravelTime;
         _inputMovePauseTime = inputMovePauseTime;
+        _gizmoRotate = gizmoRotate;
+        _gizmoScale = gizmoScale;
+        _gizmoTranslate = gizmoTranslate;
 
         // Grab the lemvpManager instance
         lemvpManager = LevelEditorMovingPieceManager._instance;
@@ -401,10 +409,86 @@ public class EditorManager : MonoBehaviour
                 }
 
 
+                //Use T to move the selected piece
+                if (Input.GetKeyDown(KeyCode.T))
+                {
+                    //If we are not on the translate gizmo, we activate id
+                    if (!gizmoTranslate.gameObject.activeSelf)
+                    {
+                        //Disable other gizmos
+                        if (gizmoScale.gameObject.activeSelf)
+                            gizmoScale.gameObject.SetActive(false);
+
+                        if (gizmoRotate.gameObject.activeSelf)
+                            gizmoRotate.gameObject.SetActive(false);
+
+                        if (selectedPiecesInPlace.Count == 1)
+                        {
+                            gizmoTranslate.translateTarget = selectedPiecesInPlace[0];
+                            gizmoTranslate.gameObject.SetActive(true);
+                        }
+                    }
+                    //Else, we disable it
+                    else
+                    {
+                        gizmoTranslate.gameObject.SetActive(false);
+                    }
+                }
+
                 // Use R to rotate the selected pieces 90 degrees clockwise
                 if (Input.GetKeyDown(KeyCode.R))
                 {
-                    currParams = undoRedoStack.Do(new RotateSelectedPiecesCommand(), currParams);
+                    //If rotation gizmo is disabled, we activate it
+                    if (!gizmoRotate.gameObject.activeSelf)
+                    {
+                        if (gizmoScale.gameObject.activeSelf)
+                            gizmoScale.gameObject.SetActive(false);
+
+                        if (gizmoTranslate.gameObject.activeSelf)
+                            gizmoTranslate.gameObject.SetActive(false);
+
+                        if (selectedPiecesInPlace.Count == 1)
+                        {
+                            gizmoRotate.rotateTarget = selectedPiecesInPlace[0];
+                            gizmoRotate.gameObject.SetActive(true);
+                        }
+                    }
+                    //Else, we hide it
+                    else
+                    {
+                        gizmoRotate.transform.localEulerAngles = new Vector3(0, 0, 0);
+                        gizmoRotate.gameObject.SetActive(false);
+                    }
+                    //Rotate multiple pieces
+                    /*else
+                    {
+                        currParams = undoRedoStack.Do(new RotateSelectedPiecesCommand(), currParams);
+                    }*/
+                }
+
+                //Use S to scale the selected piece
+                if (Input.GetKeyDown(KeyCode.S))
+                {
+                    //If we are not on the scaling gizmo, we activate id
+                    if (!gizmoScale.gameObject.activeSelf)
+                    {
+                        if (gizmoTranslate.gameObject.activeSelf)
+                            gizmoTranslate.gameObject.SetActive(false);
+
+                        if (gizmoRotate.gameObject.activeSelf)
+                            gizmoRotate.gameObject.SetActive(false);
+
+                        if (selectedPiecesInPlace.Count == 1)
+                        {
+                            gizmoScale.scaleTarget = selectedPiecesInPlace[0];
+                            gizmoScale.gameObject.SetActive(true);
+                        }
+                    }
+                    //Else, we disable it
+                    else
+                    {
+                        gizmoScale.gameObject.SetActive(false);
+                    }
                 }
 
 
@@ -469,8 +553,27 @@ public class EditorManager : MonoBehaviour
                                 currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
                             }
                         }
-                        else
+                        //If we click on something that is not a gizmo
+                        else if(!Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, 1 << 28))
                         {
+                            //If gizmo rotation is activated, we disable it
+                            if (gizmoRotate.gameObject.activeSelf)
+                            {
+                                gizmoRotate.transform.localEulerAngles = new Vector3(0, 0, 0);
+                                gizmoRotate.gameObject.SetActive(false);
+                            }
+
+                            //If gizmo scaling is activated, we disable it
+                            if(gizmoScale.gameObject.activeSelf)
+                            {
+                                gizmoScale.gameObject.SetActive(false);
+                            }
+
+                            if(gizmoTranslate.gameObject.activeSelf)
+                            {
+                                gizmoTranslate.gameObject.SetActive(false);
+                            }
+
                             // Click on an empty space => deselect all pieces
                             // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
                             if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
@@ -1550,6 +1653,14 @@ public class EditorManager : MonoBehaviour
             // Add the new piece to the selection
             SetHighlight(true, _CP.result);
             selectedPiecesInPlace.Add(_CP.result);
+            _gizmoTranslate.translateTarget = _CP.result;
+            _gizmoTranslate.gameObject.SetActive(true);
+
+            if (_gizmoScale.gameObject.activeSelf)
+                _gizmoScale.gameObject.SetActive(false);
+
+            if (_gizmoRotate.gameObject.activeSelf)
+                _gizmoRotate.gameObject.SetActive(false);
 
             // Display the piece info
             SetPieceInfoPanelVisibility();
