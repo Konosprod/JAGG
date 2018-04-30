@@ -75,7 +75,7 @@ public class OfflineBallController : MonoBehaviour {
                 if (isShooting)
                 {
                     shots++;
-                    rb.AddForce(dir * slider.value * 10f);
+                    rb.AddForce(dir * Mathf.Pow(slider.value,1.4f) * 2f);
                     isShooting = false;
                     isMoving = true;
                     ResetSlider();

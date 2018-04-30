@@ -66,13 +66,11 @@ public class RotatePiece : CustomScript
             transform.eulerAngles = new Vector3(initX, initY, initZ);
         }
         
-        UpdateInitialRotation();
         timer = -timerOffset;
         rotationAngle = 360 / nbRotations;
 
         ballsOnTop = new List<GameObject>();
 
-        ccmvps = new List<ChildColliderMovingPiece>();
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach(Collider col in cols)
         {
@@ -92,6 +90,9 @@ public class RotatePiece : CustomScript
 
     void OnEnable()
     {
+        UpdateInitialRotation();
+        ccmvps = new List<ChildColliderMovingPiece>();
+        
         foreach (ChildColliderMovingPiece ccmvp in ccmvps)
         {
             ccmvp.enabled = true;
