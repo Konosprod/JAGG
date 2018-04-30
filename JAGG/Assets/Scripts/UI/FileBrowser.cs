@@ -44,8 +44,11 @@ public class FileBrowser : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            this.gameObject.SetActive(false);
+        }
+    }
 
     public void Hide()
     {

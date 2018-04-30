@@ -128,7 +128,7 @@ public class EditorManager : MonoBehaviour
     public PanelExport panelExport;
 
     [Header("Escape Menu")]
-    public GameObject escapeMenu;
+    public EscapeMenu escapeMenu;
 
     [HideInInspector]
     public bool canEdit = true;
@@ -215,6 +215,20 @@ public class EditorManager : MonoBehaviour
     {
         if (!testMode.isInTest() && canEdit)
         {
+            //Handle Escape for menus
+            if(Input.GetKeyUp(KeyCode.Escape))
+            {
+                if (!escapeMenu.gameObject.activeSelf)
+                {
+                    escapeMenu.gameObject.SetActive(true);
+                }
+                else
+                {
+                    if(escapeMenu.isDone)
+                        escapeMenu.gameObject.SetActive(false);
+                }
+            }
+
             // Handle ctrl + Z
             // Unity editor will catch the ctrl + Z so Z alone will be the input for the editor
 #if UNITY_EDITOR
@@ -2122,7 +2136,7 @@ public class EditorManager : MonoBehaviour
 
     public void ShowEscapeMenu()
     {
-        escapeMenu.SetActive(true);
+        escapeMenu.gameObject.SetActive(true);
     }
 
     public void ShowHoleProperties()

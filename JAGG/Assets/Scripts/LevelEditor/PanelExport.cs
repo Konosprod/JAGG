@@ -52,7 +52,10 @@ public class PanelExport : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if(Input.GetKeyUp(KeyCode.Escape))
+        {
+            this.gameObject.SetActive(false);
+        }
 	}
 
     void OnEnable()
