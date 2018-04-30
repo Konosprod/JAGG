@@ -61,11 +61,6 @@ public class RotatePiece : CustomScript
     // Use this for initialization
     void Start()
     {
-        if (initX != -1f && initY != -1f && initZ != -1f)
-        {
-            transform.eulerAngles = new Vector3(initX, initY, initZ);
-        }
-        
         timer = -timerOffset;
         rotationAngle = 360 / nbRotations;
 
@@ -90,6 +85,11 @@ public class RotatePiece : CustomScript
 
     void OnEnable()
     {
+        if (initX != -1f && initY != -1f && initZ != -1f)
+        {
+            transform.eulerAngles = new Vector3(initX, initY, initZ);
+        }
+
         UpdateInitialRotation();
         ccmvps = new List<ChildColliderMovingPiece>();
         
