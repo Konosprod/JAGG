@@ -135,12 +135,13 @@ public class GizmoScaleScript : MonoBehaviour {
                             xCylinder.GetComponent<MeshFilter>().mesh.RecalculateBounds();
                             float lengthAfter = xCylinder.GetComponent<Renderer>().bounds.size.x;
 
-                            xCube.transform.position += new Vector3(lengthAfter - lengthBefore, 0.0f, 0.0f);
+                            Debug.Log(lengthAfter - lengthBefore);
+                            xCube.transform.position -= new Vector3(lengthAfter - lengthBefore, 0.0f, 0.0f);
 
-                            xCylinder.transform.position = new Vector3(
-                                    lengthAfter / 2.0f,
-                                    xCylinder.transform.position.y,
-                                    xCylinder.transform.position.z
+                            xCylinder.transform.localPosition = new Vector3(
+                                    0,
+                                    0,
+                                    -lengthAfter / 100f / 2.0f
                             );
 
                             previousGizmoScale = null;
@@ -166,10 +167,10 @@ public class GizmoScaleScript : MonoBehaviour {
 
                             yCube.transform.position += new Vector3(0.0f, lengthAfter - lengthBefore, 0.0f);
 
-                            yCylinder.transform.position = new Vector3(
-                                    yCylinder.transform.position.x,
-                                    lengthAfter / 2.0f,
-                                    yCylinder.transform.position.z
+                            yCylinder.transform.localPosition = new Vector3(
+                                    0,
+                                    lengthAfter / 100f / 2.0f,
+                                    0
                             );
 
                             previousGizmoScale = null;
@@ -193,12 +194,13 @@ public class GizmoScaleScript : MonoBehaviour {
                             zCylinder.GetComponent<MeshFilter>().mesh.RecalculateBounds();
                             float lengthAfter = zCylinder.GetComponent<Renderer>().bounds.size.z;
 
-                            zCube.transform.position += new Vector3(0.0f, 0.0f, lengthAfter - lengthBefore);
 
-                            zCylinder.transform.position = new Vector3(
-                                    zCylinder.transform.position.x,
-                                    zCylinder.transform.position.y,
-                                    lengthAfter / 2.0f
+                            zCube.transform.position -= new Vector3(0.0f, 0.0f, lengthAfter - lengthBefore);
+
+                            zCylinder.transform.localPosition = new Vector3(
+                                    0,
+                                    lengthAfter / 100f / 2f,
+                                    0
                             );
 
                             previousGizmoScale = null;
