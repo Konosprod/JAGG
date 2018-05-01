@@ -87,20 +87,20 @@ public class GizmoRotateScript : MonoBehaviour {
                 switch (i) {
                     // X Axis
                     case 0:
-                        rotateTarget.transform.Rotate(Vector3.right, delta);
-                        gameObject.transform.Rotate(Vector3.right, delta);
+                        rotateTarget.transform.Rotate(Vector3.left, delta);
+                        gameObject.transform.Rotate(Vector3.left, delta);
                         break;
 
                     // Y Axis
                     case 1:
-                        rotateTarget.transform.Rotate(Vector3.up, delta);
-                        gameObject.transform.Rotate(Vector3.up, delta);
+                        rotateTarget.transform.Rotate(Vector3.down, delta);
+                        gameObject.transform.Rotate(Vector3.down, delta);
                         break;
 
                     // Z Axis
                     case 2:
-                        rotateTarget.transform.Rotate(Vector3.forward, delta);
-                        gameObject.transform.Rotate(Vector3.forward, delta);
+                        rotateTarget.transform.Rotate(Vector3.back, delta);
+                        gameObject.transform.Rotate(Vector3.back, delta);
                          break;
                 }
 

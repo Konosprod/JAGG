@@ -127,7 +127,7 @@ public class GizmoScaleScript : MonoBehaviour {
 
                             if ((scaleTarget.transform.localScale.x - delta) <= 0.01f) return;
                             scaleTarget.transform.localScale += new Vector3(-delta, 0.0f, 0.0f);
-
+                            /*
                             // Scale the handle's cylinder then move the cube to its new end
                             float lengthBefore = xCylinder.GetComponent<Renderer>().bounds.size.x;
 
@@ -143,7 +143,7 @@ public class GizmoScaleScript : MonoBehaviour {
                                     0,
                                     -lengthAfter / 100f / 2.0f
                             );
-
+                            */
                             previousGizmoScale = null;
                         }
                         break;
@@ -157,7 +157,7 @@ public class GizmoScaleScript : MonoBehaviour {
 
                             if ((scaleTarget.transform.localScale.y + delta) <= 0.01f) return;
                             scaleTarget.transform.localScale += new Vector3(0.0f, delta, 0.0f);
-
+                            /*
                             // Scale the handle's cylinder then move the cube to its new end
                             float lengthBefore =yCylinder.GetComponent<Renderer>().bounds.size.y;
 
@@ -172,7 +172,7 @@ public class GizmoScaleScript : MonoBehaviour {
                                     lengthAfter / 100f / 2.0f,
                                     0
                             );
-
+                            */
                             previousGizmoScale = null;
                         }
                         break;
@@ -186,7 +186,7 @@ public class GizmoScaleScript : MonoBehaviour {
 
                             if ((scaleTarget.transform.localScale.z + delta) <= 0.01f) return;
                             scaleTarget.transform.localScale += new Vector3(0.0f, 0.0f, delta);
-
+                            /*
                             // Scale the handle's cylinder then move the cube to its new end
                             float lengthBefore = zCylinder.GetComponent<Renderer>().bounds.size.z;
 
@@ -202,7 +202,7 @@ public class GizmoScaleScript : MonoBehaviour {
                                     lengthAfter / 100f / 2f,
                                     0
                             );
-
+                            */
                             previousGizmoScale = null;
                         }
                          break;
