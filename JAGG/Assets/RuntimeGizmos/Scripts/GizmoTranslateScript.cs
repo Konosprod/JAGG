@@ -97,9 +97,9 @@ public class GizmoTranslateScript : MonoBehaviour {
 
                             } else {
                                 float delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
-                                offset = Vector3.left * delta;
+                                offset = Vector3.right * delta;
                                 offset = new Vector3(offset.x, 0.0f, 0.0f);
-                                translateTarget.transform.Translate(offset);
+                                translateTarget.transform.Translate(offset, Space.Self);
                             }
                         }
                         break;
@@ -124,7 +124,7 @@ public class GizmoTranslateScript : MonoBehaviour {
                                 float delta = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
                                 offset = Vector3.up * delta;
                                 offset = new Vector3(0.0f, offset.y, 0.0f);
-                                translateTarget.transform.Translate(offset);
+                                translateTarget.transform.Translate(offset, Space.Self);
                             }
                         }
                         break;
@@ -147,9 +147,9 @@ public class GizmoTranslateScript : MonoBehaviour {
 
                             } else {
                                 float delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
-                                offset = Vector3.forward * delta;
+                                offset = Vector3.back * delta;
                                 offset = new Vector3(0.0f, 0.0f, offset.z);
-                                translateTarget.transform.Translate(offset);
+                                translateTarget.transform.Translate(offset, Space.Self);
                             }
                         }
                         break;

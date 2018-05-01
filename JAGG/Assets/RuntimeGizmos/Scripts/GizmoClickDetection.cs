@@ -70,12 +70,11 @@ public class GizmoClickDetection : MonoBehaviour {
     ///     Checks for hits on the target objects, highlighting when found
     /// </summary>
 	public void Update () {
-
         // If the left mouse button is pressed      
         if (!ALREADY_CLICKED && Input.GetMouseButtonDown(0)) {
             // Detect the object(s) the user has clicked
             Ray ray = gizmoCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit[] hits = Physics.RaycastAll(ray, gizmoLayer);
+            RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, LayerMask.GetMask("Gizmo"));
             bool detected = false;
             pressingPlane = false;
 
@@ -101,7 +100,7 @@ public class GizmoClickDetection : MonoBehaviour {
                             renderer.material = highlight;
                         }
                     } catch (NullReferenceException exception) {
-                        // Perhaps no previous materials could be found?
+                        Debug.Log(exception);
                     }
 
                 }
