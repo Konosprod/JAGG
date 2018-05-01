@@ -489,7 +489,7 @@ public class EditorManager : MonoBehaviour
 
                         if (selectedPiecesInPlace.Count == 1)
                         {
-                            gizmoScale.transform.localEulerAngles = selectedPiecesInPlace[0].transform.localEulerAngles;
+                            //gizmoScale.transform.localEulerAngles = selectedPiecesInPlace[0].transform.localEulerAngles;
                             gizmoScale.scaleTarget = selectedPiecesInPlace[0];
                             gizmoScale.gameObject.SetActive(true);
                         }
