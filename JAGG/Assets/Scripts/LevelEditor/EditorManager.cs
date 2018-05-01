@@ -457,6 +457,7 @@ public class EditorManager : MonoBehaviour
 
                         if (selectedPiecesInPlace.Count == 1)
                         {
+                            gizmoRotate.transform.localEulerAngles = selectedPiecesInPlace[0].transform.localEulerAngles;
                             gizmoRotate.rotateTarget = selectedPiecesInPlace[0];
                             gizmoRotate.gameObject.SetActive(true);
                         }
@@ -464,7 +465,7 @@ public class EditorManager : MonoBehaviour
                     //Else, we hide it
                     else
                     {
-                        gizmoRotate.transform.localEulerAngles = new Vector3(0, 0, 0);
+                        gizmoRotate.transform.localEulerAngles = Vector3.zero;
                         gizmoRotate.gameObject.SetActive(false);
                     }
                     //Rotate multiple pieces
@@ -488,6 +489,7 @@ public class EditorManager : MonoBehaviour
 
                         if (selectedPiecesInPlace.Count == 1)
                         {
+                            gizmoScale.transform.localEulerAngles = selectedPiecesInPlace[0].transform.localEulerAngles;
                             gizmoScale.scaleTarget = selectedPiecesInPlace[0];
                             gizmoScale.gameObject.SetActive(true);
                         }
@@ -495,6 +497,7 @@ public class EditorManager : MonoBehaviour
                     //Else, we disable it
                     else
                     {
+                        gizmoScale.transform.localEulerAngles = Vector3.zero;
                         gizmoScale.gameObject.SetActive(false);
                     }
                 }
