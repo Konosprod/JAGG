@@ -90,9 +90,12 @@ public class EditorManager : MonoBehaviour
     public InputField inputMoveDestZ;
     public InputField inputTravelTime;
     public InputField inputMovePauseTime;
+
+    [Header("Gizmo")]
     public GizmoRotateScript gizmoRotate;
     public GizmoScaleScript gizmoScale;
     public GizmoTranslateScript gizmoTranslate;
+    public Camera gizmoCamera;
 
     private static GameObject _infoPanel;
     private static Text _pieceNameText;
@@ -118,6 +121,7 @@ public class EditorManager : MonoBehaviour
     private static InputField _inputMoveDestZ;
     private static InputField _inputTravelTime;
     private static InputField _inputMovePauseTime;
+    //Gizmo things
     private static GizmoRotateScript _gizmoRotate;
     private static GizmoScaleScript _gizmoScale;
     private static GizmoTranslateScript _gizmoTranslate;
@@ -405,6 +409,9 @@ public class EditorManager : MonoBehaviour
 
                 if (Input.GetKeyDown(KeyCode.D))
                 {
+                    gizmoScale.gameObject.SetActive(false);
+                    gizmoTranslate.gameObject.SetActive(false);
+                    gizmoRotate.gameObject.SetActive(false);
                     currParams = undoRedoStack.Do(new DeletePiecesCommand(), currParams);
                 }
 
@@ -424,6 +431,7 @@ public class EditorManager : MonoBehaviour
 
                         if (selectedPiecesInPlace.Count == 1)
                         {
+                            gizmoTranslate.transform.localEulerAngles = selectedPiecesInPlace[0].transform.localEulerAngles;
                             gizmoTranslate.translateTarget = selectedPiecesInPlace[0];
                             gizmoTranslate.gameObject.SetActive(true);
                         }
@@ -554,23 +562,25 @@ public class EditorManager : MonoBehaviour
                             }
                         }
                         //If we click on something that is not a gizmo
-                        else if(!Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, 1 << 28))
+                        else if(!Physics.Raycast(gizmoCamera.ScreenPointToRay(Input.mousePosition), out rayHitPiece, Mathf.Infinity, LayerMask.GetMask("Gizmo")))
                         {
                             //If gizmo rotation is activated, we disable it
                             if (gizmoRotate.gameObject.activeSelf)
                             {
-                                gizmoRotate.transform.localEulerAngles = new Vector3(0, 0, 0);
+                                gizmoRotate.transform.localEulerAngles = Vector3.zero;
                                 gizmoRotate.gameObject.SetActive(false);
                             }
 
                             //If gizmo scaling is activated, we disable it
                             if(gizmoScale.gameObject.activeSelf)
                             {
+                                gizmoScale.transform.localEulerAngles = Vector3.zero;
                                 gizmoScale.gameObject.SetActive(false);
                             }
 
                             if(gizmoTranslate.gameObject.activeSelf)
                             {
+                                gizmoTranslate.transform.localEulerAngles = Vector3.zero;
                                 gizmoTranslate.gameObject.SetActive(false);
                             }
 
@@ -1653,9 +1663,13 @@ public class EditorManager : MonoBehaviour
             // Add the new piece to the selection
             SetHighlight(true, _CP.result);
             selectedPiecesInPlace.Add(_CP.result);
+
+            //Activate translation gizmo
+            _gizmoTranslate.transform.localEulerAngles = _CP.result.transform.localEulerAngles;
             _gizmoTranslate.translateTarget = _CP.result;
             _gizmoTranslate.gameObject.SetActive(true);
 
+            //Disable other just in case
             if (_gizmoScale.gameObject.activeSelf)
                 _gizmoScale.gameObject.SetActive(false);
 
