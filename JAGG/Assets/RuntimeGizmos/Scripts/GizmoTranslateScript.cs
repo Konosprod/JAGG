@@ -42,6 +42,7 @@ public class GizmoTranslateScript : MonoBehaviour {
 
     public Vector3 origin;
     public Vector3 end;
+    private SnappingPoint[] snappingPoints;
 
     /// <summary>
     ///     On wake up
@@ -60,6 +61,7 @@ public class GizmoTranslateScript : MonoBehaviour {
 
     private void OnEnable()
     {
+        snappingPoints = translateTarget.GetComponentsInChildren<SnappingPoint>();
         transform.position = translateTarget.transform.position;
         origin = transform.position;
     }
@@ -68,8 +70,36 @@ public class GizmoTranslateScript : MonoBehaviour {
     ///     Once per frame
     /// </summary>
     public void Update() {
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            foreach(SnappingPoint sp in snappingPoints)
+            {
+                sp.col.isTrigger = false;
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            foreach (SnappingPoint sp in snappingPoints)
+            {
+                sp.isSnapped = false;
+                sp.col.isTrigger = true;
+            }
+        }
+
         for (int i = 0; i < 3; i++) {
-            if (Input.GetMouseButton(0) && detectors[i].pressing) {
+            bool isSnapped = false;
+
+            foreach (SnappingPoint sp in snappingPoints)
+            {
+                if (sp.isSnapped)
+                {
+                    isSnapped = true;
+                }
+            }
+
+            if (Input.GetMouseButton(0) && detectors[i].pressing && !isSnapped) {
 
                 // Get the distance from the camera to the target (used as a scaling factor in translate)
                 float distance = Vector3.Distance(Camera.main.transform.position, translateTarget.transform.position);
