@@ -437,7 +437,8 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     void CmdShoot(Vector3 dir, float sliderVal)
     {
-        rb.AddForce(dir * sliderVal * 10f);
+        //rb.AddForce(dir * sliderVal * 10f); // Linear scaling of the force
+        rb.AddForce(dir * Mathf.Pow(sliderVal, 1.4f) * 2f); // Quadratic scaling of the force
         shots++;
     }
 
