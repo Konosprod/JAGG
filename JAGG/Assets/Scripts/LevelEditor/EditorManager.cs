@@ -190,7 +190,7 @@ public class EditorManager : MonoBehaviour
         layerWall = LayerMask.NameToLayer("Wall");
         layerDecor = LayerMask.NameToLayer("Decor");
         layerBoosterPad = LayerMask.NameToLayer("BoosterPad");
-        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerBoosterPad | 1 << layerDecor);
+        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerBoosterPad | 1 << layerDecor | 1 << LayerMask.NameToLayer("Gizmo"));
 
 
         // Setup the variables for the info panel
@@ -525,6 +525,85 @@ public class EditorManager : MonoBehaviour
                     // Use shift + click to select additional pieces
                     if (Input.GetMouseButtonDown(0))
                     {
+                        Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
+                        RaycastHit[] hits = Physics.RaycastAll(rayPiece, Mathf.Infinity, layerMaskPieceSelection);
+
+                        bool isGizmo = false;
+
+                        foreach(RaycastHit hit in hits)
+                        {
+                            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Gizmo"))
+                                isGizmo = true;
+                        }
+
+                        //If there is no gizmo on the click
+                        if(!isGizmo)
+                        {
+                            RaycastHit rayHitPiece;
+                            if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                            {
+
+                                GameObject piece = rayHitPiece.transform.gameObject;
+
+                                string pName = piece.name.Split(' ')[0];
+                                while (piece.transform.parent != null && pName != "Hole")
+                                {
+                                    pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                                    if (pName != "Hole")
+                                        piece = piece.transform.parent.gameObject;
+                                }
+
+                                if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
+                                {
+                                    if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                                    {
+                                        currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                    }
+                                    else
+                                    {
+                                        currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                                    }
+                                }
+                                else
+                                {
+                                    currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                                }
+                            }
+                            else
+                            {
+                                //If gizmo rotation is activated, we disable it
+                                if (gizmoRotate.gameObject.activeSelf)
+                                {
+                                    gizmoRotate.transform.localEulerAngles = Vector3.zero;
+                                    gizmoRotate.gameObject.SetActive(false);
+                                }
+
+                                //If gizmo scaling is activated, we disable it
+                                if (gizmoScale.gameObject.activeSelf)
+                                {
+                                    gizmoScale.transform.localEulerAngles = Vector3.zero;
+                                    gizmoScale.gameObject.SetActive(false);
+                                }
+
+                                if (gizmoTranslate.gameObject.activeSelf)
+                                {
+                                    gizmoTranslate.transform.localEulerAngles = Vector3.zero;
+                                    gizmoTranslate.gameObject.SetActive(false);
+                                }
+
+                                // Click on an empty space => deselect all pieces
+                                // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
+                                if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
+                                {
+                                    gizmoRotate.gameObject.SetActive(false);
+                                    gizmoScale.gameObject.SetActive(false);
+                                    gizmoTranslate.gameObject.SetActive(false);
+                                    currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
+                                }
+                            }
+                        }
+
+                        /*
                         // We use a raycast to find the pieces
                         RaycastHit rayHitPiece;
                         Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -591,9 +670,12 @@ public class EditorManager : MonoBehaviour
                             // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
                             if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
                             {
+                                gizmoRotate.gameObject.SetActive(false);
+                                gizmoScale.gameObject.SetActive(false);
+                                gizmoTranslate.gameObject.SetActive(false);
                                 currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
                             }
-                        }
+                        }*/
                     }
                 }
 
@@ -601,7 +683,6 @@ public class EditorManager : MonoBehaviour
             else
             {
                 // No piece selected, the player can click pieces in place to modify them or a piece in the menu to start placing them
-
 
                 // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
                 if (Input.GetKeyDown(KeyCode.O) && originPiece != null)
