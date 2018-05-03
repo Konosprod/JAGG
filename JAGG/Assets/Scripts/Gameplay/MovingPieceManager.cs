@@ -8,36 +8,58 @@ public class MovingPieceManager : NetworkBehaviour {
     public static MovingPieceManager _instance;
 
     private List<RotatePiece> rotatePieces;
-    
+    private List<MovingPiece> movingPieces;
+
     void Awake()
     {
         if (_instance == null)
         {
             _instance = this;
+            DontDestroyOnLoad(this.gameObject);
         }
         else
         {
             Destroy(this.gameObject);
         }
 
-        DontDestroyOnLoad(this.gameObject);
         
         rotatePieces = new List<RotatePiece>();
+        movingPieces = new List<MovingPiece>();
     }
 
     public void GrabAllRotatePieces()
     {
         rotatePieces = new List<RotatePiece>(FindObjectsOfType<RotatePiece>());
     }
+    public void GrabAllMovingPieces()
+    {
+        movingPieces = new List<MovingPiece>(FindObjectsOfType<MovingPiece>());
+    }
 
     public void ClearRotatePieces()
     {
+        foreach(RotatePiece rtp in rotatePieces)
+        {
+            StopMyCoroutine(rtp);
+        }
         rotatePieces.Clear();
+    }
+    public void ClearMovingPieces()
+    {
+        foreach(MovingPiece mvp in movingPieces)
+        {
+            StopMyCoroutine(mvp);
+        }
+        movingPieces.Clear();
     }
 
     public void AddRotatePiece(RotatePiece rtp)
     {
         rotatePieces.Add(rtp);
+    }
+    public void AddMovingPiece(MovingPiece mvp)
+    {
+        movingPieces.Add(mvp);
     }
 
     public void ResetAllRTPs()
@@ -47,6 +69,16 @@ public class MovingPieceManager : NetworkBehaviour {
             if (rtp.enabled)
             {
                 rtp.Reset();
+            }
+        }
+    }
+    public void ResetAllMVPs()
+    {
+        foreach (MovingPiece mvp in movingPieces)
+        {
+            if (mvp.enabled)
+            {
+                mvp.Reset();
             }
         }
     }
@@ -69,6 +101,7 @@ public class MovingPieceManager : NetworkBehaviour {
             return;
 
 
+        // Handle all RotatePiece
         foreach (RotatePiece rtp in rotatePieces)
         {
             if (rtp.enabled)
@@ -84,7 +117,7 @@ public class MovingPieceManager : NetworkBehaviour {
                         if (rtp.isRotation)
                         {
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
-                            RpcStartCoroutine(rotatePieces.FindIndex(x => x == rtp));
+                            RpcStartCoroutineRTP(rotatePieces.FindIndex(x => x == rtp));
                         }
                     }
 
@@ -116,10 +149,94 @@ public class MovingPieceManager : NetworkBehaviour {
                 }
             }
         }
+
+        // Handle all moving pieces
+        foreach (MovingPiece mvp in movingPieces)
+        {
+            if (mvp.enabled)
+            {
+                if (!mvp.flagStopMove)
+                {
+                    mvp.timer += Time.deltaTime;
+
+                    if ((mvp.isMoving && mvp.timer > mvp.travelTime) || (!mvp.isMoving && mvp.timer > mvp.pauseTime))
+                    {
+                        mvp.isMoving = !mvp.isMoving;
+                        mvp.timer = 0f;
+                        if (mvp.isMoving)
+                        {
+                            mvp.forwardMove = !mvp.forwardMove;
+                            mvp.coroutine = StartCoroutine(mvp.MoveMe((mvp.forwardMove) ? mvp.initPos : mvp.destPos,
+                                                                       (mvp.forwardMove) ? mvp.destPos : mvp.initPos,
+                                                                       mvp.travelTime));
+                            RpcStartCoroutineMVP(movingPieces.FindIndex(x => x == mvp), mvp.forwardMove);
+                        }
+                    }
+
+                    // Move the balls on top of the piece while it is moving
+                    if (mvp.isMoving)
+                    {
+                        if (mvp.ballsOnTop.Count > 0)
+                        {
+                            foreach (GameObject ball in mvp.ballsOnTop)
+                            {
+                                Vector3 start = (mvp.forwardMove) ? mvp.initPos : mvp.destPos;
+                                Vector3 end = (mvp.forwardMove) ? mvp.destPos : mvp.initPos;
+                                float lerpFactor = Time.deltaTime * (1.0f / mvp.travelTime);
+                                Vector3 movement = Vector3.Lerp(start, end, lerpFactor) - start;
+
+
+                                //Debug.Log("Start : " + start + ", end : " + end + ", movement.x : " + movement.x + ", movement.y : " + movement.y + ", movement.z : " + movement.z);
+                                movement = checkMovementBoundariesExceded(ball.transform.position, movement, end, mvp.transform.position);
+                                ball.transform.position += movement;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
+
+    // Checks if the movement added to the ball will make it overshoot the endGoal postion
+    // Should help avoiding some of the collision issues
+    private Vector3 checkMovementBoundariesExceded(Vector3 ballPos, Vector3 movement, Vector3 endGoal, Vector3 piecePos)
+    {
+        Vector3 res = movement;
+
+        bool checkX = false;
+        bool checkY = false;
+        bool checkZ = false;
+        float offsetX = ballPos.x - piecePos.x;
+        float offsetY = ballPos.y - piecePos.y;
+        float offsetZ = ballPos.z - piecePos.z;
+        checkX = (movement.x >= 0) ? (ballPos.x + movement.x - endGoal.x) > offsetX : (ballPos.x + movement.x - endGoal.x) < offsetX;
+        checkY = (movement.y >= 0) ? (ballPos.y + movement.y - endGoal.y) > offsetY : (ballPos.y + movement.y - endGoal.y) < offsetY;
+        checkZ = (movement.z >= 0) ? (ballPos.z + movement.z - endGoal.z) > offsetZ : (ballPos.z + movement.z - endGoal.z) < offsetZ;
+
+        //if (checkX) Debug.Log("Excessive movement on x ; ballPos.x : " + ballPos.x + ", movement.x : " + movement.x + ", endGoal.x : " + endGoal.x + "; calc : " + (ballPos.x + movement.x - endGoal.x));
+        //if (checkY) Debug.Log("Excessive movement on y ; ballPos.y : " + ballPos.y + ", movement.y : " + movement.y + ", endGoal.y : " + endGoal.y + "; calc : " + (ballPos.y + movement.y - endGoal.y));
+        //if (checkZ) Debug.Log("Excessive movement on z ; ballPos.z : " + ballPos.z + ", movement.z : " + movement.z + ", endGoal.z : " + endGoal.z + "; calc : " + (ballPos.z + movement.z - endGoal.z));
+
+        if (checkX)
+        {
+            res.x += offsetX - (ballPos.x + movement.x - endGoal.x);
+        }
+        if (checkY)
+        {
+            res.y += offsetY - (ballPos.y + movement.y - endGoal.y);
+        }
+        if (checkZ)
+        {
+            res.z += offsetZ - (ballPos.z + movement.z - endGoal.z);
+        }
+
+        return res;
+    }
+
+
     [ClientRpc]
-    private void RpcStartCoroutine(int rtpId)
+    private void RpcStartCoroutineRTP(int rtpId)
     {
         if (!isServer)
         {
@@ -128,6 +245,20 @@ public class MovingPieceManager : NetworkBehaviour {
                     
             RotatePiece rtp = rotatePieces[rtpId];
             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+        }
+    }
+    [ClientRpc]
+    private void RpcStartCoroutineMVP(int mvpId, bool fwdMove)
+    {
+        if (!isServer)
+        {
+            if (movingPieces.Count == 0)
+                GrabAllMovingPieces();
+
+            MovingPiece mvp = movingPieces[mvpId];
+            mvp.coroutine = StartCoroutine(mvp.MoveMe((fwdMove) ? mvp.initPos : mvp.destPos,
+                                                      (fwdMove) ? mvp.destPos : mvp.initPos,
+                                                      mvp.travelTime));
         }
     }
 }
