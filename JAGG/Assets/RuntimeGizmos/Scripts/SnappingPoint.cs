@@ -20,7 +20,7 @@ public class SnappingPoint : MonoBehaviour {
     {
         if (Input.GetKey(KeyCode.LeftControl))
         {
-            if (other.gameObject.layer == LayerMask.NameToLayer("SnapPoint") && !isSnapped)
+            if (other.gameObject.layer == LayerMask.NameToLayer("SnapPoint") && !isSnapped && !other.GetComponent<SnappingPoint>().isSnapped)
             {
                 //Find a mean to disable dragging
                 //other.transform.parent.GetComponent<MouseDrag>().isActivated = false;
