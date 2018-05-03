@@ -64,8 +64,22 @@ public class MovingPiece : CustomScript {
         ccmvps = new List<ChildColliderMovingPiece>();
     }
     // Use this for initialization
-    void Start () {
-        initPos = transform.position;
+    void Start ()
+    {
+        if (initX != -1f && initY != -1f && initZ != -1f)
+        {
+            transform.position = new Vector3(initX, initY, initZ);
+        }
+
+        UpdateInitialPosition();
+
+        if (destX != -1f && destY != -1f && destZ != -1f)
+        {
+            //Debug.Log("There : destX=" + destX + ", destY=" + destY + ", destZ=" + destZ);
+            UpdateDestination(new Vector3(destX, destY, destZ));
+        }
+
+        //initPos = transform.position;
 
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach (Collider col in cols)
@@ -152,4 +166,14 @@ public class MovingPiece : CustomScript {
         ballsOnTop.Clear();
     }
 
+    void OnDestroy()
+    {
+        if (coroutine != null)
+        {
+            if (SceneManager.GetSceneAt(0).name == "LevelEditor")
+                LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
+            else
+                MovingPieceManager._instance.StopMyCoroutine(this);
+        }
+    }
 }
