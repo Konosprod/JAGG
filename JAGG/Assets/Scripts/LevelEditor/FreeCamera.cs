@@ -22,6 +22,10 @@ public class FreeCamera : MonoBehaviour {
 
     public EditorManager editorManager = null;
 
+    [Header("Camera Moving")]
+    public int sizeEdge = 15;
+    public float movingSpeed = 30;
+
     private float ClampAngle(float angle, float min = 0f, float max = 360f)
     {
         if (angle < -360f)
@@ -80,6 +84,36 @@ public class FreeCamera : MonoBehaviour {
         {
             _target = _startPos;
         }*/
+
+        /*Move camera when close to edges
+        if (Input.mousePosition.x > (Screen.width - sizeEdge))
+        {
+            Vector3 a = transform.rotation * Vector3.right;
+            Vector3 a2 = transform.rotation * Vector3.up;
+            Vector3 a3 = -a * axis * movingSpeed * Time.deltaTime;
+            Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
+            _target += (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.01f);
+        }
+
+        if (Input.mousePosition.x < sizeEdge)
+        {
+            Vector3 a = transform.rotation * Vector3.right;
+            Vector3 a2 = transform.rotation * Vector3.up;
+            Vector3 a3 = -a * Time.deltaTime;
+            Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
+            _target -= (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.01f);
+        }
+        /*
+        if (Input.mousePosition.y < sizeEdge)
+        {
+            _target -= new Vector3(0, 0, Time.deltaTime * movingSpeed);
+        }
+
+        if (Input.mousePosition.y > (Screen.height - sizeEdge))
+        {
+            _target += new Vector3(0, 0, Time.deltaTime * movingSpeed);
+        }
+        */
         Quaternion rotation = Quaternion.Euler(_y, _x, 0f);
         Vector3 position = rotation * new Vector3(0f, 0f, -_distance) + _target;
         transform.rotation = rotation;

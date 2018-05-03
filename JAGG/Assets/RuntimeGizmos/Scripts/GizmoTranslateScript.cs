@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 ///     Simple script to handle the functionality of the Translate Gizmo (i.e. move the gizmo
@@ -33,7 +34,7 @@ public class GizmoTranslateScript : MonoBehaviour {
     /// <summary>
     ///     Target for translation
     /// </summary>
-    public GameObject translateTarget;
+    public List<GameObject> translateTarget;
 
     /// <summary>
     ///     Array of detector scripts stored as [x, y, z]
@@ -56,13 +57,20 @@ public class GizmoTranslateScript : MonoBehaviour {
         detectors[2] = zAxisObject.GetComponent<GizmoClickDetection>();
 
         // Set the same position for the target and the gizmo
-        transform.position = translateTarget.transform.position;
+        transform.position = translateTarget[0].transform.position;
     }
 
     private void OnEnable()
     {
-        snappingPoints = translateTarget.GetComponentsInChildren<SnappingPoint>();
-        transform.position = translateTarget.transform.position;
+        if (translateTarget.Count <= 1)
+        {
+            snappingPoints = translateTarget[0].GetComponentsInChildren<SnappingPoint>();
+        }
+        else
+        {
+            snappingPoints = new SnappingPoint[0];
+        }
+        transform.position = translateTarget[0].transform.position;
         origin = transform.position;
     }
 
@@ -76,6 +84,7 @@ public class GizmoTranslateScript : MonoBehaviour {
             foreach(SnappingPoint sp in snappingPoints)
             {
                 sp.col.isTrigger = false;
+                sp.shouldSnap = true;
             }
         }
 
@@ -85,6 +94,7 @@ public class GizmoTranslateScript : MonoBehaviour {
             {
                 sp.isSnapped = false;
                 sp.col.isTrigger = true;
+                sp.shouldSnap = false;
             }
         }
 
@@ -102,7 +112,7 @@ public class GizmoTranslateScript : MonoBehaviour {
             if (Input.GetMouseButton(0) && detectors[i].pressing && !isSnapped) {
 
                 // Get the distance from the camera to the target (used as a scaling factor in translate)
-                float distance = Vector3.Distance(Camera.main.transform.position, translateTarget.transform.position);
+                float distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
                 distance = distance * 2.0f;
 
                 // Will store translate values
@@ -118,18 +128,33 @@ public class GizmoTranslateScript : MonoBehaviour {
                                 float deltaY = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
                                 offset = Vector3.up * deltaY;
                                 offset = new Vector3(0.0f, offset.y, 0.0f);
-                                translateTarget.transform.Translate(offset);
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset);
+                                }
 
                                 float deltaZ = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
                                 offset = Vector3.forward * deltaZ;
                                 offset = new Vector3(0.0f, 0.0f, offset.z);
-                                translateTarget.transform.Translate(offset);
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset);
+                                }
+                                //translateTarget.transform.Translate(offset);
 
                             } else {
+                                distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
+                                distance = distance * 2.0f;
+
                                 float delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
                                 offset = Vector3.right * delta;
                                 offset = new Vector3(offset.x, 0.0f, 0.0f);
-                                translateTarget.transform.Translate(offset, Space.Self);
+
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset, Space.World);
+                                }
+                                //translateTarget.transform.Translate(offset, Space.Self);
                             }
                         }
                         break;
@@ -143,18 +168,32 @@ public class GizmoTranslateScript : MonoBehaviour {
                                 float deltaX = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
                                 offset = Vector3.left * deltaX;
                                 offset = new Vector3(offset.x, 0.0f, 0.0f);
-                                translateTarget.transform.Translate(offset);
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset);
+                                }
+                                //translateTarget.transform.Translate(offset);
 
                                 float deltaZ = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
                                 offset = Vector3.forward * deltaZ;
                                 offset = new Vector3(0.0f, 0.0f, -offset.z);
-                                translateTarget.transform.Translate(offset);
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset);
+                                }
+                                //translateTarget.transform.Translate(offset);
 
                             } else {
+                                
                                 float delta = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
                                 offset = Vector3.up * delta;
                                 offset = new Vector3(0.0f, offset.y, 0.0f);
-                                translateTarget.transform.Translate(offset, Space.Self);
+                                
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset, Space.World);
+                                }
+                                //translateTarget.transform.Translate(offset, Space.Self);
                             }
                         }
                         break;
@@ -168,25 +207,39 @@ public class GizmoTranslateScript : MonoBehaviour {
                                 float deltaX = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
                                 offset = Vector3.left * deltaX;
                                 offset = new Vector3(offset.x, 0.0f, 0.0f);
-                                translateTarget.transform.Translate(offset);
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset);
+                                }
+                                //translateTarget.transform.Translate(offset);
 
                                 float deltaY = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
                                 offset = Vector3.up * deltaY;
                                 offset = new Vector3(0.0f, offset.y, 0.0f);
-                                translateTarget.transform.Translate(offset);
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset);
+                                }
+                                //translateTarget.transform.Translate(offset);
 
                             } else {
+                                
                                 float delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
                                 offset = Vector3.back * delta;
                                 offset = new Vector3(0.0f, 0.0f, offset.z);
-                                translateTarget.transform.Translate(offset, Space.Self);
+
+                                foreach (GameObject go in translateTarget)
+                                {
+                                    go.transform.Translate(offset, Space.World);
+                                }
+                                //translateTarget.transform.Translate(offset, Space.Self);
                             }
                         }
                         break;
                 }
 
                 // Move the gizmo to match the target position
-                transform.position = translateTarget.transform.position;
+                transform.position = translateTarget[0].transform.position;
 
                 break;
             }

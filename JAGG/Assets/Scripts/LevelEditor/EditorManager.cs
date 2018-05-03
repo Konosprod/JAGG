@@ -263,7 +263,6 @@ public class EditorManager : MonoBehaviour
                 currParams = undoRedoStack.Redo(currParams);
             }
 
-
             if (currentPiece != null)
             {
                 // A piece was selected in the menu, the player can place copies
@@ -429,12 +428,9 @@ public class EditorManager : MonoBehaviour
                         if (gizmoRotate.gameObject.activeSelf)
                             gizmoRotate.gameObject.SetActive(false);
 
-                        if (selectedPiecesInPlace.Count == 1)
-                        {
                             gizmoTranslate.transform.localEulerAngles = selectedPiecesInPlace[0].transform.localEulerAngles;
-                            gizmoTranslate.translateTarget = selectedPiecesInPlace[0];
+                            gizmoTranslate.translateTarget = selectedPiecesInPlace;
                             gizmoTranslate.gameObject.SetActive(true);
-                        }
                     }
                     //Else, we disable it
                     else
@@ -1750,7 +1746,7 @@ public class EditorManager : MonoBehaviour
 
             //Activate translation gizmo
             _gizmoTranslate.transform.localEulerAngles = _CP.result.transform.localEulerAngles;
-            _gizmoTranslate.translateTarget = _CP.result;
+            _gizmoTranslate.translateTarget = selectedPiecesInPlace;
             _gizmoTranslate.gameObject.SetActive(true);
 
             //Disable other just in case

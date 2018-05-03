@@ -36,7 +36,7 @@ public class ClickGo : MonoBehaviour {
                     }
                     if(translateGizmo != null)
                     {
-                        translateGizmo.translateTarget = hit.transform.gameObject;
+                        //translateGizmo.translateTarget = hit.transform.gameObject;
                         translateGizmo.gameObject.SetActive(true);
                     }
                 }
