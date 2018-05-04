@@ -146,7 +146,29 @@ public class GizmoTranslateScript : MonoBehaviour {
                                 distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
                                 distance = distance * 2.0f;
 
-                                float delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
+                                Vector3 a = Camera.main.transform.forward;
+                                a.y = 0;
+                                Vector3 b = -detectors[0].transform.forward;
+                                b.y = 0;
+                                float angle = Vector3.SignedAngle(a, b, Vector3.up) + 180;
+
+                                float delta = 0;
+
+                                //Debug.Log(angle);
+                                /*
+                                if ((angle > 135 && angle < 225) || (angle < 45 || angle > 315))
+                                {
+                                    delta = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
+                                    if (angle < 45 || angle > 315)
+                                        delta *= -1;
+                                }
+                                else
+                                {
+                                    delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
+                                }
+                                */
+
+                                delta = Vector3.Dot(detectors[0].transform.forward, Quaternion.AngleAxis(Camera.main.transform.rotation.y, Vector3.up) * (new Vector3(Input.GetAxis("Mouse X"), 0f, -Input.GetAxis("Mouse Y")).normalized)) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
                                 offset = Vector3.right * delta;
                                 offset = new Vector3(offset.x, 0.0f, 0.0f);
 
