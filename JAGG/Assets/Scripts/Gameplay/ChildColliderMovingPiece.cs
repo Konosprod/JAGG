@@ -64,7 +64,9 @@ public class ChildColliderMovingPiece : MonoBehaviour
             // We use a raycast to fix those annoying collision issues (Raycasts are love, Raycasts are life)
             bool mustRemoveBall = true;
             RaycastHit hitBallToBottom;
-            bool ballToBottom = Physics.Linecast(ball.GetComponent<Collider>().bounds.max, ball.GetComponent<Collider>().bounds.max + Vector3.down, out hitBallToBottom, ~(1 << 30 | 1 << 9));
+            bool ballToBottom = Physics.Linecast(ball.GetComponent<Collider>().bounds.max + ball.GetComponent<Rigidbody>().velocity.normalized / 10f, ball.GetComponent<Collider>().bounds.max + ball.GetComponent<Rigidbody>().velocity.normalized / 10f + Vector3.down, out hitBallToBottom, ~(1 << 30 | 1 << 9 | 1 << 10 | 1 << 11 | 1 << 12));
+
+            //Debug.DrawLine(ball.GetComponent<Collider>().bounds.max + ball.GetComponent<Rigidbody>().velocity.normalized / 10f, ball.GetComponent<Collider>().bounds.max + ball.GetComponent<Rigidbody>().velocity.normalized / 10f + Vector3.down, Color.red, 20f);
 
             if (ballToBottom)
             {
@@ -74,6 +76,7 @@ public class ChildColliderMovingPiece : MonoBehaviour
                     {
                         //Debug.Log("Same parent, no need to remove the ball from BallsOnTop");
                         mustRemoveBall = false;
+                        //Debug.Break();
                     }
                     /*else
                         Debug.Log("Didn't hit the piece we were on when raycasting downwards, hit : " + hitBallToBottom.transform.gameObject.name + ", expected : " + gameObject.name);*/
@@ -82,6 +85,7 @@ public class ChildColliderMovingPiece : MonoBehaviour
                 else // Same object found with the raycast so this collision exit is bullshits
                 {
                     mustRemoveBall = false;
+                    //Debug.Break();
                 }
                     
             }

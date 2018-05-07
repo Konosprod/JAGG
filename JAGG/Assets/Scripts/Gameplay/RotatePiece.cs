@@ -61,17 +61,25 @@ public class RotatePiece : CustomScript
     // Use this for initialization
     void Start()
     {
+        if (initX != -1f && initY != -1f && initZ != -1f)
+        {
+            transform.eulerAngles = new Vector3(initX, initY, initZ);
+        }
+
+        UpdateInitialRotation();
+
         timer = -timerOffset;
         rotationAngle = 360 / nbRotations;
-
-        ballsOnTop = new List<GameObject>();
 
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach(Collider col in cols)
         {
-            ChildColliderMovingPiece ccmvp = col.gameObject.AddComponent<ChildColliderMovingPiece>();
-            ccmvp.SetRtpParent(this);
-            ccmvps.Add(ccmvp);
+            if (col.gameObject.layer == LayerMask.NameToLayer("Floor"))
+            {
+                ChildColliderMovingPiece ccmvp = col.gameObject.AddComponent<ChildColliderMovingPiece>();
+                ccmvp.SetRtpParent(this);
+                ccmvps.Add(ccmvp);
+            }
         }
     }
 
@@ -83,16 +91,14 @@ public class RotatePiece : CustomScript
         }
     }
 
+    void Awake()
+    {
+        ballsOnTop = new List<GameObject>();
+        ccmvps = new List<ChildColliderMovingPiece>();
+    }
+
     void OnEnable()
     {
-        if (initX != -1f && initY != -1f && initZ != -1f)
-        {
-            transform.eulerAngles = new Vector3(initX, initY, initZ);
-        }
-
-        UpdateInitialRotation();
-        ccmvps = new List<ChildColliderMovingPiece>();
-        
         foreach (ChildColliderMovingPiece ccmvp in ccmvps)
         {
             ccmvp.enabled = true;

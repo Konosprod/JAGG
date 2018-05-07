@@ -421,7 +421,11 @@ public class OfflineBallController : MonoBehaviour {
         // Slow down the ball
         rb.velocity = rb.velocity * 0.99f;
 
-        if (!onEvenGround)
+
+        /*if ((grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null ) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
+            Debug.Log("We are above a RotatePiece/MovingPiece, always apply gravity");*/
+
+        if (!onEvenGround || (grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
         {
             rb.AddForce(Physics.gravity);
         }

@@ -304,8 +304,11 @@ public class CustomPhysics : NetworkBehaviour
 
         // Slow down the ball
         rb.velocity = rb.velocity * 0.99f;
+        
+        /*if ((grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null ) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
+            Debug.Log("We are above a RotatePiece/MovingPiece, always apply gravity");*/
 
-        if (!onEvenGround)
+        if (!onEvenGround || (grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
         {
             // Can use custom gravity to obtain various results
             Vector3 grav = new Vector3();
