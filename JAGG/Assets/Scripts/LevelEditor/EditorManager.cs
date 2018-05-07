@@ -428,7 +428,6 @@ public class EditorManager : MonoBehaviour
                         if (gizmoRotate.gameObject.activeSelf)
                             gizmoRotate.gameObject.SetActive(false);
 
-                            gizmoTranslate.transform.localEulerAngles = selectedPiecesInPlace[0].transform.localEulerAngles;
                             gizmoTranslate.translateTarget = selectedPiecesInPlace;
                             gizmoTranslate.gameObject.SetActive(true);
                     }
@@ -583,7 +582,6 @@ public class EditorManager : MonoBehaviour
 
                                 if (gizmoTranslate.gameObject.activeSelf)
                                 {
-                                    gizmoTranslate.transform.localEulerAngles = Vector3.zero;
                                     gizmoTranslate.gameObject.SetActive(false);
                                 }
 
@@ -1745,7 +1743,6 @@ public class EditorManager : MonoBehaviour
             selectedPiecesInPlace.Add(_CP.result);
 
             //Activate translation gizmo
-            _gizmoTranslate.transform.localEulerAngles = _CP.result.transform.localEulerAngles;
             _gizmoTranslate.translateTarget = selectedPiecesInPlace;
             _gizmoTranslate.gameObject.SetActive(true);
 

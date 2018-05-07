@@ -134,7 +134,7 @@ public class GizmoTranslateScript : MonoBehaviour
 
 
                             Vector3 inputVector = (new Vector3(Input.GetAxis("Mouse X"), 0f, -Input.GetAxis("Mouse Y")).normalized);
-                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * detectors[0].transform.forward, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
+                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.right, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
                             offset = Vector3.right * delta;
                             offset = new Vector3(offset.x, 0.0f, 0.0f);
 
@@ -170,7 +170,7 @@ public class GizmoTranslateScript : MonoBehaviour
 
 
                             Vector3 inputVector = (new Vector3(-Input.GetAxis("Mouse X"), 0f, Input.GetAxis("Mouse Y")).normalized);
-                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * detectors[2].transform.up, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
+                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.back, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
                             offset = Vector3.back * delta;
                             offset = new Vector3(0.0f, 0.0f, offset.z);
 
