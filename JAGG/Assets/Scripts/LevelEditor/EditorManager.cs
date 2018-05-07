@@ -1278,8 +1278,11 @@ public class EditorManager : MonoBehaviour
             {
                 if (rtp == null)
                 {
+                    Vector3 initRota = piece.transform.eulerAngles;
                     rtp = piece.AddComponent<RotatePiece>();
                     rtp.SetFlagStopSpin(true);
+                    piece.transform.eulerAngles = initRota;
+                    rtp.UpdateInitialRotation();
                     lemvpManager.AddRotatePiece(rtp);
 
                     _inputSpinTime.text = rtp.spinTime.ToString("F");
@@ -2243,6 +2246,12 @@ public class EditorManager : MonoBehaviour
                 if (!p.name.Equals("Spawn Point") && !p.name.Equals("Level Properties"))
                 {
                     piecesInPlace[i].Add(p.gameObject);
+                    RotatePiece rtp = p.gameObject.GetComponent<RotatePiece>();
+                    if(rtp != null)
+                        lemvpManager.AddRotatePiece(rtp);
+                    MovingPiece mvp = p.gameObject.GetComponent<MovingPiece>();
+                    if (mvp != null)
+                        lemvpManager.AddMovingPiece(mvp);
                 }
             }
         }
