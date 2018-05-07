@@ -14,7 +14,8 @@ using System.Collections.Generic;
 /// <version>
 ///     1.0.0 - 01st January 2016
 /// </version>
-public class GizmoTranslateScript : MonoBehaviour {
+public class GizmoTranslateScript : MonoBehaviour
+{
 
     /// <summary>
     ///     X axis of gizmo
@@ -48,7 +49,8 @@ public class GizmoTranslateScript : MonoBehaviour {
     /// <summary>
     ///     On wake up
     /// </summary>
-    public void Awake() {
+    public void Awake()
+    {
 
         // Get the click detection scripts
         detectors = new GizmoClickDetection[3];
@@ -77,11 +79,12 @@ public class GizmoTranslateScript : MonoBehaviour {
     /// <summary>
     ///     Once per frame
     /// </summary>
-    public void Update() {
+    public void Update()
+    {
 
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
-            foreach(SnappingPoint sp in snappingPoints)
+            foreach (SnappingPoint sp in snappingPoints)
             {
                 sp.col.isTrigger = false;
                 sp.shouldSnap = true;
@@ -98,7 +101,8 @@ public class GizmoTranslateScript : MonoBehaviour {
             }
         }
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++)
+        {
             bool isSnapped = false;
 
             foreach (SnappingPoint sp in snappingPoints)
@@ -109,7 +113,8 @@ public class GizmoTranslateScript : MonoBehaviour {
                 }
             }
 
-            if (Input.GetMouseButton(0) && detectors[i].pressing && !isSnapped) {
+            if (Input.GetMouseButton(0) && detectors[i].pressing && !isSnapped)
+            {
 
                 // Get the distance from the camera to the target (used as a scaling factor in translate)
                 float distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
@@ -118,65 +123,24 @@ public class GizmoTranslateScript : MonoBehaviour {
                 // Will store translate values
                 Vector3 offset = Vector3.zero;
 
-                switch (i) {
+                switch (i)
+                {
                     // X Axis
                     case 0:
                         {
-                            // If the user is pressing the plane, move along Y and Z, else move along X
+                            distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
+                            distance = distance * 2.0f;
+                            float delta = 0;
 
-                            if (detectors[i].pressingPlane) {
-                                float deltaY = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
-                                offset = Vector3.up * deltaY;
-                                offset = new Vector3(0.0f, offset.y, 0.0f);
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset);
-                                }
 
-                                float deltaZ = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
-                                offset = Vector3.forward * deltaZ;
-                                offset = new Vector3(0.0f, 0.0f, offset.z);
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset);
-                                }
-                                //translateTarget.transform.Translate(offset);
+                            Vector3 inputVector = (new Vector3(Input.GetAxis("Mouse X"), 0f, -Input.GetAxis("Mouse Y")).normalized);
+                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * detectors[0].transform.forward, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
+                            offset = Vector3.right * delta;
+                            offset = new Vector3(offset.x, 0.0f, 0.0f);
 
-                            } else {
-                                distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
-                                distance = distance * 2.0f;
-
-                                Vector3 a = Camera.main.transform.forward;
-                                a.y = 0;
-                                Vector3 b = -detectors[0].transform.forward;
-                                b.y = 0;
-                                float angle = Vector3.SignedAngle(a, b, Vector3.up) + 180;
-
-                                float delta = 0;
-
-                                //Debug.Log(angle);
-                                /*
-                                if ((angle > 135 && angle < 225) || (angle < 45 || angle > 315))
-                                {
-                                    delta = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
-                                    if (angle < 45 || angle > 315)
-                                        delta *= -1;
-                                }
-                                else
-                                {
-                                    delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
-                                }
-                                */
-                                Vector3 inputVector = (new Vector3(Input.GetAxis("Mouse X"), 0f, -Input.GetAxis("Mouse Y")).normalized);
-                                delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * detectors[0].transform.forward, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
-                                offset = Vector3.right * delta;
-                                offset = new Vector3(offset.x, 0.0f, 0.0f);
-
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset, Space.World);
-                                }
-                                //translateTarget.transform.Translate(offset, Space.Self);
+                            foreach (GameObject go in translateTarget)
+                            {
+                                go.transform.Translate(offset, Space.World);
                             }
                         }
                         break;
@@ -184,38 +148,14 @@ public class GizmoTranslateScript : MonoBehaviour {
                     // Y Axis
                     case 1:
                         {
-                            // If the user is pressing the plane, move along X and Z, else just move along X
 
-                            if (detectors[i].pressingPlane) {
-                                float deltaX = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
-                                offset = Vector3.left * deltaX;
-                                offset = new Vector3(offset.x, 0.0f, 0.0f);
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset);
-                                }
-                                //translateTarget.transform.Translate(offset);
+                            float delta = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
+                            offset = Vector3.up * delta;
+                            offset = new Vector3(0.0f, offset.y, 0.0f);
 
-                                float deltaZ = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
-                                offset = Vector3.forward * deltaZ;
-                                offset = new Vector3(0.0f, 0.0f, -offset.z);
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset);
-                                }
-                                //translateTarget.transform.Translate(offset);
-
-                            } else {
-                                
-                                float delta = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
-                                offset = Vector3.up * delta;
-                                offset = new Vector3(0.0f, offset.y, 0.0f);
-                                
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset, Space.World);
-                                }
-                                //translateTarget.transform.Translate(offset, Space.Self);
+                            foreach (GameObject go in translateTarget)
+                            {
+                                go.transform.Translate(offset, Space.World);
                             }
                         }
                         break;
@@ -223,38 +163,20 @@ public class GizmoTranslateScript : MonoBehaviour {
                     // Z Axis
                     case 2:
                         {
-                            // If the user is pressing the plane, move along X and Y, else just move along Z
 
-                            if (detectors[i].pressingPlane) {
-                                float deltaX = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
-                                offset = Vector3.left * deltaX;
-                                offset = new Vector3(offset.x, 0.0f, 0.0f);
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset);
-                                }
-                                //translateTarget.transform.Translate(offset);
+                            distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
+                            distance = distance * 2.0f;
+                            float delta = 0;
 
-                                float deltaY = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
-                                offset = Vector3.up * deltaY;
-                                offset = new Vector3(0.0f, offset.y, 0.0f);
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset);
-                                }
-                                //translateTarget.transform.Translate(offset);
 
-                            } else {
-                                
-                                float delta = Input.GetAxis("Mouse X") * (Time.deltaTime * distance);
-                                offset = Vector3.back * delta;
-                                offset = new Vector3(0.0f, 0.0f, offset.z);
+                            Vector3 inputVector = (new Vector3(-Input.GetAxis("Mouse X"), 0f, Input.GetAxis("Mouse Y")).normalized);
+                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * detectors[2].transform.up, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
+                            offset = Vector3.back * delta;
+                            offset = new Vector3(0.0f, 0.0f, offset.z);
 
-                                foreach (GameObject go in translateTarget)
-                                {
-                                    go.transform.Translate(offset, Space.World);
-                                }
-                                //translateTarget.transform.Translate(offset, Space.Self);
+                            foreach (GameObject go in translateTarget)
+                            {
+                                go.transform.Translate(offset, Space.World);
                             }
                         }
                         break;
