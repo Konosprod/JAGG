@@ -6,7 +6,6 @@ public class SnappingPoint : MonoBehaviour {
 
     public Collider col;
     public bool isSnapped = false;
-    public bool shouldSnap = false;
 
 	// Use this for initialization
 	void Start () {
@@ -20,7 +19,7 @@ public class SnappingPoint : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        if (Input.GetKey(KeyCode.LeftControl) && shouldSnap)
+        if (Input.GetKey(KeyCode.LeftControl))
         {
             if (other.gameObject.layer == LayerMask.NameToLayer("SnapPoint") && !isSnapped && !other.GetComponent<SnappingPoint>().isSnapped)
             {

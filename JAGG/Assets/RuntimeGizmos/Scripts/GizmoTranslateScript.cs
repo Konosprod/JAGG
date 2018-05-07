@@ -86,8 +86,7 @@ public class GizmoTranslateScript : MonoBehaviour
         {
             foreach (SnappingPoint sp in snappingPoints)
             {
-                sp.col.isTrigger = false;
-                sp.shouldSnap = true;
+                //sp.col.isTrigger = false;
             }
         }
 
@@ -97,7 +96,6 @@ public class GizmoTranslateScript : MonoBehaviour
             {
                 sp.isSnapped = false;
                 sp.col.isTrigger = true;
-                sp.shouldSnap = false;
             }
         }
 
