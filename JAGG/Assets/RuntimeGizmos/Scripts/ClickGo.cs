@@ -22,7 +22,7 @@ public class ClickGo : MonoBehaviour {
 
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.transform.name == "cube")
+                if (hit.transform.parent.gameObject.layer == LayerMask.NameToLayer("Default"))
                 {
                     if(scaleGizmo!= null)
                     {
@@ -36,6 +36,9 @@ public class ClickGo : MonoBehaviour {
                     }
                     if(translateGizmo != null)
                     {
+                        List<GameObject> targets = new List<GameObject>();
+                        targets.Add(hit.transform.parent.gameObject);
+                        translateGizmo.translateTarget = targets;
                         //translateGizmo.translateTarget = hit.transform.gameObject;
                         translateGizmo.gameObject.SetActive(true);
                     }
@@ -58,8 +61,6 @@ public class ClickGo : MonoBehaviour {
                 }
                 if(translateGizmo != null)
                 {
-                    Debug.Log(translateGizmo.origin);
-                    Debug.Log(translateGizmo.end);
                     translateGizmo.gameObject.SetActive(false);
                 }
             }
