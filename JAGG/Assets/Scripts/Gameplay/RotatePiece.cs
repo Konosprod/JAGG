@@ -27,7 +27,6 @@ public class RotatePiece : CustomScript
     [CustomProp]
     public int nbRotations = 4;
 
-
     [CustomProp]
     public float initX = -1f;
     [CustomProp]
@@ -61,6 +60,7 @@ public class RotatePiece : CustomScript
     // Use this for initialization
     void Start()
     {
+        //Debug.Log("Start : initX = " + initX + ", initY = " + initY + ", initZ = " + initZ);
         if (initX != -1f && initY != -1f && initZ != -1f)
         {
             transform.eulerAngles = new Vector3(initX, initY, initZ);
@@ -99,6 +99,7 @@ public class RotatePiece : CustomScript
 
     void OnEnable()
     {
+        //Debug.Log("OnEnable : initX = " + initX + ", initY = " + initY + ", initZ = " + initZ);
         foreach (ChildColliderMovingPiece ccmvp in ccmvps)
         {
             ccmvp.enabled = true;
