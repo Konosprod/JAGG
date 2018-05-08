@@ -13,7 +13,7 @@ public class SnappingPoint : MonoBehaviour {
 
     private Vector3 direction;
     private Vector3 origin;
-    private float currentHitDistance;
+    //private float currentHitDistance;
 
 	// Use this for initialization
 	void Start () {
@@ -33,7 +33,7 @@ public class SnappingPoint : MonoBehaviour {
 
                 if (Physics.SphereCast(origin, sphereRadius, direction, out hit, maxDistance, layerMask))
                 {
-                    currentHitDistance = hit.distance;
+                    //currentHitDistance = hit.distance;
                     isSnapped = true;
                     col.isTrigger = false;
                     shouldSnap = false;
@@ -41,13 +41,13 @@ public class SnappingPoint : MonoBehaviour {
                 }
                 else
                 {
-                    currentHitDistance = maxDistance;
+                    //currentHitDistance = maxDistance;
                 }
             }
         }
 
     }
-
+    /*
     private void OnDrawGizmosSelected()
     {
         if (shouldSnap)
@@ -57,7 +57,7 @@ public class SnappingPoint : MonoBehaviour {
             Debug.DrawLine(origin, origin + direction * currentHitDistance);
             Gizmos.DrawWireSphere(origin + direction * currentHitDistance, sphereRadius);
         }
-    }
+    }*/
 
     /*
     void OnTriggerEnter(Collider other)
