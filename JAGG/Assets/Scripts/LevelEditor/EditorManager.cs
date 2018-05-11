@@ -228,7 +228,7 @@ public class EditorManager : MonoBehaviour
         if (!testMode.isInTest() && canEdit)
         {
             //Handle Escape for menus
-            if(Input.GetKeyUp(KeyCode.Escape))
+            if (Input.GetKeyUp(KeyCode.Escape))
             {
                 if (!escapeMenu.gameObject.activeSelf)
                 {
@@ -236,7 +236,7 @@ public class EditorManager : MonoBehaviour
                 }
                 else
                 {
-                    if(escapeMenu.isDone)
+                    if (escapeMenu.isDone)
                         escapeMenu.gameObject.SetActive(false);
                 }
             }
@@ -269,7 +269,7 @@ public class EditorManager : MonoBehaviour
                 float x, y, z = 0f;
 
                 // If the selected is a prefab or a simple floor
-                if (currentPiece.layer != layerBoosterPad && currentPiece.layer != layerWall)
+                if (currentPiece.layer != layerBoosterPad && currentPiece.layer != layerWall && currentPiece.layer != layerDecor)
                 {
                     // We use a raycast to find the plane (layerPlane)
                     RaycastHit rayHitPlane;
@@ -311,6 +311,54 @@ public class EditorManager : MonoBehaviour
                 else if (currentPiece.layer == layerWall)
                 {
 
+                }
+                else if (currentPiece.layer == layerDecor)
+                {
+                    // We use a raycast to find the plane (layerPlane)
+                    RaycastHit rayHitPlane;
+                    Ray rayPlane = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(rayPlane, out rayHitPlane, Mathf.Infinity, ~(1 << 16)))
+                    {
+                        /*if (rayHitPlane.transform.gameObject.layer == layerPlane)
+                        {*/
+                        //Debug.Log("Hit the plane");
+
+                        // Only move the piece if the cursor isn't on any UI element
+                        if (!EventSystem.current.IsPointerOverGameObject())
+                        {
+                            //Debug.Log("hitPoint : " + rayHitPlane.point);
+
+                            Vector3 pos = new Vector3();
+
+                            // Round to the lowest even integer in order to move correctly on the grid
+                            if (Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl))
+                            {
+                                x = Mathf.Floor(rayHitPlane.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
+                                x = (x % 2 == 0) ? x : x - 1;
+                                x += offsetGridX;
+                                y = rayHitPlane.point.y;
+                                z = Mathf.Floor(rayHitPlane.point.z + 1 - offsetGridZ);
+                                z = (z % 2 == 0) ? z : z - 1;
+                                z += offsetGridZ;
+                                pos = new Vector3(x, y, z);
+                            }
+                            else
+                            {
+                                pos = rayHitPlane.point;
+                            }
+
+                            currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
+                            currentPiece.transform.position = pos;
+
+                            // If you left-click place the piece
+                            if (Input.GetMouseButtonDown(0))
+                            {
+                                currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
+                            }
+
+                        }
+                        //}
+                    }
                 }
                 else if (currentPiece.layer == layerBoosterPad)
                 {
@@ -428,8 +476,8 @@ public class EditorManager : MonoBehaviour
                         if (gizmoRotate.gameObject.activeSelf)
                             gizmoRotate.gameObject.SetActive(false);
 
-                            gizmoTranslate.translateTarget = selectedPiecesInPlace;
-                            gizmoTranslate.gameObject.SetActive(true);
+                        gizmoTranslate.translateTarget = selectedPiecesInPlace;
+                        gizmoTranslate.gameObject.SetActive(true);
                     }
                     //Else, we disable it
                     else
@@ -525,14 +573,14 @@ public class EditorManager : MonoBehaviour
 
                         bool isGizmo = false;
 
-                        foreach(RaycastHit hit in hits)
+                        foreach (RaycastHit hit in hits)
                         {
                             if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Gizmo"))
                                 isGizmo = true;
                         }
 
                         //If there is no gizmo on the click
-                        if(!isGizmo)
+                        if (!isGizmo)
                         {
                             RaycastHit rayHitPiece;
                             if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
@@ -712,6 +760,35 @@ public class EditorManager : MonoBehaviour
 
                         // We highlight the selected piece
                         currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                    }
+                }
+
+
+                // Use middle mouse button to get a copy of a piece in place as the piece in hand
+                if (Input.GetMouseButtonDown(2))
+                {
+                    // We use a raycast to find the pieces
+                    RaycastHit rayHitPiece;
+                    Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                    {
+                        //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
+                        GameObject piece = rayHitPiece.transform.gameObject;
+
+                        string pName = piece.name.Split(' ')[0];
+                        while (piece.transform.parent != null && pName != "Hole")
+                        {
+                            pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                            if (pName != "Hole")
+                                piece = piece.transform.parent.gameObject;
+                        }
+
+                        // Name of the piece has (Clone) so we remove it to get the prefab name
+                        pName = piece.name.Split('(')[0];
+                        //Debug.Log(pName);
+
+                        // Get a copy of the clicked piece in hand
+                        clickOnPiece(pName);
                     }
                 }
             }
@@ -1377,8 +1454,8 @@ public class EditorManager : MonoBehaviour
 
     /*****************************
      *  MovingPiece
-     *****************************/ 
-    
+     *****************************/
+
     public void movingPieceToggleValueChanged(bool tog)
     {
         if (selectedPiecesInPlace.Count == 1)
@@ -1438,7 +1515,7 @@ public class EditorManager : MonoBehaviour
         }
         else if (selectedPiecesInPlace.Count > 1)
         {
-            
+
         }
         else
             Debug.LogError("No piece are selected and we try to set the X coordinate of the destination");
@@ -2247,7 +2324,7 @@ public class EditorManager : MonoBehaviour
                 {
                     piecesInPlace[i].Add(p.gameObject);
                     RotatePiece rtp = p.gameObject.GetComponent<RotatePiece>();
-                    if(rtp != null)
+                    if (rtp != null)
                         lemvpManager.AddRotatePiece(rtp);
                     MovingPiece mvp = p.gameObject.GetComponent<MovingPiece>();
                     if (mvp != null)
