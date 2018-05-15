@@ -51,7 +51,7 @@ public class LobbyManager : NetworkLobbyManager
     };
 
     //0 = normal, 1 = low, 2 = high
-    public int gravity;
+    public GravityType gravity;
 
     // Use this for initialization
     void Start()
@@ -300,7 +300,7 @@ public class LobbyManager : NetworkLobbyManager
         playerManager.AddPlayer(gamePlayer, lobbyPlayer.GetComponent<NetworkIdentity>().connectionToClient.connectionId);
         gamePlayer.layer = getNextLayer();
         gamePlayer.GetComponent<PlayerController>().playerName = lobbyPlayer.GetComponent<LobbyPlayer>().playerName;
-
+        gamePlayer.GetComponent<CustomPhysics>().gravityType = gravity;
 
         return base.OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer);
     }

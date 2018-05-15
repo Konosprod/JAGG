@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
 
+public enum GravityType
+{
+    Normal = 0,
+    Low = 1,
+    High = 2
+};
+
 public class CustomPhysics : NetworkBehaviour
 {
 
     public Rigidbody rb;
     public Transform sphere;
+
+    public GravityType gravityType;
+    private GravityType oldGravityType;
 
     private int i;
     private Vector3 lastWallHit;
@@ -313,22 +323,23 @@ public class CustomPhysics : NetworkBehaviour
             // Can use custom gravity to obtain various results
             Vector3 grav = new Vector3();
 
-            //Normal = 0; Low = 1; High = 2
-            if (LobbyManager._instance.gravity == 0)
+            switch(gravityType)
             {
-                grav = Physics.gravity;
-            }
-            else if (LobbyManager._instance.gravity == 1)
-            {
-                grav = new Vector3(0, Physics.gravity.y + 7, 0);
-            }
-            else if (LobbyManager._instance.gravity == 2)
-            {
-                grav = new Vector3(0, Physics.gravity.y - 7, 0);
-            }
-            else
-            {
-                grav = Physics.gravity;
+                case GravityType.Normal:
+                    grav = Physics.gravity;
+                    break;
+
+                case GravityType.Low:
+                    grav = new Vector3(0, Physics.gravity.y + 7, 0);
+                    break;
+
+                case GravityType.High:
+                    grav = new Vector3(0, Physics.gravity.y - 7, 0);
+                    break;
+
+                default:
+                    grav = Physics.gravity;
+                    break;
             }
 
             // Apply gravity when mid-air
@@ -351,5 +362,16 @@ public class CustomPhysics : NetworkBehaviour
     void OnCollisionExit(Collision collisionInfo)
     {
         IsGrounded = false;
+    }
+
+    public void ChangeGravity(GravityType gravityType)
+    {
+        oldGravityType = this.gravityType;
+        this.gravityType = gravityType;
+    }
+
+    public void ResetGravity()
+    {
+        gravityType = oldGravityType;
     }
 }

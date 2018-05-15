@@ -28,6 +28,9 @@ public class UIManager : MonoBehaviour {
     public Button buttonQuit;
     public Button buttonReturn;
 
+    [Header("Item")]
+    public Image imageItem;
+
     private bool slideUp = false;
     private PlayerManager playerManager;
 
@@ -119,6 +122,17 @@ public class UIManager : MonoBehaviour {
         panelPause.SetActive(false);
     }
 
+    public void ShowItem(Item item)
+    {
+        imageItem.sprite = item.sprite;
+        StartCoroutine(FadeSprite(imageItem, 0.5f));
+    }
+
+    public void HideItem()
+    {
+        StartCoroutine(FadeSprite(imageItem, 0.5f, false));
+    }
+
     public void ShowPause(UnityAction returnCallback = null, UnityAction quitCallback = null)
     {
         panelPause.SetActive(true);
@@ -148,5 +162,40 @@ public class UIManager : MonoBehaviour {
 
         if (callback != null)
             callback();
+    }
+
+    public IEnumerator FadeSprite(Image image, float time, bool fadeIn = true)
+    {
+        for(float t = 0; t < time; t += Time.deltaTime)
+        {
+            if(fadeIn)
+            {
+                Color color = image.color;
+                color.a = Mathf.Lerp(0, 1, t / time);
+                image.color = color;
+            }
+            else
+            {
+                Color color = image.color;
+                color.a = Mathf.Lerp(1, 0, t / time);
+                image.color = color;
+            }
+            yield return null;
+        }
+
+        if(fadeIn)
+        {
+            Color color = image.color;
+            color.a = 1;
+            image.color = color;
+        }
+        else
+        {
+            Color color = image.color;
+            color.a = 0;
+            image.color = color;
+        }
+
+
     }
 }
