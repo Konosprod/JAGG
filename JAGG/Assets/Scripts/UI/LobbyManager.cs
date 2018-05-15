@@ -96,6 +96,8 @@ public class LobbyManager : NetworkLobbyManager
 
     public void ReturnToLobby()
     {
+        MovingPieceManager._instance.ClearRotatePieces();
+        MovingPieceManager._instance.ClearMovingPieces();
         SceneManager.LoadScene("Lobby");
         mainPanel.SetActive(true);
         Cursor.lockState = CursorLockMode.Confined;

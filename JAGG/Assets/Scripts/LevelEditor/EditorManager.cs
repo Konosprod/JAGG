@@ -765,7 +765,7 @@ public class EditorManager : MonoBehaviour
 
 
                 // Use middle mouse button to get a copy of a piece in place as the piece in hand
-                if (Input.GetMouseButtonDown(2))
+                if (Input.GetKeyDown(KeyCode.C))
                 {
                     // We use a raycast to find the pieces
                     RaycastHit rayHitPiece;
