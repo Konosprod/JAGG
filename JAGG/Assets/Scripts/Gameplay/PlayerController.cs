@@ -65,6 +65,9 @@ public class PlayerController : NetworkBehaviour {
     private float oobActualResetTimer;
     private bool isOOB = false;
 
+    //Item to use
+    private GameObject item;
+
     private void Awake()
     {
         ui = FindObjectOfType<UIManager>();
@@ -171,6 +174,17 @@ public class PlayerController : NetworkBehaviour {
         if (!isLocalPlayer || isOver)
         {
             return;
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (item != null)
+            {
+                ui.HideItem();
+                item.GetComponent<Item>().Do();
+                item = null;
+            }
         }
 
         if (!isMoving)
@@ -322,10 +336,11 @@ public class PlayerController : NetworkBehaviour {
                 CmdBoost(dir,multFactor, addFactor);
             }
         }
-        else
+        //TODO : Ce warning ne devrait pas avoir lieu
+        /*else
         {
             Debug.LogError("Ball entered unexpected trigger : " + other.gameObject.name);
-        }
+        }*/ 
     }
 
     void OnCollisionEnter(Collision collision)
@@ -390,7 +405,42 @@ public class PlayerController : NetworkBehaviour {
         RpcShowScores();
     }
 
+    public void AddItem(GameObject item)
+    {
+        if (isLocalPlayer)
+        {
+            if (this.item == null)
+            {
+                this.item = Instantiate(item);
+                this.item.GetComponent<Item>().player = this;
+                ui.ShowItem(this.item.GetComponent<Item>());
+            }
+        }
+    }
+
+    public void ChangeGravity(GravityType gravityType)
+    {
+        CmdChangeGravity(gravityType, this.netId.Value);
+    }
+
+    public void ResetGravity()
+    {
+        CmdResetGravity();
+    }
+
     #region Command
+
+    [Command]
+    private void CmdChangeGravity(GravityType type, uint netid)
+    {
+        lobbyManager.playerManager.ChangeGravity(type, netid);
+    }
+
+    [Command]
+    private void CmdResetGravity()
+    {
+        lobbyManager.playerManager.ResetGravity();
+    }
 
     [Command]
     private void CmdEnablePlayer()
@@ -789,5 +839,6 @@ public class PlayerController : NetworkBehaviour {
         Camera.main.GetComponent<BallCamera>().isShaking = true;
         explosion.Play();
     }
+
     #endregion
 }

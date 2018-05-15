@@ -92,13 +92,13 @@ public class PanelRulesEdit : MonoBehaviour {
         if(highgravityToggle.group.AnyTogglesOn())
         {
             if (highgravityToggle.isOn)
-                lobbyManager.gravity = 2;
+                lobbyManager.gravity = GravityType.High;
             else
-                lobbyManager.gravity = 1;
+                lobbyManager.gravity = GravityType.Low;
         }
         else
         {
-            lobbyManager.gravity = 0;
+            lobbyManager.gravity = GravityType.Normal;
         }
         
 

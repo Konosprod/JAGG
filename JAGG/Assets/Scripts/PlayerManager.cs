@@ -305,4 +305,25 @@ public class PlayerManager : NetworkBehaviour {
 
         return res;
     }
+
+    public void ChangeGravity(GravityType type, uint netid)
+    {
+        foreach(GameObject go in players.Values)
+        {
+            NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+            if(networkIdentity.netId.Value != netid)
+            {
+                go.GetComponent<CustomPhysics>().ChangeGravity(type);
+            }
+        }
+    }
+
+    public void ResetGravity()
+    {
+        foreach (GameObject go in players.Values)
+        {
+            go.GetComponent<CustomPhysics>().ResetGravity();
+        }
+    }
 }
