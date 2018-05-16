@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour {
 
     [Header("Slider")]
     public Slider slider;
+    public int sliderSpeed = 1;
+    private int oldSliderSpeed;
     public int minSliderVal = 10;
     public int maxSliderVal = 150;
 
@@ -36,6 +38,7 @@ public class UIManager : MonoBehaviour {
 
     void Start()
     {
+        oldSliderSpeed = sliderSpeed;
         slider.minValue = minSliderVal;
         slider.maxValue = maxSliderVal;
 
@@ -50,9 +53,9 @@ public class UIManager : MonoBehaviour {
     public void UpdateSlider()
     {
         if (slideUp)
-            slider.value += 1;
+            slider.value += sliderSpeed;
         else
-            slider.value -= 1;
+            slider.value -= sliderSpeed;
 
 
         // Start moving the other way when we reach either end otherwise keep moving in the same direction
@@ -149,6 +152,17 @@ public class UIManager : MonoBehaviour {
 
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
+    }
+
+    public void ChangeSliderSpeed(int newSliderSpeed)
+    {
+        oldSliderSpeed = sliderSpeed;
+        sliderSpeed = newSliderSpeed;
+    }
+
+    public void ResetSliderSpeed()
+    {
+        sliderSpeed = oldSliderSpeed;
     }
 
     public IEnumerator ShowNotification(string message, float time, Action callback = null)

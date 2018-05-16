@@ -340,20 +340,40 @@ public class PlayerManager : NetworkBehaviour {
 
     public void Pixelation(float time, uint netid)
     {
-        Debug.Log("Received : "  + netid.ToString());
         foreach (GameObject go in players.Values)
         {
             NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
 
-            Debug.Log(networkIdentity.netId.Value != netid);
             if(networkIdentity.netId.Value != netid)
             {
-                //Debug.Log("send to : " + networkIdentity.netId.Value);
                 go.GetComponent<PlayerController>().RpcPixelation(true);
             }
         }
 
         StartCoroutine(WaitForCooldown(time, ResetPixelation));
+    }
+
+    public void ResetSliderSpeed()
+    {
+        foreach (GameObject go in players.Values)
+        {
+            go.GetComponent<PlayerController>().RpcResetSliderSpeed();
+        }
+    }
+
+    public void ChangeSliderSpeed(int sliderSpeed, float time, uint netid)
+    {
+        foreach (GameObject go in players.Values)
+        {
+            NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+            if (networkIdentity.netId.Value != netid)
+            {
+                go.GetComponent<PlayerController>().RpcChangeSliderSpeed(sliderSpeed);
+            }
+        }
+
+        StartCoroutine(WaitForCooldown(time, ResetSliderSpeed));
     }
 
     public IEnumerator WaitForCooldown(float time, Action callback)

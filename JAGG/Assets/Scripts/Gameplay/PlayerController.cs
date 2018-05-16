@@ -434,7 +434,18 @@ public class PlayerController : NetworkBehaviour {
         CmdPixelation(time, netId.Value);
     }
 
+    public void ChangeSliderSpeed(int sliderSpeed, float time)
+    {
+        CmdChangeSliderSpeed(sliderSpeed, time, this.netId.Value);
+    }
+
     #region Command
+
+    [Command]
+    private void CmdChangeSliderSpeed(int sliderSpeed, float time, uint netid)
+    {
+        lobbyManager.playerManager.ChangeSliderSpeed(sliderSpeed, time, netid);
+    }
 
     [Command]
     private void CmdPixelation(float time, uint netid)
@@ -857,6 +868,22 @@ public class PlayerController : NetworkBehaviour {
     {
         if(isLocalPlayer)
             Camera.main.GetComponent<Pixelation>().enabled = activated;
+    }
+
+    [ClientRpc]
+    public void RpcChangeSliderSpeed(int sliderSpeed)
+    {
+        if(isLocalPlayer)
+        {
+            ui.ChangeSliderSpeed(sliderSpeed);
+        }
+    }
+
+    [ClientRpc]
+    public void RpcResetSliderSpeed()
+    {
+        if (isLocalPlayer)
+            ui.ResetSliderSpeed();
     }
 
     #endregion
