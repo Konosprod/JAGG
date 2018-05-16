@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Assets.Pixelation.Scripts;
 
 [NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour {
@@ -418,9 +419,9 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    public void ChangeGravity(GravityType gravityType)
+    public void ChangeGravity(GravityType gravityType, float time)
     {
-        CmdChangeGravity(gravityType, this.netId.Value);
+        CmdChangeGravity(gravityType, time, this.netId.Value);
     }
 
     public void ResetGravity()
@@ -428,12 +429,23 @@ public class PlayerController : NetworkBehaviour {
         CmdResetGravity();
     }
 
+    public void Pixelation(float time)
+    {
+        CmdPixelation(time, netId.Value);
+    }
+
     #region Command
 
     [Command]
-    private void CmdChangeGravity(GravityType type, uint netid)
+    private void CmdPixelation(float time, uint netid)
     {
-        lobbyManager.playerManager.ChangeGravity(type, netid);
+        lobbyManager.playerManager.Pixelation(time, netid);
+    }
+
+    [Command]
+    private void CmdChangeGravity(GravityType type, float time, uint netid)
+    {
+        lobbyManager.playerManager.ChangeGravity(type, time, netid);
     }
 
     [Command]
@@ -838,6 +850,13 @@ public class PlayerController : NetworkBehaviour {
     {
         Camera.main.GetComponent<BallCamera>().isShaking = true;
         explosion.Play();
+    }
+
+    [ClientRpc]
+    public void RpcPixelation(bool activated)
+    {
+        if(isLocalPlayer)
+            Camera.main.GetComponent<Pixelation>().enabled = activated;
     }
 
     #endregion

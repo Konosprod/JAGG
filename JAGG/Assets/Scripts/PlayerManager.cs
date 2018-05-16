@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -306,7 +307,7 @@ public class PlayerManager : NetworkBehaviour {
         return res;
     }
 
-    public void ChangeGravity(GravityType type, uint netid)
+    public void ChangeGravity(GravityType type, float time, uint netid)
     {
         foreach(GameObject go in players.Values)
         {
@@ -317,6 +318,8 @@ public class PlayerManager : NetworkBehaviour {
                 go.GetComponent<CustomPhysics>().ChangeGravity(type);
             }
         }
+
+        StartCoroutine(WaitForCooldown(time, ResetGravity));
     }
 
     public void ResetGravity()
@@ -325,5 +328,37 @@ public class PlayerManager : NetworkBehaviour {
         {
             go.GetComponent<CustomPhysics>().ResetGravity();
         }
+    }
+
+    public void ResetPixelation()
+    {
+        foreach(GameObject go in players.Values)
+        {
+            go.GetComponent<PlayerController>().RpcPixelation(false);
+        }
+    }
+
+    public void Pixelation(float time, uint netid)
+    {
+        Debug.Log("Received : "  + netid.ToString());
+        foreach (GameObject go in players.Values)
+        {
+            NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+            Debug.Log(networkIdentity.netId.Value != netid);
+            if(networkIdentity.netId.Value != netid)
+            {
+                //Debug.Log("send to : " + networkIdentity.netId.Value);
+                go.GetComponent<PlayerController>().RpcPixelation(true);
+            }
+        }
+
+        StartCoroutine(WaitForCooldown(time, ResetPixelation));
+    }
+
+    public IEnumerator WaitForCooldown(float time, Action callback)
+    {
+        yield return new WaitForSeconds(time);
+        callback.Invoke();
     }
 }

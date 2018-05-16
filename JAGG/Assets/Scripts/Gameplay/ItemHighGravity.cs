@@ -26,9 +26,8 @@ public class ItemHighGravity : Item {
 
     private IEnumerator ChangeGravity(float time)
     {
-        player.ChangeGravity(GravityType.High);
-        yield return new WaitForSeconds(time);
-        player.ResetGravity();
+        player.ChangeGravity(GravityType.High, time);
+        yield return new WaitForEndOfFrame();
         Destroy(this.gameObject);
     }
 }

@@ -8374,7 +8374,7 @@ Prefab:
     - target: {fileID: 224802486619379328, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -250
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 224802486619379328, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
@@ -8394,7 +8394,7 @@ Prefab:
     - target: {fileID: 224802486619379328, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224802486619379328, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
@@ -8404,7 +8404,7 @@ Prefab:
     - target: {fileID: 224802486619379328, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224802486619379328, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
@@ -8511,7 +8511,7 @@ Prefab:
     - target: {fileID: 114574390917325080, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: onScreen
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e6f88463b2691954fbf3b2c867717c52, type: 2}
@@ -13187,7 +13187,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -14087,6 +14087,7 @@ GameObject:
   - component: {fileID: 1777191542}
   - component: {fileID: 1777191545}
   - component: {fileID: 1777191546}
+  - component: {fileID: 1777191541}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -14094,6 +14095,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1777191541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1777191540}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42cd8dcae69d178488f5efa28e7c7e78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shader: {fileID: 4800000, guid: 95703b29f49b899499233ea7308bb800, type: 3}
+  BlockCount: 90
 --- !u!124 &1777191542
 Behaviour:
   m_ObjectHideFlags: 0
