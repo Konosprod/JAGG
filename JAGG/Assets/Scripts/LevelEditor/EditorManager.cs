@@ -546,6 +546,52 @@ public class EditorManager : MonoBehaviour
                 }
 
 
+                // Use C to get a copy of the selected piece(s) in place as the piece(s) in hand
+                if (Input.GetKeyDown(KeyCode.C))
+                {
+                    if (selectedPiecesInPlace.Count == 1)
+                    {
+                        // Name of the piece has (Clone) so we remove it to get the prefab name
+                        // Get a copy of the selected piece in hand
+                        clickOnPiece(selectedPiecesInPlace[0].name.Split('(')[0]);
+                    }
+                    else
+                    {
+                        // We allow the copy of multiple pieces at once
+                        GameObject referencePiece = selectedPiecesInPlace[0];
+
+                        // We spawn the copy of the first piece
+                        GameObject prefabReferencePiece = prefabs[referencePiece.name.Split('(')[0]];
+                        if (prefabReferencePiece != null)
+                        {
+                            Destroy(currentPiece);
+                            currentPiece = Instantiate(prefabReferencePiece, prefabReferencePiece.transform.position, referencePiece.transform.rotation);
+                            // Disable all colliders so that Raycasts can go through the currentPiece
+                            SetAllCollidersStatus(false, currentPiece);
+                        }
+                        else
+                            Debug.LogError("Piece not found in prefabs : " + referencePiece.name.Split('(')[0]);
+
+                        // Then we need to spawn copies of the other pieces, that will use the reference piece as parent so that they move along and rotate around the piece
+                        for (int i = 1; i < selectedPiecesInPlace.Count; i++)
+                        {
+                            GameObject piece = selectedPiecesInPlace[i];
+                            GameObject prefabPiece = prefabs[piece.name.Split('(')[0]];
+                            if (prefabPiece != null)
+                            {
+                                // We spawn the prefab using the relative position of the piece to the reference piece
+                                // The new reference piece (which is the piece in hand = currentPiece) is used as parent
+                                GameObject newCurrentPiece = Instantiate(prefabPiece, piece.transform.position - referencePiece.transform.position, piece.transform.rotation, currentPiece.transform);
+                                // Disable all colliders so that Raycasts can go through the currentPiece
+                                SetAllCollidersStatus(false, newCurrentPiece);
+                            }
+                            else
+                                Debug.LogError("Piece not found in prefabs : " + piece.name.Split('(')[0]);
+                        }
+                    }
+                }
+
+
                 if (selectedPiecesInPlace.Count == 1)
                 {
                     // Use O to define the piece as the origin of the grid (offset the grid to align the pieces correctly)
@@ -764,7 +810,7 @@ public class EditorManager : MonoBehaviour
                 }
 
 
-                // Use middle mouse button to get a copy of a piece in place as the piece in hand
+                // Use C to get a copy of a piece in place as the piece in hand
                 if (Input.GetKeyDown(KeyCode.C))
                 {
                     // We use a raycast to find the pieces
@@ -1662,13 +1708,16 @@ public class EditorManager : MonoBehaviour
             // We must find the reference in prefabs because the pr from the parameters is an instance used temporarily to display at the mouse cursor position (currentPiece)
             // This way the ctrl + Z will work even if the player selects another piece
 
-            /*foreach (GameObject pref in prefabs)
+            // Handle the multiple piece copy
+            foreach (Transform t in pr.transform)
             {
-                if (pref.name == prName)
+                GameObject child = t.gameObject;
+                if (child.GetComponent<TerrainPiece>() != null)
                 {
-                    _CP.prefab = pref;
+                    _CP.b = true;
+                    _CP.selectedPieces.Add(child);
                 }
-            }*/
+            }
 
             _CP.prefab = prefabs[prName];
             _CP.position = pos;
@@ -1685,10 +1734,38 @@ public class EditorManager : MonoBehaviour
                 _CP.result.transform.parent = currentHoleObject.transform;
                 SetAllCollidersStatus(true, _CP.result);
                 piecesInPlace[currentHole].Add(_CP.result);
+
+                // If we have multiple pieces to instantiate
+                if(_CP.b)
+                {
+                    // Instantiate copies of pieces
+                    List<GameObject> newPieces = new List<GameObject>();
+                    foreach (GameObject piece in _CP.selectedPieces)
+                    {
+                        GameObject newGO = Instantiate(prefabs[piece.name.Split('(')[0]], piece.transform.position, piece.transform.rotation);
+                        newPieces.Add(newGO);
+                        SetAllCollidersStatus(true, newGO);
+                        piecesInPlace[currentHole].Add(newGO);
+                        newGO.transform.parent = currentHoleObject.transform;
+                    }
+
+                    // Store the copy of the pieces so we can disable/enbale them on undo/redo
+                    _CP.selectedPieces = new List<GameObject>(newPieces);
+                }
             }
             else
             {
                 _CP.result.SetActive(true);
+                piecesInPlace[currentHole].Add(_CP.result);
+                // If we created multiple pieces at once, we enable them all
+                if (_CP.b)
+                {
+                    foreach(GameObject piece in _CP.selectedPieces)
+                    {
+                        piece.SetActive(true);
+                        piecesInPlace[currentHole].Add(piece);
+                    }
+                }
             }
 
             isModified = true;
@@ -1701,6 +1778,17 @@ public class EditorManager : MonoBehaviour
             _CP.result.SetActive(false);
             if (!piecesInPlace[currentHole].Remove(_CP.result))
                 Debug.LogError("Failed to remove object on addPieceCommand undo");
+
+            // If we created multiple pieces at once, we enable them all
+            if (_CP.b)
+            {
+                foreach (GameObject piece in _CP.selectedPieces)
+                {
+                    piece.SetActive(false);
+                    if (!piecesInPlace[currentHole].Remove(piece))
+                        Debug.LogError("Failed to remove object on addPieceCommand undo");
+                }
+            }
             return _CP;
         }
     }
