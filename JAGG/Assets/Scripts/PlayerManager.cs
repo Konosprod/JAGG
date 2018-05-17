@@ -353,14 +353,6 @@ public class PlayerManager : NetworkBehaviour {
         StartCoroutine(WaitForCooldown(time, ResetPixelation));
     }
 
-    public void ResetSliderSpeed()
-    {
-        foreach (GameObject go in players.Values)
-        {
-            go.GetComponent<PlayerController>().RpcResetSliderSpeed();
-        }
-    }
-
     public void ChangeSliderSpeed(int sliderSpeed, float time, uint netid)
     {
         foreach (GameObject go in players.Values)
@@ -372,8 +364,6 @@ public class PlayerManager : NetworkBehaviour {
                 go.GetComponent<PlayerController>().RpcChangeSliderSpeed(sliderSpeed);
             }
         }
-
-        StartCoroutine(WaitForCooldown(time, ResetSliderSpeed));
     }
 
     public IEnumerator WaitForCooldown(float time, Action callback)

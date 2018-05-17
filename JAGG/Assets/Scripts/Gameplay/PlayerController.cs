@@ -879,12 +879,5 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
-    [ClientRpc]
-    public void RpcResetSliderSpeed()
-    {
-        if (isLocalPlayer)
-            ui.ResetSliderSpeed();
-    }
-
     #endregion
 }

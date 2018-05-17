@@ -36,6 +36,8 @@ public class UIManager : MonoBehaviour {
     private bool slideUp = false;
     private PlayerManager playerManager;
 
+    private bool hasShot = true;
+
     void Start()
     {
         oldSliderSpeed = sliderSpeed;
@@ -64,6 +66,9 @@ public class UIManager : MonoBehaviour {
 
     public float GetSliderValue()
     {
+        if (!hasShot)
+            ResetSliderSpeed();
+
         return slider.value;
     }
 
@@ -158,10 +163,12 @@ public class UIManager : MonoBehaviour {
     {
         oldSliderSpeed = sliderSpeed;
         sliderSpeed = newSliderSpeed;
+        hasShot = false;
     }
 
     public void ResetSliderSpeed()
     {
+        hasShot = true;
         sliderSpeed = oldSliderSpeed;
     }
 
