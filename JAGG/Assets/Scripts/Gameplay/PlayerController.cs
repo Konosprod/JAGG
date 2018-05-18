@@ -462,7 +462,6 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdWindArea(float strength, Vector3 direction)
     {
-        Debug.Log("here2");
         rb.AddForce(direction * strength);
     }
 

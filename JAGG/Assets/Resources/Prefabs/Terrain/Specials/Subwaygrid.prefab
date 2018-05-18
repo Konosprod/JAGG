@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4261073300058680}
   - component: {fileID: 198232162579239884}
   - component: {fileID: 199422020195970388}
-  - component: {fileID: 114400721720119686}
+  - component: {fileID: 114928650086555184}
   m_Layer: 0
   m_Name: Particle System
   m_TagString: Untagged
@@ -154,17 +154,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114400721720119686
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1313705372124274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114489916636011648
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -177,6 +166,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   strength: 1000
+--- !u!114 &114928650086555184
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1313705372124274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!198 &198232162579239884
 ParticleSystem:
   m_ObjectHideFlags: 1
