@@ -158,7 +158,7 @@ public class EditorManager : MonoBehaviour
             // /!\ CHANGES THE PREFAB ITSELF /!\
             foreach (Renderer r in pref.GetComponentsInChildren<Renderer>())
             {
-                if (r.gameObject.GetComponent<MaterialSwaperoo>() == null)
+                if ( !(r is UnityEngine.ParticleSystemRenderer) && r.gameObject.GetComponent<MaterialSwaperoo>() == null)
                     r.gameObject.AddComponent<MaterialSwaperoo>();
             }
 
