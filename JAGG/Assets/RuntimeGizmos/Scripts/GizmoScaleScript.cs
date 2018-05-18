@@ -227,6 +227,7 @@ public class GizmoScaleScript : MonoBehaviour {
             }
             else
             {
+                gameObject.transform.localScale = new Vector3(initialScaleX, initialScaleY, initialScaleZ);
                 end = scaleTarget.transform.localScale;
             }
         }
