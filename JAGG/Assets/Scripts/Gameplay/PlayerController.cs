@@ -43,6 +43,7 @@ public class PlayerController : NetworkBehaviour {
     private bool isShooting = false;
     private bool isPaused = false;
     private bool isOver = false;
+    private bool isInWindZone = false;
 
     private Vector3 serverPos = Vector3.zero;
     private Queue<Vector3> serverPositions = new Queue<Vector3>();
@@ -439,7 +440,31 @@ public class PlayerController : NetworkBehaviour {
         CmdChangeSliderSpeed(sliderSpeed, time, this.netId.Value);
     }
 
+    public void InWindArea(float strength, Vector3 direction)
+    {
+        if (isLocalPlayer)
+        {
+            isInWindZone = true;
+            CmdWindArea(strength, direction);
+        }
+    }
+
+    public void OutWindArea()
+    {
+        if (isLocalPlayer)
+        {
+            isInWindZone = false;
+        }
+    }
+
     #region Command
+
+    [Command]
+    private void CmdWindArea(float strength, Vector3 direction)
+    {
+        Debug.Log("here2");
+        rb.AddForce(direction * strength);
+    }
 
     [Command]
     private void CmdChangeSliderSpeed(int sliderSpeed, float time, uint netid)
