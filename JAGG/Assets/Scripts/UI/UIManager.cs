@@ -97,7 +97,7 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    public void ShowScores()
+    public void ShowScores(string[] playersNames)
     {
         panelScore.SetActive(true);
 
@@ -109,6 +109,7 @@ public class UIManager : MonoBehaviour {
                 scorePlayers[i].gameObject.SetActive(true);
 
             scorePlayers[i].CleanScores();
+            scorePlayers[i].playerName.text = playersNames[i];
 
             int total = 0;
 

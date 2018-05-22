@@ -402,9 +402,9 @@ public class PlayerController : NetworkBehaviour {
         CmdResetPlayer();
     }
 
-    public void ShowScores()
+    public void ShowScores(string[] playersNames)
     {
-        RpcShowScores();
+        RpcShowScores(playersNames);
     }
 
     public void AddItem(GameObject item)
@@ -727,14 +727,14 @@ public class PlayerController : NetworkBehaviour {
     #region ClientRpc
 
     [ClientRpc]
-    void RpcShowScores()
+    void RpcShowScores(string[] playersNames)
     {
-        StartCoroutine(ShowScoresRoutine());
+        StartCoroutine(ShowScoresRoutine(playersNames));
     }
 
-    private IEnumerator ShowScoresRoutine()
+    private IEnumerator ShowScoresRoutine(string[] playersNames)
     {
-        ui.ShowScores();
+        ui.ShowScores(playersNames);
         yield return new WaitForSeconds(5);
         ui.HideScores();
     }

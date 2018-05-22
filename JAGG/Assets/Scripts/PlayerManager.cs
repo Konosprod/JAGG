@@ -130,9 +130,12 @@ public class PlayerManager : NetworkBehaviour {
     {
         // Update scores
         int i = 0;
+        string[] playersNames = new string[4];
+
         foreach (GameObject p in players.Values)
         {
             SyncListInt scp = p.GetComponent<PlayerController>().score;
+
             if (i == 0)
             {
                 if (scoreP1.Count < scp.Count)
@@ -178,12 +181,13 @@ public class PlayerManager : NetworkBehaviour {
                 Debug.LogError("Plus de 4 joueurs ? NANI ?!");
             }
 
+            playersNames[i] = p.GetComponent<PlayerController>().playerName;
             i++;
         }
 
         foreach (GameObject o in players.Values)
         {
-            o.GetComponent<PlayerController>().ShowScores();
+            o.GetComponent<PlayerController>().ShowScores(playersNames);
         }
     }
 

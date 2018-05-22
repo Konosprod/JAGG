@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayerScoreEntry : MonoBehaviour {
 
+    public Text playerName;
     public GameObject scorePrefab;
     public GameObject paneScore;
     public Text totalScore;
