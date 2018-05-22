@@ -1866,6 +1866,7 @@ public class EditorManager : MonoBehaviour
         {
             selectedPiecesInPlace.Remove(_CP.result);
             SetHighlight(false, _CP.result);
+
             return _CP;
         }
     }
@@ -1954,13 +1955,18 @@ public class EditorManager : MonoBehaviour
                 }
             }
 
+            _gizmoTranslate.gameObject.SetActive(false);
+
             // Hide the piece info in no pieces were selected before otherwise display the info of the previous selection
             SetPieceInfoPanelVisibility();
             if (_CP.selectedPieces.Count > 0)
             {
+                _gizmoTranslate.translateTarget = selectedPiecesInPlace;
+                _gizmoTranslate.gameObject.SetActive(true);
                 SetPieceInfoPanelName();
                 SetPieceInfoData();
             }
+
 
             return _CP;
         }
@@ -1998,6 +2004,7 @@ public class EditorManager : MonoBehaviour
             SetPieceInfoPanelName();
             SetPieceInfoData();
 
+
             return _CP;
         }
 
@@ -2011,7 +2018,7 @@ public class EditorManager : MonoBehaviour
             SetPieceInfoPanelVisibility();
             SetPieceInfoPanelName();
             SetPieceInfoData();
-
+            
             return _CP;
         }
     }
@@ -2080,6 +2087,9 @@ public class EditorManager : MonoBehaviour
             SetPieceInfoPanelVisibility();
             SetPieceInfoPanelName();
             SetPieceInfoData();
+
+            _gizmoTranslate.translateTarget = selectedPiecesInPlace;
+            _gizmoTranslate.gameObject.SetActive(true);
 
             return _CP;
         }
