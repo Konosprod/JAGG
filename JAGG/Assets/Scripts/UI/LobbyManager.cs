@@ -297,10 +297,10 @@ public class LobbyManager : NetworkLobbyManager
     {
         hole = GameObject.Find("Hole " + currentHole.ToString());
 
-        playerManager.AddPlayer(gamePlayer, lobbyPlayer.GetComponent<NetworkIdentity>().connectionToClient.connectionId);
         gamePlayer.layer = getNextLayer();
         gamePlayer.GetComponent<PlayerController>().playerName = lobbyPlayer.GetComponent<LobbyPlayer>().playerName;
         gamePlayer.GetComponent<CustomPhysics>().gravityType = gravity;
+        playerManager.AddPlayer(gamePlayer, lobbyPlayer.GetComponent<NetworkIdentity>().connectionToClient.connectionId);
 
         return base.OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer);
     }

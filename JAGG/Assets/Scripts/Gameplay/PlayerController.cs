@@ -220,6 +220,15 @@ public class PlayerController : NetworkBehaviour {
             }
         }
 
+        if(Input.GetKey(KeyCode.Tab))
+        {
+            ui.ShowScores();
+        }
+        else
+        {
+            ui.HideScores();
+        }
+
         if (!isMoving)
         {
             // Enable collision with other players only after the end of the first shot
@@ -433,9 +442,9 @@ public class PlayerController : NetworkBehaviour {
         CmdResetPlayer();
     }
 
-    public void ShowScores(string[] playersNames)
+    public void ShowScores()
     {
-        RpcShowScores(playersNames);
+        RpcShowScores();
     }
 
     public void AddItem(GameObject item)
@@ -769,14 +778,15 @@ public class PlayerController : NetworkBehaviour {
     #region ClientRpc
 
     [ClientRpc]
-    void RpcShowScores(string[] playersNames)
+    void RpcShowScores()
     {
-        StartCoroutine(ShowScoresRoutine(playersNames));
+        StartCoroutine(ShowScoresRoutine());
     }
 
-    private IEnumerator ShowScoresRoutine(string[] playersNames)
+    private IEnumerator ShowScoresRoutine()
     {
-        ui.ShowScores(playersNames);
+        ui.UpdateScore();
+        ui.ShowScores();
         yield return new WaitForSeconds(5);
         ui.HideScores();
     }
