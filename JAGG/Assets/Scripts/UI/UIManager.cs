@@ -97,13 +97,12 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    public void ShowScores(string[] playersNames)
+    public void UpdateScore()
     {
-        panelScore.SetActive(true);
-
+        SyncListString playersNames = playerManager.GetPlayerNames();
         List<SyncListInt> scores = playerManager.GetPlayersScore();
 
-        for(int i = 0; i < scores.Count; i++)
+        for (int i = 0; i < scores.Count; i++)
         {
             if (!scorePlayers[i].gameObject.activeSelf)
                 scorePlayers[i].gameObject.SetActive(true);
@@ -113,7 +112,7 @@ public class UIManager : MonoBehaviour {
 
             int total = 0;
 
-            for(int j = 0; j < scores[i].Count; j++)
+            for (int j = 0; j < scores[i].Count; j++)
             {
                 total += scores[i][j];
                 scorePlayers[i].AddScore(scores[i][j]);
@@ -121,6 +120,12 @@ public class UIManager : MonoBehaviour {
 
             scorePlayers[i].SetTotal(total);
         }
+    }
+
+    public void ShowScores()
+    {
+        UpdateScore();
+        panelScore.SetActive(true);
     }
 
     public void HidePauseMenu()

@@ -15,6 +15,8 @@ public class PlayerManager : NetworkBehaviour {
     private SyncListInt scoreP3 = new SyncListInt();
     private SyncListInt scoreP4 = new SyncListInt();
 
+    private SyncListString playersNames = new SyncListString();
+
     private static PlayerManager _instance;
 
     [SyncVar]
@@ -126,11 +128,15 @@ public class PlayerManager : NetworkBehaviour {
         return podium;
     }
 
+    public SyncListString GetPlayerNames()
+    {
+        return playersNames;
+    }
+
     public void ShowPlayersScores()
     {
         // Update scores
         int i = 0;
-        string[] playersNames = new string[4];
 
         foreach (GameObject p in players.Values)
         {
@@ -181,13 +187,12 @@ public class PlayerManager : NetworkBehaviour {
                 Debug.LogError("Plus de 4 joueurs ? NANI ?!");
             }
 
-            playersNames[i] = p.GetComponent<PlayerController>().playerName;
             i++;
         }
 
         foreach (GameObject o in players.Values)
         {
-            o.GetComponent<PlayerController>().ShowScores(playersNames);
+            o.GetComponent<PlayerController>().ShowScores();
         }
     }
 
@@ -232,6 +237,7 @@ public class PlayerManager : NetworkBehaviour {
         scoreP2.Clear();
         scoreP3.Clear();
         scoreP4.Clear();
+        playersNames.Clear();
         nbPlayers = 0;
     }
 
@@ -241,13 +247,17 @@ public class PlayerManager : NetworkBehaviour {
             connId = o.GetComponent<NetworkIdentity>().connectionToClient.connectionId;
 
         players[connId] = o;
+        string name = o.GetComponent<PlayerController>().playerName;
+        playersNames.Add(name);
 
         nbPlayers++;
     }
 
     public void RemovePlayer(int connId)
     {
+        GameObject o = players[connId];
         players.Remove(connId);
+        playersNames.Remove(o.GetComponent<PlayerController>().playerName);
     }
 
     public bool AllPlayersDone()
