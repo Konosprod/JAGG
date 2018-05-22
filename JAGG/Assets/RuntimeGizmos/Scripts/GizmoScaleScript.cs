@@ -219,6 +219,9 @@ public class GizmoScaleScript : MonoBehaviour {
 
                             scaleTarget.transform.localScale += new Vector3(delta, delta, delta);
                             gameObject.transform.localScale += new Vector3(delta, delta, delta);
+
+                            if (scaleTarget.transform.localScale.x < 0 || scaleTarget.transform.localScale.y < 0 || scaleTarget.transform.localScale.z < 0)
+                                scaleTarget.transform.localScale = Vector3.zero;
                         }
                         break;
                 }
