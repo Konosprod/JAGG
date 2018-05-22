@@ -28,7 +28,7 @@ public class PlayerController : NetworkBehaviour {
 
     private GameObject guiCam;
 
-    private Rigidbody rb;
+    public Rigidbody rb;
     private PreviewLine line;
     private LobbyManager lobbyManager;
     public ParticleSystem trail;
@@ -153,7 +153,8 @@ public class PlayerController : NetworkBehaviour {
             if (!isMoving)
             {
                 // Update the last position where the ball stopped
-                lastStopPos = transform.position;
+                if (GetComponent<CustomPhysics>().Stable)
+                    lastStopPos = transform.position;
 
                 int maxShot = lobbyManager.GetMaxShot();
                 if (shots == maxShot)
@@ -184,8 +185,38 @@ public class PlayerController : NetworkBehaviour {
             if (item != null)
             {
                 ui.HideItem();
-                item.GetComponent<Item>().Do();
-                item = null;
+                if (item.GetComponent<Item>().GetType() != typeof(ItemSwap))
+                {
+                    item.GetComponent<Item>().Do();
+                    item = null;
+                }
+            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.Alpha1) || 
+            Input.GetKeyDown(KeyCode.Alpha2) || 
+            Input.GetKeyDown(KeyCode.Alpha3) || 
+            Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            if (item != null)
+            {
+                Item itemComponent = item.GetComponent<Item>();
+                if (itemComponent.GetType() == typeof(ItemSwap))
+                {
+                    int target = 0;
+
+                    if (Input.GetKeyDown(KeyCode.Alpha1))
+                        target = 0;
+                    if (Input.GetKeyDown(KeyCode.Alpha2))
+                        target = 1;
+                    if (Input.GetKeyDown(KeyCode.Alpha3))
+                        target = 2;
+                    if (Input.GetKeyDown(KeyCode.Alpha4))
+                        target = 3;
+
+                    ((ItemSwap)itemComponent).target = target;
+                    itemComponent.Do();
+                }
             }
         }
 
@@ -457,7 +488,18 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
+    public void SwapPlayers(int target)
+    {
+        CmdSwapPlayers(target, lastStopPos, this.netId.Value);
+    }
+
     #region Command
+
+    [Command]
+    private void CmdSwapPlayers(int target, Vector3 position, uint netid)
+    {
+        lobbyManager.playerManager.SwapPlayers(target, position, netid);
+    }
 
     [Command]
     private void CmdWindArea(float strength, Vector3 direction)
@@ -901,6 +943,12 @@ public class PlayerController : NetworkBehaviour {
         {
             ui.ChangeSliderSpeed(sliderSpeed);
         }
+    }
+
+    [ClientRpc]
+    public void RpcSetLastPosition(Vector3 position)
+    {
+        lastStopPos = position;
     }
 
     #endregion

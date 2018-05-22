@@ -22,7 +22,7 @@ public class CustomPhysics : NetworkBehaviour
     private int i;
     private Vector3 lastWallHit;
     private int frameHit;
-
+    public bool Stable;
 
     private int layerWall;
 
@@ -297,10 +297,10 @@ public class CustomPhysics : NetworkBehaviour
         RaycastHit test;
         bool grounded = Physics.Linecast(position, position + (Vector3.down * length), out test);
 
-        bool onEvenGround = false;
+        Stable = false;
 
         if (grounded)
-            onEvenGround = test.normal == Vector3.up;
+            Stable = test.normal == Vector3.up;
 
         float stopSpeedThreshold = 0.1f;
         float unevenGroundstopSpeedThreshold = 0.01f;
@@ -308,7 +308,7 @@ public class CustomPhysics : NetworkBehaviour
         if (IsGrounded || grounded)
         {
             // Check if we should stop when grounded
-            if (rb.velocity.magnitude < (onEvenGround ? stopSpeedThreshold : unevenGroundstopSpeedThreshold))
+            if (rb.velocity.magnitude < (Stable ? stopSpeedThreshold : unevenGroundstopSpeedThreshold))
                 rb.velocity = Vector3.zero;
         }
 
@@ -318,7 +318,7 @@ public class CustomPhysics : NetworkBehaviour
         /*if ((grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null ) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
             Debug.Log("We are above a RotatePiece/MovingPiece, always apply gravity");*/
 
-        if (!onEvenGround || (grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
+        if (!Stable || (grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
         {
             // Can use custom gravity to obtain various results
             Vector3 grav = new Vector3();

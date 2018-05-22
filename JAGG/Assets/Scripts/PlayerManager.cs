@@ -311,6 +311,42 @@ public class PlayerManager : NetworkBehaviour {
         return res;
     }
 
+    public void SwapPlayers(int target, Vector3 position, uint netid)
+    {
+        List<int> keys = players.Keys.ToList();
+        GameObject targetPlayer = null;
+
+        if (target < keys.Count)
+        {
+            targetPlayer = players[keys[target]];
+        }
+
+        if(targetPlayer != null)
+        {
+            for(int i = 0;  i < keys.Count; i++)
+            {
+                GameObject playerOrigin = players[keys[i]];
+                NetworkIdentity networkIdentity = playerOrigin.GetComponent<NetworkIdentity>();
+                
+                if(networkIdentity.netId.Value == netid)
+                {
+                    Vector3 posOrigin = playerOrigin.transform.position;
+                    Vector3 velocityOrigin = playerOrigin.GetComponent<Rigidbody>().velocity;
+
+                    playerOrigin.transform.position = targetPlayer.transform.position;
+                    playerOrigin.GetComponent<Rigidbody>().velocity = targetPlayer.GetComponent<Rigidbody>().velocity;
+                    targetPlayer.transform.position = posOrigin;
+                    targetPlayer.GetComponent<Rigidbody>().velocity = velocityOrigin;
+
+                    targetPlayer.GetComponent<PlayerController>().RpcSetLastPosition(position);
+
+                    //targetPlayer.GetComponent<PlayerController>().RpcSwapPlayer()
+                    break;
+                }
+            }
+        }
+    }
+
     public void ChangeGravity(GravityType type, float time, uint netid)
     {
         foreach(GameObject go in players.Values)
