@@ -144,6 +144,15 @@ public class EditorManager : MonoBehaviour
     [HideInInspector]
     public static bool isModified = false;
 
+
+    // Handle box selection
+    private bool isBoxSelection = false;
+    private bool isBoxSelectionActive = false;
+    private Vector3 mousePositionStart = Vector3.zero;
+    // Used to draw the rectangle
+    private static Texture2D _staticRectTexture;
+    private static GUIStyle _staticRectStyle;
+
     // Use this for initialization
     void Start()
     {
@@ -158,7 +167,7 @@ public class EditorManager : MonoBehaviour
             // /!\ CHANGES THE PREFAB ITSELF /!\
             foreach (Renderer r in pref.GetComponentsInChildren<Renderer>())
             {
-                if ( !(r is UnityEngine.ParticleSystemRenderer) && r.gameObject.GetComponent<MaterialSwaperoo>() == null)
+                if (!(r is UnityEngine.ParticleSystemRenderer) && r.gameObject.GetComponent<MaterialSwaperoo>() == null)
                     r.gameObject.AddComponent<MaterialSwaperoo>();
             }
 
@@ -778,37 +787,87 @@ public class EditorManager : MonoBehaviour
                     currParams = undoRedoStack.Do(new ResetOriginCommand(), currParams);
                 }
 
-
-                // Use left-click to select
-                if (Input.GetMouseButtonDown(0))
+                
+                // The user left-clicked so we have a potential start of a box selection, we check if the mouse moved since he started holding the click
+                if(!isBoxSelectionActive && isBoxSelection)
                 {
-                    // We use a raycast to find the pieces
-                    RaycastHit rayHitPiece;
-                    Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
-                    {
-                        //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
-                        GameObject piece = rayHitPiece.transform.gameObject;
-
-                        // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
-                        //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
-                        //{
-                        string pName = piece.name.Split(' ')[0];
-                        while (piece.transform.parent != null && pName != "Hole")
-                        {
-                            pName = piece.transform.parent.gameObject.name.Split(' ')[0];
-                            if (pName != "Hole")
-                                piece = piece.transform.parent.gameObject;
-                        }
-                        //}
-
-                        // Debug.Log(piece.name);
-
-                        // We highlight the selected piece
-                        currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
-                    }
+                    if (Input.mousePosition != mousePositionStart)
+                        isBoxSelectionActive = true;
                 }
 
+                // No left-click interaction with mouse over UI
+                if (!EventSystem.current.IsPointerOverGameObject())
+                {
+                    // Use left-click to select, simple click selects the piece at the cursor location
+                    // You can make a box selection by maintaining the click and moving the cursor
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        isBoxSelection = true;
+                        mousePositionStart = Input.mousePosition;
+                    }
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        if (isBoxSelectionActive)
+                        {
+                            Vector3 mousePositionEnd = Input.mousePosition;
+                            Bounds bounds = new Bounds();
+                            Vector3 viewportPositionStart = Camera.main.ScreenToViewportPoint(mousePositionStart);
+                            Vector3 viewportPositionEnd = Camera.main.ScreenToViewportPoint(mousePositionEnd);
+                            Vector3 minPos = Vector3.Min(viewportPositionStart, viewportPositionEnd);
+                            Vector3 maxPos = Vector3.Max(viewportPositionStart, viewportPositionEnd);
+                            minPos.z = Camera.main.nearClipPlane;
+                            maxPos.z = Camera.main.farClipPlane;
+                            bounds.SetMinMax(minPos, maxPos);
+
+                            List<GameObject> boxSelectedPieces = new List<GameObject>();
+
+                            foreach(GameObject piece in piecesInPlace[currentHole])
+                            {
+                                // If the piece is contained in the selection rectangle, we add it to the selection
+                                if(bounds.Contains(Camera.main.WorldToViewportPoint(piece.transform.position)))
+                                {
+                                    boxSelectedPieces.Add(piece);
+                                }
+                            }
+
+                            if (boxSelectedPieces.Count > 0)
+                            {
+                                currParams = undoRedoStack.Do(new SelectMultiplePiecesCommand(boxSelectedPieces), currParams);
+                            }
+                        }
+                        else
+                        {
+                            // We use a raycast to find the pieces
+                            RaycastHit rayHitPiece;
+                            Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
+                            if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+                            {
+                                //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
+                                GameObject piece = rayHitPiece.transform.gameObject;
+
+                                // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
+                                //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
+                                //{
+                                string pName = piece.name.Split(' ')[0];
+                                while (piece.transform.parent != null && pName != "Hole")
+                                {
+                                    pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                                    if (pName != "Hole")
+                                        piece = piece.transform.parent.gameObject;
+                                }
+                                //}
+
+                                // Debug.Log(piece.name);
+
+                                // We highlight the selected piece
+                                currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                            }
+                        }
+                        isBoxSelection = false;
+                        isBoxSelectionActive = false;
+                        mousePositionStart = Vector3.zero;
+                    }
+                }
 
                 // Use C to get a copy of a piece in place as the piece in hand
                 if (Input.GetKeyDown(KeyCode.C))
@@ -932,6 +991,47 @@ public class EditorManager : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+        }
+    }
+
+
+    // Note that this function is only meant to be called from OnGUI() functions.
+    public static void GUIDrawRect(Rect position, Color color)
+    {
+        if (_staticRectTexture == null)
+        {
+            _staticRectTexture = new Texture2D(1, 1);
+        }
+
+        if (_staticRectStyle == null)
+        {
+            _staticRectStyle = new GUIStyle();
+        }
+
+        _staticRectTexture.SetPixel(0, 0, color);
+        _staticRectTexture.Apply();
+
+        _staticRectStyle.normal.background = _staticRectTexture;
+
+        GUI.Box(position, GUIContent.none, _staticRectStyle);
+    }
+
+    // Used to draw the rectangle for box selection
+    void OnGUI()
+    {
+        if (isBoxSelectionActive)
+        {
+            Vector3 _mousePositionStart = mousePositionStart;
+            Vector3 _mousePositionEnd = Input.mousePosition;
+            // Use a top left origin rather than bottom left (required for Rect)
+            _mousePositionStart.y = Screen.height - _mousePositionStart.y;
+            _mousePositionEnd.y = Screen.height - _mousePositionEnd.y;
+            // Find the top-left and bottom-right corners
+            Vector3 topLeft = Vector3.Min(_mousePositionStart, _mousePositionEnd);
+            Vector3 bottomRight = Vector3.Max(_mousePositionStart, _mousePositionEnd);
+            // Create the corresponding Rect on screen
+            Rect rect = Rect.MinMaxRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+            GUIDrawRect(rect, new Color(0.5f, 0.75f, 0.95f, 0.35f));
         }
     }
 
@@ -1686,10 +1786,12 @@ public class EditorManager : MonoBehaviour
         // UsePieceAsOriginCommand (stores the previous origin piece, can be null)
         public GameObject result;
 
+        // AddPieceCommand (stores the child pieces in case of multiple pieces copy)
         // DeletePieceCommand (stores the pieces to restore if undo / delete if out of the redo stack)
         // RotateSelectedPiecesCommand (parameter)
         // SelectSinglePieceCommand (stores the pieces that were deselected)
         // DeselectAllPiecesCommand (stores the pieces that were deselected)
+        // SelectMultiplePiecesCommand (parameter)
         public List<GameObject> selectedPieces = new List<GameObject>();
 
         // SetSpawnPoint (stores wether the spawnPoint must be displayed or not)
@@ -1736,7 +1838,7 @@ public class EditorManager : MonoBehaviour
                 piecesInPlace[currentHole].Add(_CP.result);
 
                 // If we have multiple pieces to instantiate
-                if(_CP.b)
+                if (_CP.b)
                 {
                     // Instantiate copies of pieces
                     List<GameObject> newPieces = new List<GameObject>();
@@ -1760,7 +1862,7 @@ public class EditorManager : MonoBehaviour
                 // If we created multiple pieces at once, we enable them all
                 if (_CP.b)
                 {
-                    foreach(GameObject piece in _CP.selectedPieces)
+                    foreach (GameObject piece in _CP.selectedPieces)
                     {
                         piece.SetActive(true);
                         piecesInPlace[currentHole].Add(piece);
@@ -1972,6 +2074,61 @@ public class EditorManager : MonoBehaviour
         }
     }
 
+    // Select a batch of pieces at once
+    public class SelectMultiplePiecesCommand : ICommand<CommandParams>
+    {
+        private CommandParams _CP = new CommandParams();
+
+        public SelectMultiplePiecesCommand(List<GameObject> sel)
+        {
+            _CP.selectedPieces = sel;
+        }
+
+        public CommandParams Do(CommandParams input = null)
+        {
+            foreach (GameObject piece in _CP.selectedPieces)
+            {
+                SetHighlight(true, piece);
+                selectedPiecesInPlace.Add(piece);
+            }
+
+            // Display the piece info
+            SetPieceInfoPanelVisibility();
+            SetPieceInfoPanelName();
+            SetPieceInfoData();
+
+            //Activate translation gizmo
+            _gizmoTranslate.translateTarget = selectedPiecesInPlace;
+            _gizmoTranslate.gameObject.SetActive(true);
+
+            //Disable other just in case
+            if (_gizmoScale.gameObject.activeSelf)
+                _gizmoScale.gameObject.SetActive(false);
+
+            if (_gizmoRotate.gameObject.activeSelf)
+                _gizmoRotate.gameObject.SetActive(false);
+
+            return _CP;
+        }
+
+        public CommandParams Undo(CommandParams input = null)
+        {
+            foreach (GameObject piece in _CP.selectedPieces)
+            {
+                selectedPiecesInPlace.Remove(piece);
+                SetHighlight(false, piece);
+            }
+
+            // Disable the gizmo
+            _gizmoTranslate.gameObject.SetActive(false);
+
+            // Hide the piece info in no pieces were selected before otherwise display the info of the previous selection
+            SetPieceInfoPanelVisibility();
+
+            return _CP;
+        }
+    }
+
     // Deselect a single piece
     public class DeselectSinglePieceCommand : ICommand<CommandParams>
     {
@@ -2018,7 +2175,7 @@ public class EditorManager : MonoBehaviour
             SetPieceInfoPanelVisibility();
             SetPieceInfoPanelName();
             SetPieceInfoData();
-            
+
             return _CP;
         }
     }
