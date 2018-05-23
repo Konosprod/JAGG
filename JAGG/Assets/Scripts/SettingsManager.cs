@@ -183,7 +183,6 @@ public class SettingsManager : MonoBehaviour {
             SFXvolumeSlider.value = 1f;
             SensibilitySlider.value = 100f;
             AccurateSensibilitySlider.value = 100f;
-
         }
     }
 
