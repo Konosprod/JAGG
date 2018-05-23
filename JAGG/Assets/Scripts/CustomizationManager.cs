@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CustomizationManager : MonoBehaviour {
@@ -46,7 +47,8 @@ public class CustomizationManager : MonoBehaviour {
         {
             if(Input.GetKeyDown(KeyCode.Escape))
             {
-                Save();
+                //Save();
+                SceneManager.LoadScene("MainMenu");
             }
         }
     }

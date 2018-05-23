@@ -24,6 +24,9 @@ public class PlayerController : NetworkBehaviour {
     [SyncVar]
     public string playerName;
 
+    [SyncVar(hook = "OnTrailColorChanged")]
+    public Color trailColor;
+
     public SyncListInt score;
 
     private GameObject guiCam;
@@ -100,6 +103,8 @@ public class PlayerController : NetworkBehaviour {
             if (gameObject.layer == 0)
                 CmdGetLayer();
         }
+        trailColor = SettingsManager._instance.gameSettings.colorTrail;
+
     }
 
 
@@ -502,6 +507,12 @@ public class PlayerController : NetworkBehaviour {
         CmdSwapPlayers(target, lastStopPos, this.netId.Value);
     }
 
+    public void OnTrailColorChanged(Color newColor)
+    {
+        trailColor = newColor;
+        trail.GetComponent<Renderer>().material.SetColor("_TintColor", trailColor);
+    }
+
     #region Command
 
     [Command]
@@ -776,7 +787,6 @@ public class PlayerController : NetworkBehaviour {
     #endregion
 
     #region ClientRpc
-
     [ClientRpc]
     void RpcShowScores()
     {
