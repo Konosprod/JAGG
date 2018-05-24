@@ -31,7 +31,9 @@ public class UIManager : MonoBehaviour {
     public Button buttonReturn;
 
     [Header("Item")]
-    public Image imageItem;
+    public float fadingTime = 0.5f;
+    public Image itemImage;
+    public Text itemText;
 
     private bool slideUp = false;
     private PlayerManager playerManager;
@@ -138,13 +140,15 @@ public class UIManager : MonoBehaviour {
 
     public void ShowItem(Item item)
     {
-        imageItem.sprite = item.sprite;
-        StartCoroutine(FadeSprite(imageItem, 0.5f));
+        itemImage.sprite = item.sprite;
+        itemText.text = item.name;
+        StartCoroutine(FadeSprite(itemImage, fadingTime));
     }
 
     public void HideItem()
     {
-        StartCoroutine(FadeSprite(imageItem, 0.5f, false));
+        itemText.text = "";
+        StartCoroutine(FadeSprite(itemImage, fadingTime, false));
     }
 
     public void ShowPause(UnityAction returnCallback = null, UnityAction quitCallback = null)
