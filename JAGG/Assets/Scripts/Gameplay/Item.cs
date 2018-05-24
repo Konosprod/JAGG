@@ -6,7 +6,7 @@ public class Item : MonoBehaviour {
 
     public Sprite sprite;
     public PlayerController player;
-    public string name;
+    public string itemName;
 
 	// Use this for initialization
 	void Start () {

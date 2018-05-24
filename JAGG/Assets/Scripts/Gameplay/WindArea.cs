@@ -16,14 +16,4 @@ public class WindArea : CustomScript {
             go.GetComponent<PlayerController>().InWindArea(strength, transform.up);
         }
     }
-
-    public void OnTriggerExit(Collider other)
-    {
-        GameObject go = other.gameObject;
-
-        if(go.CompareTag("Player"))
-        {
-            go.GetComponent<PlayerController>().OutWindArea();
-        }
-    }
 }

@@ -46,7 +46,6 @@ public class PlayerController : NetworkBehaviour {
     private bool isShooting = false;
     private bool isPaused = false;
     private bool isOver = false;
-    private bool isInWindZone = false;
 
     private Vector3 serverPos = Vector3.zero;
     private Queue<Vector3> serverPositions = new Queue<Vector3>();
@@ -489,16 +488,7 @@ public class PlayerController : NetworkBehaviour {
     {
         if (isLocalPlayer)
         {
-            isInWindZone = true;
             CmdWindArea(strength, direction);
-        }
-    }
-
-    public void OutWindArea()
-    {
-        if (isLocalPlayer)
-        {
-            isInWindZone = false;
         }
     }
 

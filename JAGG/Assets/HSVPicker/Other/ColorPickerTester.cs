@@ -4,7 +4,7 @@ using System.Collections;
 public class ColorPickerTester : MonoBehaviour 
 {
 
-    public new Renderer renderer;
+    public Renderer newRenderer;
     public ColorPicker picker;
 
     public Color Color = Color.red;
@@ -14,11 +14,11 @@ public class ColorPickerTester : MonoBehaviour
     {
         picker.onValueChanged.AddListener(color =>
         {
-            renderer.material.color = color;
+            newRenderer.material.color = color;
             Color = color;
         });
 
-		renderer.material.color = picker.CurrentColor;
+		newRenderer.material.color = picker.CurrentColor;
 
         picker.CurrentColor = Color;
     }

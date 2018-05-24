@@ -141,7 +141,7 @@ public class UIManager : MonoBehaviour {
     public void ShowItem(Item item)
     {
         itemImage.sprite = item.sprite;
-        itemText.text = item.name;
+        itemText.text = item.itemName;
         StartCoroutine(FadeSprite(itemImage, fadingTime));
     }
 
