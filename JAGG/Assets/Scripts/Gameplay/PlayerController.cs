@@ -500,7 +500,7 @@ public class PlayerController : NetworkBehaviour {
 
     public void OnTrailColorChanged(Color newColor)
     {
-        Debug.Log("Hook");
+        //Debug.Log("Hook");
         trailColor = newColor;
         trail.GetComponent<Renderer>().material.SetColor("_TintColor", trailColor);
     }
@@ -510,7 +510,7 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdChangeColorTrail(Color newColor)
     {
-        Debug.Log("Command called");
+        //Debug.Log("Command called");
         trailColor = newColor;
         trail.GetComponent<Renderer>().material.SetColor("_TintColor", trailColor);
     }
