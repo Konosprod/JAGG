@@ -1163,14 +1163,15 @@ public class EditorManager : MonoBehaviour
         if(piece != null && mvp != null && mvp.enabled)
         {
             // The destination has to be non-zero for us to have a preview to make at all 
-            if(mvp.destPos != piece.transform.position)
+            if(mvp.destPos != mvp.initPos)
             {
+                Debug.Log(mvp.initPos);
                 // From 1 to 10 pieces for the preview
-                int nbPreviewPieces = Mathf.Max(1, Mathf.Min(((int)(mvp.destPos-piece.transform.position).magnitude / 3), 10));
+                int nbPreviewPieces = Mathf.Max(1, Mathf.Min(((int)(mvp.destPos - mvp.initPos).magnitude / 3), 10));
 
                 for(int i=0; i<nbPreviewPieces; i++)
                 {
-                    Vector3 pos = piece.transform.position + (((float)(i + 1) / nbPreviewPieces) * (mvp.destPos-piece.transform.position));
+                    Vector3 pos = mvp.initPos + (((float)(i + 1) / nbPreviewPieces) * (mvp.destPos - mvp.initPos));
                     GameObject previewPiece = Instantiate(prefabs[piece.name.Split('(')[0]], pos, piece.transform.rotation);
                     mvpPreviewPieces.Add(previewPiece);
                 }
