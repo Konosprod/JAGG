@@ -68,6 +68,7 @@ public class PlayerController : NetworkBehaviour {
     private float oobInitialResetTimer = 2.0f;
     private float oobActualResetTimer;
     private bool isOOB = false;
+    private static int layerDecor;
 
     //Item to use
     private GameObject item;
@@ -88,6 +89,8 @@ public class PlayerController : NetworkBehaviour {
 
         playerNameText.text = playerName;
         guiCam = GameObject.FindWithTag("GUICamera");
+
+        layerDecor = LayerMask.NameToLayer("Decor");
 
         if (!isServer)
             rb.isKinematic = true;
@@ -289,7 +292,7 @@ public class PlayerController : NetworkBehaviour {
         }
 
         // Handle oob
-        if(!Physics.Raycast(new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z), Vector3.down))
+        if(!Physics.Raycast(new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z), Vector3.down, Mathf.Infinity, ~(1 << layerDecor)))
         {
             if (isOOB)
             {
