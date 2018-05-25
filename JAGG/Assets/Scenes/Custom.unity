@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 8
+  serializedVersion: 9
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -39,6 +39,7 @@ RenderSettings:
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
   m_IndirectSpecularColor: {r: 0.16788375, g: 0.21073635, b: 0.28994125, a: 1}
+  m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -54,11 +55,10 @@ LightmapSettings:
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 1
   m_LightmapEditorSettings:
-    serializedVersion: 9
+    serializedVersion: 10
     m_Resolution: 2
     m_BakeResolution: 40
-    m_TextureWidth: 1024
-    m_TextureHeight: 1024
+    m_AtlasSize: 1024
     m_AO: 0
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
@@ -2569,12 +2569,12 @@ Prefab:
     - target: {fileID: 224430786733056800, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224389870585032854, guid: c23ae62a07a83c1489e2c405bfbfa9fb,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c23ae62a07a83c1489e2c405bfbfa9fb, type: 2}
@@ -2621,27 +2621,27 @@ Prefab:
     - target: {fileID: 224548894920106216, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: m_LocalPosition.x
-      value: -187.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224548894920106216, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: m_LocalPosition.y
-      value: 191.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: m_LocalPosition.x
-      value: 544.59564
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: m_LocalPosition.y
-      value: 247.31767
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114574390917325080, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: outputFile
-      value: 
+      value: ./log.txt
       objectReference: {fileID: 0}
     - target: {fileID: 114574390917325080, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
@@ -2656,11 +2656,86 @@ Prefab:
     - target: {fileID: 114574390917325080, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: onFile
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114574390917325080, guid: e6f88463b2691954fbf3b2c867717c52,
         type: 2}
       propertyPath: onScreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224483574426445256, guid: e6f88463b2691954fbf3b2c867717c52,
+        type: 2}
+      propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -3558,7 +3633,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0000019073486}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -90, y: -90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1509076449

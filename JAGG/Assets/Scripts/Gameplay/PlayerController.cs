@@ -102,10 +102,11 @@ public class PlayerController : NetworkBehaviour {
 
             oobActualResetTimer = oobInitialResetTimer;
 
+            trailColor = SettingsManager._instance.gameSettings.colorTrail;
+
             if (gameObject.layer == 0)
                 CmdGetLayer();
         }
-        trailColor = SettingsManager._instance.gameSettings.colorTrail;
 
     }
 
