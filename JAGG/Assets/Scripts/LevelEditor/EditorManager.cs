@@ -1165,7 +1165,6 @@ public class EditorManager : MonoBehaviour
             // The destination has to be non-zero for us to have a preview to make at all 
             if(mvp.destPos != mvp.initPos)
             {
-                Debug.Log(mvp.initPos);
                 // From 1 to 10 pieces for the preview
                 int nbPreviewPieces = Mathf.Max(1, Mathf.Min(((int)(mvp.destPos - mvp.initPos).magnitude / 3), 10));
 
