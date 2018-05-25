@@ -15,7 +15,7 @@ public class EditorManager : MonoBehaviour
 
     // Specific pieces that go on top of other pieces and/or have a special layer due to their behaviour
     // Only instance to date are booster pads
-    private static int layerBoosterPad;
+    private static int layerOverlay;
 
     // Which layers to use our Raycasts on when we waznt to select pieces
     private static int layerMaskPieceSelection;
@@ -198,8 +198,8 @@ public class EditorManager : MonoBehaviour
         layerFloor = LayerMask.NameToLayer("Floor");
         layerWall = LayerMask.NameToLayer("Wall");
         layerDecor = LayerMask.NameToLayer("Decor");
-        layerBoosterPad = LayerMask.NameToLayer("BoosterPad");
-        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerBoosterPad | 1 << layerDecor | 1 << LayerMask.NameToLayer("Gizmo"));
+        layerOverlay = LayerMask.NameToLayer("Overlay");
+        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerOverlay | 1 << layerDecor | 1 << LayerMask.NameToLayer("Gizmo"));
 
 
         // Setup the variables for the info panel
@@ -278,7 +278,7 @@ public class EditorManager : MonoBehaviour
                 float x, y, z = 0f;
 
                 // If the selected is a prefab or a simple floor
-                if (currentPiece.layer != layerBoosterPad && currentPiece.layer != layerWall && currentPiece.layer != layerDecor)
+                if (currentPiece.layer != layerOverlay && currentPiece.layer != layerWall && currentPiece.layer != layerDecor)
                 {
                     // We use a raycast to find the plane (layerPlane)
                     RaycastHit rayHitPlane;
@@ -369,7 +369,7 @@ public class EditorManager : MonoBehaviour
                         //}
                     }
                 }
-                else if (currentPiece.layer == layerBoosterPad)
+                else if (currentPiece.layer == layerOverlay)
                 {
                     // The booster pads go on top of the floor pieces so we use a raycast to find them
                     RaycastHit rayHit;
@@ -907,7 +907,7 @@ public class EditorManager : MonoBehaviour
 
         // Check if the position is empty
         // We use a raycast to find the pieces
-        if (piece.layer != layerBoosterPad && piece.layer != layerWall)
+        if (piece.layer != layerOverlay && piece.layer != layerWall)
         {
             RaycastHit rayHitPiece;
             Ray rayPiece = Camera.main.ScreenPointToRay(pos);
