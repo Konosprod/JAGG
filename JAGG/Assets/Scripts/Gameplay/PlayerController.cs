@@ -101,14 +101,12 @@ public class PlayerController : NetworkBehaviour {
             ui.SetParList();
 
             oobActualResetTimer = oobInitialResetTimer;
-            CmdChangeColorTrail(SettingsManager._instance.gameSettings.colorTrail);
 
             if (gameObject.layer == 0)
                 CmdGetLayer();
         }
 
     }
-
 
     private void Update()
     {
@@ -338,6 +336,8 @@ public class PlayerController : NetworkBehaviour {
         Camera.main.GetComponent<BallCamera>().target = transform;
         line = GetComponent<PreviewLine>();
         line.enabled = true;
+
+        CmdChangeColorTrail(SettingsManager._instance.gameSettings.colorTrail);
     }
 
     private void FixedUpdate()
@@ -494,6 +494,7 @@ public class PlayerController : NetworkBehaviour {
 
     public void OnTrailColorChanged(Color newColor)
     {
+        Debug.Log("Hook");
         trailColor = newColor;
         trail.GetComponent<Renderer>().material.SetColor("_TintColor", trailColor);
     }
@@ -503,7 +504,9 @@ public class PlayerController : NetworkBehaviour {
     [Command]
     private void CmdChangeColorTrail(Color newColor)
     {
+        Debug.Log("Command called");
         trailColor = newColor;
+        trail.GetComponent<Renderer>().material.SetColor("_TintColor", trailColor);
     }
 
     [Command]
