@@ -12,4 +12,15 @@ public class BoosterPad : CustomScript {
     [CustomProp]
     [Tooltip("We use addForce for this part, for reference 1500 is the maximum shooting force (currently)")]
     public float addFactor = 1500.0f;
+
+    public void OnTriggerEnter(Collider other)
+    {
+        GameObject go = other.gameObject;
+
+        if(go.CompareTag("Player"))
+        {
+            Vector3 dir = transform.forward.normalized;
+            go.GetComponent<PlayerController>().OnBoosterPad(dir, multFactor, addFactor);
+        }
+    }
 }

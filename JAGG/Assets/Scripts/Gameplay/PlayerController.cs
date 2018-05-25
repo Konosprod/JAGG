@@ -371,22 +371,6 @@ public class PlayerController : NetworkBehaviour {
                 CmdPlayerInHole();
             }
         }
-        else if(LayerMask.LayerToName(otherGO.layer) == "BoosterPad")
-        {
-            Vector3 dir = otherGO.transform.forward.normalized;
-            BoosterPad bp = otherGO.GetComponent<BoosterPad>();
-            float multFactor = bp.multFactor;
-            float addFactor = bp.addFactor;
-            if(isLocalPlayer)
-            {
-                CmdBoost(dir,multFactor, addFactor);
-            }
-        }
-        //TODO : Ce warning ne devrait pas avoir lieu
-        /*else
-        {
-            Debug.LogError("Ball entered unexpected trigger : " + other.gameObject.name);
-        }*/ 
     }
 
     void OnCollisionEnter(Collision collision)
@@ -489,6 +473,14 @@ public class PlayerController : NetworkBehaviour {
         if (isLocalPlayer)
         {
             CmdWindArea(strength, direction);
+        }
+    }
+
+    public void OnBoosterPad(Vector3 direction, float multfactor, float addfactor)
+    {
+        if(isLocalPlayer)
+        {
+            CmdBoost(direction, multfactor, addfactor);
         }
     }
 
