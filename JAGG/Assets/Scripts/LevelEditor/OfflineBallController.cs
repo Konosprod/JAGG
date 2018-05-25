@@ -121,24 +121,19 @@ public class OfflineBallController : MonoBehaviour {
             testMode.EndOfTest(shots, timer);
             resetTest();
         }
-        else if (LayerMask.LayerToName(otherGO.layer) == "BoosterPad")
-        {
-            Vector3 dir = otherGO.transform.forward.normalized;
-            BoosterPad bp = otherGO.GetComponent<BoosterPad>();
-            float multFactor = bp.multFactor;
-            float addFactor = bp.addFactor;
-
-            float angle = Vector3.Angle(rb.velocity, dir);
-            rb.velocity *= multFactor * (angle > 90f ? -0.1f : 1f);
-            rb.AddForce(dir * addFactor);
-        }
-        else
-        {
-            Debug.LogError("Ball entered unexpected trigger : " + other.gameObject.name);
-        }
     }
 
+    public void OnBoosterPad(Vector3 dir, float multFactor, float addFactor)
+    {
+        float angle = Vector3.Angle(rb.velocity, dir);
+        rb.velocity *= multFactor * (angle > 90f ? -0.1f : 1f);
+        rb.AddForce(dir * addFactor);
+    }
 
+    public void InWindArea(float strength, Vector3 direction)
+    {
+        rb.AddForce(direction * strength);
+    }
 
     void OnCollisionStay(Collision collisionInfo)
     {

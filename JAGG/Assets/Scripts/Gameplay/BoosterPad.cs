@@ -20,7 +20,13 @@ public class BoosterPad : CustomScript {
         if(go.CompareTag("Player"))
         {
             Vector3 dir = transform.forward.normalized;
-            go.GetComponent<PlayerController>().OnBoosterPad(dir, multFactor, addFactor);
+            PlayerController controller = go.GetComponent<PlayerController>();
+
+            //If we are online
+            if (controller != null)
+                go.GetComponent<PlayerController>().OnBoosterPad(dir, multFactor, addFactor);
+            else
+                go.GetComponent<OfflineBallController>().OnBoosterPad(dir, multFactor, addFactor);
         }
     }
 }

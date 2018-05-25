@@ -2159,9 +2159,35 @@ Prefab:
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 114131717826521702, guid: 0ac82a97e55f18e40be907a855eb526f,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0ac82a97e55f18e40be907a855eb526f, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1049394850 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1647697555497968, guid: 0ac82a97e55f18e40be907a855eb526f,
+    type: 2}
+  m_PrefabInternal: {fileID: 1046591807}
+--- !u!114 &1049394851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1049394850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04faab371e76c2a4c8c78485a73032f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  angle: 20
+  speed: 10
+  onPoint: 1
+  target: {fileID: 0}
+  point: {x: 0, y: 0, z: 0}
 --- !u!198 &1372044184 stripped
 ParticleSystem:
   m_PrefabParentObject: {fileID: 198729237808899924, guid: 0ac82a97e55f18e40be907a855eb526f,

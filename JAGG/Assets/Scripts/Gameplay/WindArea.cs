@@ -13,7 +13,12 @@ public class WindArea : CustomScript {
 
         if(go.CompareTag("Player"))
         {
-            go.GetComponent<PlayerController>().InWindArea(strength, transform.up);
+            PlayerController controller = go.GetComponent<PlayerController>();
+
+            if (controller != null)
+                go.GetComponent<PlayerController>().InWindArea(strength, transform.up);
+            else
+                go.GetComponent<OfflineBallController>().InWindArea(strength, transform.up);
         }
     }
 }

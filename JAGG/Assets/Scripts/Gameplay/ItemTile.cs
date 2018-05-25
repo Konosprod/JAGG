@@ -13,7 +13,10 @@ public class ItemTile : CustomScript {
         if(go.CompareTag("Player"))
         {
             GameObject item = prefabsItems[Random.Range(0, prefabsItems.Count - 1)];
-            go.GetComponent<PlayerController>().AddItem(item);
+            PlayerController controller = go.GetComponent<PlayerController>();
+
+            if (controller != null)
+                controller.AddItem(item);
         }
     }
 }
