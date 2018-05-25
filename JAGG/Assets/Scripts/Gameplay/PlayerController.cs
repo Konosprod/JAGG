@@ -101,8 +101,7 @@ public class PlayerController : NetworkBehaviour {
             ui.SetParList();
 
             oobActualResetTimer = oobInitialResetTimer;
-
-            trailColor = SettingsManager._instance.gameSettings.colorTrail;
+            CmdChangeColorTrail(SettingsManager._instance.gameSettings.colorTrail);
 
             if (gameObject.layer == 0)
                 CmdGetLayer();
@@ -500,6 +499,12 @@ public class PlayerController : NetworkBehaviour {
     }
 
     #region Command
+
+    [Command]
+    private void CmdChangeColorTrail(Color newColor)
+    {
+        trailColor = newColor;
+    }
 
     [Command]
     private void CmdSwapPlayers(int target, Vector3 position, uint netid)
