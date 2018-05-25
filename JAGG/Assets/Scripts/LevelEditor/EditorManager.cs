@@ -153,6 +153,11 @@ public class EditorManager : MonoBehaviour
     private static Texture2D _staticRectTexture;
     private static GUIStyle _staticRectStyle;
 
+
+    // MovingPiece preview 
+    private static List<GameObject> mvpPreviewPieces = new List<GameObject>(); 
+
+
     // Use this for initialization
     void Start()
     {
@@ -1124,6 +1129,9 @@ public class EditorManager : MonoBehaviour
     private static void SetPieceInfoPanelVisibility()
     {
         //Debug.Log("SetPieceInfoPanelVisibility");
+
+        ClearMVPPreviewPieces();
+
         if (selectedPiecesInPlace.Count >= 1)
             _infoPanel.SetActive(true);
         else
@@ -1145,6 +1153,43 @@ public class EditorManager : MonoBehaviour
         }
         else
             Debug.LogError("No piece are selected and we try to set the name for the piece information display");
+    }
+
+
+    // We create a preview for the moving piece destination
+    // So that the user can get an idea of what the movement will be like
+    private static void GenerateMovingPiecePreview(GameObject piece, MovingPiece mvp)
+    {
+        if(piece != null && mvp != null && mvp.enabled)
+        {
+            // The destination has to be non-zero for us to have a preview to make at all 
+            if(mvp.destPos != piece.transform.position)
+            {
+                // From 1 to 10 pieces for the preview
+                int nbPreviewPieces = Mathf.Max(1, Mathf.Min(((int)(mvp.destPos-piece.transform.position).magnitude / 3), 10));
+
+                for(int i=0; i<nbPreviewPieces; i++)
+                {
+                    Vector3 pos = piece.transform.position + (((float)(i + 1) / nbPreviewPieces) * (mvp.destPos-piece.transform.position));
+                    GameObject previewPiece = Instantiate(prefabs[piece.name.Split('(')[0]], pos, piece.transform.rotation);
+                    mvpPreviewPieces.Add(previewPiece);
+                }
+            }
+            else
+            {
+                Debug.Log("Destination == Start, nothing to do");
+            }
+        }
+    }
+
+    // Clear preview pieces
+    private static void ClearMVPPreviewPieces()
+    {
+        for(int i = mvpPreviewPieces.Count-1; i>=0; i--)
+        {
+            Destroy(mvpPreviewPieces[i]);
+        }
+        mvpPreviewPieces.Clear();
     }
 
     // Sets the piece info such as position, rotation, booster pad, spinning piece parameters
@@ -1184,6 +1229,8 @@ public class EditorManager : MonoBehaviour
                 _inputMoveDestZ.text = (mvp.destZ - mvp.initZ).ToString("F");
                 _inputTravelTime.text = mvp.travelTime.ToString("F");
                 _inputMovePauseTime.text = mvp.pauseTime.ToString("F");
+
+                GenerateMovingPiecePreview(piece, mvp);
 
                 mvp.SetFlagStopMove(true);
             }
@@ -1655,6 +1702,8 @@ public class EditorManager : MonoBehaviour
             if (mvp != null)
             {
                 mvp.UpdateDestination(new Vector3(mvp.initX + x, mvp.destY, mvp.destZ));
+                ClearMVPPreviewPieces();
+                GenerateMovingPiecePreview(piece, mvp);
             }
             else
                 Debug.LogError("We try to change the X coordinate of the destination but there's no MovingPiece script on the object");
@@ -1679,6 +1728,8 @@ public class EditorManager : MonoBehaviour
             if (mvp != null)
             {
                 mvp.UpdateDestination(new Vector3(mvp.destX, mvp.initY + y, mvp.destZ));
+                ClearMVPPreviewPieces();
+                GenerateMovingPiecePreview(piece, mvp);
             }
             else
                 Debug.LogError("We try to change the Y coordinate of the destination but there's no MovingPiece script on the object");
@@ -1703,6 +1754,8 @@ public class EditorManager : MonoBehaviour
             if (mvp != null)
             {
                 mvp.UpdateDestination(new Vector3(mvp.destX, mvp.destY, mvp.initZ + z));
+                ClearMVPPreviewPieces();
+                GenerateMovingPiecePreview(piece, mvp);
             }
             else
                 Debug.LogError("We try to change the Z coordinate of the destination but there's no MovingPiece script on the object");
