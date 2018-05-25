@@ -38,7 +38,7 @@ public class PlayerController : NetworkBehaviour {
     public ParticleSystem explosion;
     public Text playerNameText;
 
-    public GameObject[] ball_parts;
+    public GameObject ballMesh;
     public GameObject failSign;
 
     private UIManager ui;
@@ -922,8 +922,7 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     private void RpcChangeBallVisibility(bool visi)
     {
-        foreach (GameObject go in ball_parts)
-            go.SetActive(visi);
+            ballMesh.SetActive(visi);
     }
 
 
