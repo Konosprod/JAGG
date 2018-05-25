@@ -328,6 +328,12 @@ public class PlayerController : NetworkBehaviour {
         }
     }
 
+    public override void OnStartClient()
+    {
+        OnTrailColorChanged(trailColor);
+        base.OnStartClient();
+    }
+
     public override void OnStartLocalPlayer()
     {
         guiCam = GameObject.FindWithTag("GUICamera");
