@@ -528,7 +528,7 @@ public class EditorManager : MonoBehaviour
                 }
 
                 //Use S to scale the selected piece
-                if (Input.GetKeyDown(KeyCode.S))
+                if (Input.GetKeyDown(KeyCode.S) && (!Input.GetKey(KeyCode.RightShift) && !Input.GetKey(KeyCode.LeftShift)))
                 {
                     //If we are not on the scaling gizmo, we activate id
                     if (!gizmoScale.gameObject.activeSelf)
