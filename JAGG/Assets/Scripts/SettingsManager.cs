@@ -13,6 +13,7 @@ public class SettingsManager : MonoBehaviour {
     public Dropdown textureQualityDropdown;
     public Dropdown antialiasingDropdown;
     public Dropdown vsyncDropdown;
+    public Dropdown accurateModeDropdown;
     public Slider BGMvolumeSlider;
     public Slider SFXvolumeSlider;
     public Slider SensibilitySlider;
@@ -81,6 +82,9 @@ public class SettingsManager : MonoBehaviour {
         AccurateSensibilitySlider.onValueChanged.RemoveAllListeners();
         AccurateSensibilitySlider.onValueChanged.AddListener(OnAccurateSensibilityChanged);
 
+        accurateModeDropdown.onValueChanged.RemoveAllListeners();
+        accurateModeDropdown.onValueChanged.AddListener(OnAccurateModeChanged);
+
         resolutionsDropdown.ClearOptions();
 
         foreach (Resolution r in resolutions)
@@ -99,6 +103,11 @@ public class SettingsManager : MonoBehaviour {
         {
             ShowReturnPanel();
         }
+    }
+
+    public void OnAccurateModeChanged(int newMode)
+    {
+        gameSettings.AccurateMode = newMode;
     }
 
     public void OnFullscreenToggle(bool newFullscreen)
@@ -171,6 +180,7 @@ public class SettingsManager : MonoBehaviour {
             SFXvolumeSlider.value = gameSettings.SFXAudioVolume;
             SensibilitySlider.value = gameSettings.Sensibility;
             AccurateSensibilitySlider.value = gameSettings.AccurateSensibility;
+            accurateModeDropdown.value = gameSettings.AccurateMode;
         }
         catch(Exception)
         {
@@ -183,6 +193,7 @@ public class SettingsManager : MonoBehaviour {
             SFXvolumeSlider.value = 1f;
             SensibilitySlider.value = 100f;
             AccurateSensibilitySlider.value = 100f;
+            accurateModeDropdown.value = 0;
         }
     }
 

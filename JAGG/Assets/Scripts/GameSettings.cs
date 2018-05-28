@@ -11,6 +11,7 @@ public class GameSettings
     public float SFXAudioVolume;
     public float Sensibility;
     public float AccurateSensibility;
+    public int AccurateMode;
     public Color colorTrail;
 
     public GameSettings()
