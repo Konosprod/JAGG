@@ -57,9 +57,23 @@ public class BallCamera : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.A))
+        if (SettingsManager._instance.gameSettings.AccurateMode == 0)
         {
-            isAccurateMode = !isAccurateMode;
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                isAccurateMode = !isAccurateMode;
+            }
+        }
+        else
+        {
+            if(Input.GetKey(KeyCode.A))
+            {
+                isAccurateMode = true;
+            }
+            else
+            {
+                isAccurateMode = false;
+            }
         }
 
         xSpeed = defaultXSpeed * rescale(SettingsManager._instance.gameSettings.Sensibility);
