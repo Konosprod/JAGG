@@ -22,7 +22,7 @@ public class CustomPhysics : NetworkBehaviour
     private int i;
     private Vector3 lastWallHit;
     private int frameHit;
-    public bool Stable;
+    public bool stable;
 
     private int layerWall;
 
@@ -293,14 +293,14 @@ public class CustomPhysics : NetworkBehaviour
         Vector3 position = transform.position;
         position.y = GetComponent<Collider>().bounds.min.y + 0.02f;
         float length = 0.03f;
-        Debug.DrawRay(position, Vector3.down * length);
+        //Debug.DrawRay(position, Vector3.down * length);
         RaycastHit test;
         bool grounded = Physics.Linecast(position, position + (Vector3.down * length), out test);
 
-        Stable = false;
+        stable = false;
 
         if (grounded)
-            Stable = test.normal == Vector3.up;
+            stable = test.normal == Vector3.up;
 
         float stopSpeedThreshold = 0.1f;
         float unevenGroundstopSpeedThreshold = 0.01f;
@@ -308,7 +308,7 @@ public class CustomPhysics : NetworkBehaviour
         if (IsGrounded || grounded)
         {
             // Check if we should stop when grounded
-            if (rb.velocity.magnitude < (Stable ? stopSpeedThreshold : unevenGroundstopSpeedThreshold))
+            if (rb.velocity.magnitude < (stable ? stopSpeedThreshold : unevenGroundstopSpeedThreshold))
                 rb.velocity = Vector3.zero;
         }
 
@@ -318,7 +318,7 @@ public class CustomPhysics : NetworkBehaviour
         /*if ((grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null ) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
             Debug.Log("We are above a RotatePiece/MovingPiece, always apply gravity");*/
 
-        if (!Stable || (grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
+        if (!stable || (grounded && test.collider.gameObject.GetComponentInParent<RotatePiece>() != null) || (grounded && test.collider.gameObject.GetComponentInParent<MovingPiece>() != null))
         {
             // Can use custom gravity to obtain various results
             Vector3 grav = new Vector3();

@@ -158,7 +158,7 @@ public class PlayerController : NetworkBehaviour {
             if (!isMoving)
             {
                 // Update the last position where the ball stopped
-                if (GetComponent<CustomPhysics>().Stable)
+                if (GetComponent<CustomPhysics>().stable && !isOOB)
                     lastStopPos = transform.position;
 
                 int maxShot = lobbyManager.GetMaxShot();
