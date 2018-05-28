@@ -30,7 +30,7 @@ public class CustomizationManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             //Save();
-            SceneManager.LoadScene("MainMenu");
+            Return();
         }
     }
 
@@ -38,5 +38,10 @@ public class CustomizationManager : MonoBehaviour
     {
         SettingsManager._instance.gameSettings.colorTrail = selectedColor;
         SettingsManager._instance.SaveSettings();
+    }
+
+    public void Return()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }
