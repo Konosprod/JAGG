@@ -16,6 +16,8 @@ public class AuthenticationManager : MonoBehaviour {
 
     public static AuthenticationManager _instance;
 
+    private bool test = false;
+
     void Awake()
     {
         if (_instance == null)
@@ -78,6 +80,8 @@ public class AuthenticationManager : MonoBehaviour {
         uint ticketSize = 0;
         SteamUser.GetAuthSessionTicket(ticket, 1000, out ticketSize);
 
+        loadingOverlay.messageText.text = "Authentification...";
+
         WWWForm form = new WWWForm();
         form.AddField("ticket", ByteArrayToString(ticket));
         form.AddField("steamid", (SteamUser.GetSteamID().m_SteamID).ToString());
@@ -93,6 +97,9 @@ public class AuthenticationManager : MonoBehaviour {
             Debug.Log(www.error);
             Debug.Log(www.responseCode);
             Debug.Log(www.downloadHandler.text);
+            loadingOverlay.messageText.text = "Error, retrying in 3 secs";
+            yield return new WaitForSeconds(3);
+            StartCoroutine(Authenticate());
         }
         else
         {
@@ -107,10 +114,13 @@ public class AuthenticationManager : MonoBehaviour {
             }
             else
             {
+                loadingOverlay.messageText.text = "Error, retrying in 3 secs";
                 Debug.Log("error while authenticating");
                 isAuthenticated = false;
                 loadingOverlay.StopAnimation();
                 loadingOverlay.gameObject.SetActive(false);
+                yield return new WaitForSeconds(3);
+                StartCoroutine(Authenticate());
             }
         }
 
