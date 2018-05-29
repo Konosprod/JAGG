@@ -2,14 +2,7 @@
 using UnityEngine;
 using System.Text.RegularExpressions;
 
-public class IPInputField : MonoBehaviour {
-
-    public InputField inputField;
-
-    [HideInInspector]
-    public bool isValid = false;
-
-    private string allowed = "[^0-9.]";
+public class IPInputField : InputFieldValidate {
 
     void Start()
     {
@@ -17,22 +10,13 @@ public class IPInputField : MonoBehaviour {
         UpdateField();
     }
 
-    public void UpdateField()
+    public override void Validate(string text)
     {
-        string text = inputField.text;
-        string output = Regex.Replace(text, allowed, string.Empty, RegexOptions.IgnoreCase);
-        inputField.text = output;
+        string[] bytes = text.Split('.');
 
-        ValidateIPv4(output);
-    }
-
-    public void ValidateIPv4(string ip)
-    {
-        string[] bytes = ip.Split('.');
-
-        if(bytes.Length == 4)
+        if (bytes.Length == 4)
         {
-            foreach(string b in bytes)
+            foreach (string b in bytes)
             {
                 if (b != "")
                 {
