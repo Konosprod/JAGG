@@ -10,6 +10,7 @@ public class SnappingPoint : MonoBehaviour {
     public float sphereRadius;
     public float maxDistance;
     public LayerMask layerMask;
+    public MeshRenderer sphere;
 
     private Vector3 direction;
     private Vector3 origin;
@@ -23,10 +24,12 @@ public class SnappingPoint : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (shouldSnap)
+        if (Input.GetKey(KeyCode.LeftControl))
         {
-            if (Input.GetKey(KeyCode.LeftControl))
+            sphere.enabled = true;
+            if (shouldSnap)
             {
+                
                 origin = transform.position;
                 direction = transform.forward;
                 RaycastHit hit;
@@ -45,19 +48,23 @@ public class SnappingPoint : MonoBehaviour {
                 }
             }
         }
+        else
+        {
+            sphere.enabled = false;
+        }
 
     }
     /*
     private void OnDrawGizmosSelected()
     {
-        if (shouldSnap)
-        {
+        //if (shouldSnap)
+        //{
             Gizmos.color = Color.red;
 
             Debug.DrawLine(origin, origin + direction * currentHitDistance);
             Gizmos.DrawWireSphere(origin + direction * currentHitDistance, sphereRadius);
-        }
-    }*/
+        //}
+    }
 
     /*
     void OnTriggerEnter(Collider other)
