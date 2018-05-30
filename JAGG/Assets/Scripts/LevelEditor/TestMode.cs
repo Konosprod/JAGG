@@ -35,23 +35,26 @@ public class TestMode : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T) && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
+        if (editorMan.canEdit)
         {
-            TestHole(true);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Escape) && isTestMode)
-        {
-            TestHole(false);
-            ball.GetComponent<OfflineBallController>().resetTest();
-        }
-
-        if(endOfTestPanel != null  && endOfTestPanel.activeSelf)
-        {
-            panelTimer -= Time.deltaTime;
-            if(panelTimer < 0f)
+            if (Input.GetKeyDown(KeyCode.T) && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
             {
-                endOfTestPanel.SetActive(false);
+                TestHole(true);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape) && isTestMode)
+            {
+                TestHole(false);
+                ball.GetComponent<OfflineBallController>().resetTest();
+            }
+
+            if (endOfTestPanel != null && endOfTestPanel.activeSelf)
+            {
+                panelTimer -= Time.deltaTime;
+                if (panelTimer < 0f)
+                {
+                    endOfTestPanel.SetActive(false);
+                }
             }
         }
     }
