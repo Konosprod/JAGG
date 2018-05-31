@@ -23,13 +23,14 @@ public class CustomLevelLoader : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
-        loadedPieces = new List<GameObject>();
  
     }
-    
 
     public void LoadLevel(string path)
     {
+        if (loadedPieces == null)
+            loadedPieces = new List<GameObject>();
+
         //ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile + ".map"));
         ZipFile mapFile = new ZipFile(path);
 
@@ -115,11 +116,12 @@ public class CustomLevelLoader : MonoBehaviour {
                     o.transform.parent = loadedPieces[j - 1].transform;
 
                 o.GetComponent<TerrainPiece>().FromJson(jPiece.ToString());
-                    
+
+                if (o == null)
+                    Debug.Log("merde");
 
                 o.SetActive(true);
                 loadedPieces.Add(o);
-
             }
             /*
             foreach (JObject jPiece in jHole["pieces"])
