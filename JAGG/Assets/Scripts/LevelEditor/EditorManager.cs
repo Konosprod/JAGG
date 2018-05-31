@@ -12,6 +12,8 @@ public class EditorManager : MonoBehaviour
     private static int layerFloor;
     private static int layerWall;
     private static int layerDecor;
+    private static int layerGizmo;
+    private static int layerSnap;
 
     // Specific pieces that go on top of other pieces and/or have a special layer due to their behaviour
     // Only instance to date are booster pads
@@ -205,7 +207,9 @@ public class EditorManager : MonoBehaviour
         layerWall = LayerMask.NameToLayer("Wall");
         layerDecor = LayerMask.NameToLayer("Decor");
         layerOverlay = LayerMask.NameToLayer("Overlay");
-        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerOverlay | 1 << layerDecor | 1 << LayerMask.NameToLayer("Gizmo"));
+        layerGizmo = LayerMask.NameToLayer("Gizmo");
+        layerSnap = LayerMask.NameToLayer("SnapPoint");
+        layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerOverlay | 1 << layerDecor | 1 << layerGizmo | 1 << layerSnap);
 
 
         // Setup the variables for the info panel
@@ -646,31 +650,37 @@ public class EditorManager : MonoBehaviour
                             RaycastHit rayHitPiece;
                             if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
                             {
-
                                 GameObject piece = rayHitPiece.transform.gameObject;
 
-                                string pName = piece.name.Split(' ')[0];
-                                while (piece.transform.parent != null && pName != "Hole")
+                                if (piece.layer == LayerMask.NameToLayer("SnapPoint"))
                                 {
-                                    pName = piece.transform.parent.gameObject.name.Split(' ')[0];
-                                    if (pName != "Hole")
-                                        piece = piece.transform.parent.gameObject;
-                                }
-
-                                if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
-                                {
-                                    if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
-                                    {
-                                        currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
-                                    }
-                                    else
-                                    {
-                                        currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
-                                    }
+                                    Debug.Log("SnapPoint");
                                 }
                                 else
                                 {
-                                    currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                                    string pName = piece.name.Split(' ')[0];
+                                    while (piece.transform.parent != null && pName != "Hole")
+                                    {
+                                        pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                                        if (pName != "Hole")
+                                            piece = piece.transform.parent.gameObject;
+                                    }
+
+                                    if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
+                                    {
+                                        if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                                        {
+                                            currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                        }
+                                        else
+                                        {
+                                            currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                                    }
                                 }
                             }
                             else
@@ -705,80 +715,6 @@ public class EditorManager : MonoBehaviour
                                 }
                             }
                         }
-
-                        /*
-                        // We use a raycast to find the pieces
-                        RaycastHit rayHitPiece;
-                        Ray rayPiece = Camera.main.ScreenPointToRay(Input.mousePosition);
-                        if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
-                        {
-                            //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
-                            GameObject piece = rayHitPiece.transform.gameObject;
-
-                            // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
-                            //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
-                            //{
-                            string pName = piece.name.Split(' ')[0];
-                            while (piece.transform.parent != null && pName != "Hole")
-                            {
-                                pName = piece.transform.parent.gameObject.name.Split(' ')[0];
-                                if (pName != "Hole")
-                                    piece = piece.transform.parent.gameObject;
-                            }
-                            //}
-
-                            // Debug.Log(piece.name);
-
-                            // Add to the selection or remove from the selection if the piece was already selected
-                            if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
-                            {
-                                if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
-                                {
-                                    currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
-                                }
-                                else
-                                {
-                                    currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
-                                }
-                            }
-                            else
-                            {
-                                currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
-                            }
-                        }
-                        //If we click on something that is not a gizmo
-                        else if(!Physics.Raycast(gizmoCamera.ScreenPointToRay(Input.mousePosition), out rayHitPiece, Mathf.Infinity, LayerMask.GetMask("Gizmo")))
-                        {
-                            //If gizmo rotation is activated, we disable it
-                            if (gizmoRotate.gameObject.activeSelf)
-                            {
-                                gizmoRotate.transform.localEulerAngles = Vector3.zero;
-                                gizmoRotate.gameObject.SetActive(false);
-                            }
-
-                            //If gizmo scaling is activated, we disable it
-                            if(gizmoScale.gameObject.activeSelf)
-                            {
-                                gizmoScale.transform.localEulerAngles = Vector3.zero;
-                                gizmoScale.gameObject.SetActive(false);
-                            }
-
-                            if(gizmoTranslate.gameObject.activeSelf)
-                            {
-                                gizmoTranslate.transform.localEulerAngles = Vector3.zero;
-                                gizmoTranslate.gameObject.SetActive(false);
-                            }
-
-                            // Click on an empty space => deselect all pieces
-                            // If the player is shifting, we tolerate clicks on empty spaces (to avoid ruining multi-selection)
-                            if (!(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
-                            {
-                                gizmoRotate.gameObject.SetActive(false);
-                                gizmoScale.gameObject.SetActive(false);
-                                gizmoTranslate.gameObject.SetActive(false);
-                                currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
-                            }
-                        }*/
                     }
                 }
 
@@ -947,6 +883,7 @@ public class EditorManager : MonoBehaviour
                 currentPiece = Instantiate(piece, piece.transform.position, piece.transform.rotation);
                 // Disable all colliders so that Raycasts can go through the currentPiece
                 SetAllCollidersStatus(false, currentPiece);
+                EnableSnappingPoints(currentPiece);
 
                 // Deselect all pieces when we pick something in the UI
                 //currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
@@ -1889,6 +1826,7 @@ public class EditorManager : MonoBehaviour
                 // Enable all colliders so that Raycasts do hit the piece
                 _CP.result.transform.parent = currentHoleObject.transform;
                 SetAllCollidersStatus(true, _CP.result);
+                EnableSnappingPoints(_CP.result);
                 piecesInPlace[currentHole].Add(_CP.result);
 
                 // If we have multiple pieces to instantiate
@@ -1901,6 +1839,7 @@ public class EditorManager : MonoBehaviour
                         GameObject newGO = Instantiate(prefabs[piece.name.Split('(')[0]], piece.transform.position, piece.transform.rotation);
                         newPieces.Add(newGO);
                         SetAllCollidersStatus(true, newGO);
+                        EnableSnappingPoints(newGO);
                         piecesInPlace[currentHole].Add(newGO);
                         newGO.transform.parent = currentHoleObject.transform;
                     }
@@ -2763,5 +2702,13 @@ public class EditorManager : MonoBehaviour
         levelProp.maxTime = time;
 
         levelsProperties[currentHole] = currentLevelProperties;
+    }
+
+    private static void EnableSnappingPoints(GameObject o)
+    {
+        SnappingPoint[] points = o.GetComponentsInChildren<SnappingPoint>(true);
+
+        foreach (SnappingPoint sp in points)
+            sp.gameObject.SetActive(true);
     }
 }
