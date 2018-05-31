@@ -7,6 +7,8 @@ using Newtonsoft.Json.Linq;
 public class TerrainPiece : MonoBehaviour {
     public string id;
     public bool prefab = true;
+    public int number;
+    public int parentNumber = -1;
 
     public JContainer ToJson(JContainer parent = null)
     {
@@ -37,6 +39,8 @@ public class TerrainPiece : MonoBehaviour {
         };
 
         obj.Add("id", id);
+        obj.Add("number", number);
+        obj.Add("parentNumber", parentNumber);
         obj.Add("rotation", rotation);
         obj.Add("scale", scale);
         obj.Add("position", position);
@@ -59,6 +63,9 @@ public class TerrainPiece : MonoBehaviour {
     public void FromJson(string json)
     {
         JObject obj = JObject.Parse(json);
+
+        number = (int)obj["number"];
+        parentNumber = (int)obj["parentNumber"];
 
         gameObject.transform.position = new Vector3(
             (float)obj["position"]["x"],
@@ -97,6 +104,5 @@ public class TerrainPiece : MonoBehaviour {
                 cScript.FromJson(script.ToString());
             }
         }
-
     }
 }

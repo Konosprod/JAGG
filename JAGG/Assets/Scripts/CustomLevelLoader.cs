@@ -16,11 +16,14 @@ public class CustomLevelLoader : MonoBehaviour {
     [HideInInspector]
     public int mapid = 0;
 
+    private List<GameObject> loadedPieces;
+
     private Dictionary<string, GameObject> cachePiece = new Dictionary<string, GameObject>();
 
     // Use this for initialization
     void Awake()
     {
+        loadedPieces = new List<GameObject>();
  
     }
     
@@ -91,6 +94,34 @@ public class CustomLevelLoader : MonoBehaviour {
                     startPoint.AddComponent<NetworkStartPosition>();
             }
 
+            JArray pieces = jHole["pieces"] as JArray;
+
+            for(int j = 0; j < pieces.Count; j++)
+            {
+                JObject jPiece = pieces[j] as JObject;
+                GameObject objectToLoad = null;
+
+                objectToLoad = LoadPiece(jPiece["id"].ToString());
+
+
+                if (objectToLoad == null)
+                {
+                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
+                }
+
+                GameObject o = Instantiate(objectToLoad, hole.transform);
+
+                if((int)jPiece["parentNumber"] != -1)
+                    o.transform.parent = loadedPieces[j - 1].transform;
+
+                o.GetComponent<TerrainPiece>().FromJson(jPiece.ToString());
+                    
+
+                o.SetActive(true);
+                loadedPieces.Add(o);
+
+            }
+            /*
             foreach (JObject jPiece in jHole["pieces"])
             {
                 GameObject objectToLoad = null;
@@ -109,6 +140,7 @@ public class CustomLevelLoader : MonoBehaviour {
 
                 o.SetActive(true);
             }
+            */
 
             GameObject goLevelProp = null;
             Transform hasLevelProperties = hole.transform.Find("Level Properties");
@@ -138,6 +170,8 @@ public class CustomLevelLoader : MonoBehaviour {
             holes.transform.GetChild(j - 1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = spawnPositions[j].transform;
         }
         holes.transform.GetChild(((JArray)level["holes"]).Count - 1).GetComponentInChildren<LevelProperties>().nextSpawnPoint = endOfGame.transform;
+
+        loadedPieces.Clear();
     }
 
     // Update is called once per frame

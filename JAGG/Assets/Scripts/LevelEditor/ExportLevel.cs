@@ -62,6 +62,30 @@ public class ExportLevel : MonoBehaviour {
 
                     TerrainPiece[] pieces = hole.GetComponentsInChildren<TerrainPiece>();
 
+                    for(int j = 0; j < pieces.Length; j++)
+                    {
+                        TerrainPiece piece = pieces[j];
+
+                        piece.number = j;
+
+                        if(piece.transform.parent != holeTransform)
+                        {
+                            piece.parentNumber = j - 1;
+                        }
+
+                        piece.ToJson(jPieces);
+
+                        if (!piece.prefab)
+                        {
+                            //Copy .obj, .mtl, .png to obj/
+                            string path = Path.GetDirectoryName(ObjImporter.GetObjPath(piece.id)) + Path.DirectorySeparatorChar;
+
+                            mapFile.AddFile(path + piece.id + ".obj", "obj");
+                            mapFile.AddFile(path + piece.id + ".mtl", "obj");
+                            mapFile.AddFile(path + piece.id + ".png", "obj");
+                        }
+                    }
+                    /*
                     foreach (TerrainPiece piece in pieces)
                     {
                         piece.ToJson(jPieces);
@@ -75,7 +99,7 @@ public class ExportLevel : MonoBehaviour {
                             mapFile.AddFile(path + piece.id + ".mtl", "obj");
                             mapFile.AddFile(path + piece.id + ".png", "obj");
                         }
-                    }
+                    }*/
 
                     h.Add("pieces", jPieces);
 
@@ -113,8 +137,17 @@ public class ExportLevel : MonoBehaviour {
 
                 TerrainPiece[] pieces = hole.GetComponentsInChildren<TerrainPiece>();
 
-                foreach (TerrainPiece piece in pieces)
+                for (int j = 0; j < pieces.Length; j++)
                 {
+                    TerrainPiece piece = pieces[j];
+
+                    piece.number = j;
+
+                    if (piece.transform.parent != holeTransform)
+                    {
+                        piece.parentNumber = j - 1;
+                    }
+
                     piece.ToJson(jPieces);
 
                     if (!piece.prefab)
@@ -127,6 +160,25 @@ public class ExportLevel : MonoBehaviour {
                         mapFile.AddFile(path + piece.id + ".png", "obj");
                     }
                 }
+
+                /*
+                foreach (TerrainPiece piece in pieces)
+                {
+                    Debug.Log(piece.transform.parent.transform == holeTransform);
+
+                    piece.ToJson(jPieces);
+
+                    if (!piece.prefab)
+                    {
+                        //Copy .obj, .mtl, .png to obj/
+                        string path = Path.GetDirectoryName(ObjImporter.GetObjPath(piece.id)) + Path.DirectorySeparatorChar;
+
+                        mapFile.AddFile(path + piece.id + ".obj", "obj");
+                        mapFile.AddFile(path + piece.id + ".mtl", "obj");
+                        mapFile.AddFile(path + piece.id + ".png", "obj");
+                    }
+                }
+                */
 
                 h.Add("pieces", jPieces);
 
@@ -151,6 +203,8 @@ public class ExportLevel : MonoBehaviour {
         }
 
         customLevel.Add("holes", jholes);
+
+        Debug.Log(customLevel);
 
         MemoryStream ms = new MemoryStream();
         MemoryStream outZip = new MemoryStream();
