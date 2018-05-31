@@ -45,7 +45,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1393004527669276
 GameObject:
   m_ObjectHideFlags: 0
@@ -115,7 +115,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1855752927592236
 GameObject:
   m_ObjectHideFlags: 0
@@ -453,6 +453,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Corner/FloorCornerCutMirror
   prefab: 1
+  number: 0
+  parentNumber: -1
 --- !u!114 &114283908103854562
 MonoBehaviour:
   m_ObjectHideFlags: 1

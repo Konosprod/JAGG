@@ -101,7 +101,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1429154150972118
 GameObject:
   m_ObjectHideFlags: 0
@@ -225,7 +225,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4017633831604396
 Transform:
   m_ObjectHideFlags: 1
@@ -908,6 +908,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Specials/BarrelRoll
   prefab: 1
+  number: 0
+  parentNumber: -1
 --- !u!114 &114948538530892682
 MonoBehaviour:
   m_ObjectHideFlags: 1
