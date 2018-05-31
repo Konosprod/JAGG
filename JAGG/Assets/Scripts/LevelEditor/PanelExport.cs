@@ -20,6 +20,13 @@ public class PanelExport : MonoBehaviour {
     public InputField nameInput;
     public Button saveLocalButton;
     public Button uploadButton;
+
+    [Header("ProgressBar")]
+    public GameObject panelProgress;
+    public Text percentageText;
+    public Slider progressBar;
+
+    [Header("Other")]
     public GameObject grid;
     public EditorManager editorManager;
 
@@ -78,6 +85,7 @@ public class PanelExport : MonoBehaviour {
 
     public void UploadMap()
     {
+        panelProgress.SetActive(true);
         Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Levels/local"));
         byte[] binary = levelExporter.CreateCustomLevel(nameInput.text, SteamFriends.GetPersonaName(), checkHoleValidity);
 
@@ -148,6 +156,8 @@ public class PanelExport : MonoBehaviour {
 
         while (!request.isDone)
         {
+            progressBar.value = request.progress * 100;
+            percentageText.text = progressBar.value.ToString("0.##") + " %";
             yield return null;
         }
 
@@ -194,6 +204,8 @@ public class PanelExport : MonoBehaviour {
                 saveCallback.Invoke();
             }
         }
+
+        panelProgress.SetActive(false);
     }
 
     IEnumerator TakeScreenShot()
