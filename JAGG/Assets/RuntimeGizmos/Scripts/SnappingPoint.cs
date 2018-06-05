@@ -36,6 +36,7 @@ public class SnappingPoint : MonoBehaviour {
 
                 if (Physics.SphereCast(origin, sphereRadius, direction, out hit, maxDistance, layerMask))
                 {
+                    Debug.Log(transform.name);
                     //currentHitDistance = hit.distance;
                     isSnapped = true;
                     col.isTrigger = false;

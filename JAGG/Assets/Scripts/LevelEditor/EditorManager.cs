@@ -157,7 +157,9 @@ public class EditorManager : MonoBehaviour
 
 
     // MovingPiece preview 
-    private static List<GameObject> mvpPreviewPieces = new List<GameObject>(); 
+    private static List<GameObject> mvpPreviewPieces = new List<GameObject>();
+
+    private List<GameObject> selectedSnapPoints = new List<GameObject>();
 
 
     // Use this for initialization
@@ -654,7 +656,27 @@ public class EditorManager : MonoBehaviour
 
                                 if (piece.layer == LayerMask.NameToLayer("SnapPoint"))
                                 {
-                                    Debug.Log("SnapPoint");
+                                    if (selectedSnapPoints.Count < 1)
+                                    {
+                                        Debug.Log("Add snap point");
+                                        selectedSnapPoints.Add(piece);
+                                    }
+                                    else
+                                    {
+                                        gizmoTranslate.gameObject.SetActive(false);
+                                        SnappingPoint sp = selectedSnapPoints[0].transform.gameObject.GetComponent<SnappingPoint>();
+
+                                        sp.shouldSnap = false;
+                                        sp.isSnapped = true;
+                                        sp.col.isTrigger = false;
+
+                                        selectedSnapPoints[0].transform.parent.transform.rotation = Quaternion.LookRotation(-1*piece.transform.forward);
+
+                                        Vector3 offset = piece.transform.position - selectedSnapPoints[0].transform.position;
+                                        selectedSnapPoints[0].transform.parent.transform.position += offset;
+
+                                        selectedSnapPoints.Clear();
+                                    }
                                 }
                                 else
                                 {
