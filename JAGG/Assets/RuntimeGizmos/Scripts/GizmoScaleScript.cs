@@ -115,15 +115,26 @@ public class GizmoScaleScript : MonoBehaviour {
 
         for (int i = 0; i < 4; i++) {
             if (Input.GetMouseButton(0) && detectors[i].pressing) {
-
+                float distance = Vector3.Distance(Camera.main.transform.position, scaleTarget.transform.position);
+                distance = distance * 2.0f;
                 switch (i) {
 
                     // X Axis
                     case 0:
                         {
                             // Scale along the X axis
+                            /*
                             float delta = Input.GetAxis("Mouse X") * (Time.deltaTime);
                             delta *= scaleSpeed;
+                            */
+
+                            distance = Vector3.Distance(Camera.main.transform.position, scaleTarget.transform.position);
+                            distance = distance * 2.0f;
+                            float delta = 0;
+
+
+                            Vector3 inputVector = (new Vector3(Input.GetAxis("Mouse X"), 0f, -Input.GetAxis("Mouse Y")).normalized);
+                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.right, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
 
                             if ((scaleTarget.transform.localScale.x - delta) <= 0.01f) return;
                             scaleTarget.transform.localScale += new Vector3(-delta, 0.0f, 0.0f);
@@ -181,8 +192,14 @@ public class GizmoScaleScript : MonoBehaviour {
                     case 2:
                         {
                             // Scale along the Z axis
-                            float delta = Input.GetAxis("Mouse X") * (Time.deltaTime);
-                            delta *= scaleSpeed;
+                            distance = Vector3.Distance(Camera.main.transform.position, scaleTarget.transform.position);
+                            distance = distance * 2.0f;
+                            float delta = 0;
+
+
+                            Vector3 inputVector = (new Vector3(-Input.GetAxis("Mouse X"), 0f, Input.GetAxis("Mouse Y")).normalized);
+                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.back, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
+
 
                             if ((scaleTarget.transform.localScale.z + delta) <= 0.01f) return;
                             scaleTarget.transform.localScale += new Vector3(0.0f, 0.0f, delta);
