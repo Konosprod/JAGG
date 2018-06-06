@@ -2733,4 +2733,11 @@ public class EditorManager : MonoBehaviour
         foreach (SnappingPoint sp in points)
             sp.gameObject.SetActive(true);
     }
+
+    public void DisableGizmos()
+    {
+        gizmoTranslate.gameObject.SetActive(false);
+        gizmoScale.gameObject.SetActive(false);
+        gizmoTranslate.gameObject.SetActive(false);
+    }
 }

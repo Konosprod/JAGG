@@ -39,6 +39,7 @@ public class TestMode : MonoBehaviour {
         {
             if (Input.GetKeyDown(KeyCode.T) && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
             {
+                editorMan.DisableGizmos();
                 TestHole(true);
             }
 
