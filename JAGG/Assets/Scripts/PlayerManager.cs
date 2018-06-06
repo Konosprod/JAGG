@@ -380,6 +380,29 @@ public class PlayerManager : NetworkBehaviour {
         }
     }
 
+    public void ResetInvertedCamera()
+    {
+        foreach(GameObject go in players.Values)
+        {
+            go.GetComponent<PlayerController>().RpcInvertCamera(false);
+        }
+    }
+
+    public void InvertCamera(float time, uint netid)
+    {
+        foreach (GameObject go in players.Values)
+        {
+            NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+            if (networkIdentity.netId.Value != netid)
+            {
+                go.GetComponent<PlayerController>().RpcInvertCamera(true);
+            }
+        }
+
+        StartCoroutine(WaitForCooldown(time, ResetPixelation));
+    }
+
     public void ResetPixelation()
     {
         foreach(GameObject go in players.Values)

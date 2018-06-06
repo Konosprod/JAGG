@@ -467,6 +467,11 @@ public class PlayerController : NetworkBehaviour {
         CmdResetGravity();
     }
 
+    public void InvertCamera(float time)
+    {
+        CmdInvertCamera(time, netId.Value);
+    }
+
     public void Pixelation(float time)
     {
         CmdPixelation(time, netId.Value);
@@ -506,6 +511,12 @@ public class PlayerController : NetworkBehaviour {
     }
 
     #region Command
+
+    [Command]
+    private void CmdInvertCamera(float time, uint netid)
+    {
+        lobbyManager.playerManager.InvertCamera(time, netid);
+    }
 
     [Command]
     private void CmdChangeColorTrail(Color newColor)
@@ -787,6 +798,13 @@ public class PlayerController : NetworkBehaviour {
     #endregion
 
     #region ClientRpc
+
+    [ClientRpc]
+    public void RpcInvertCamera(bool invert)
+    {
+        Camera.main.GetComponent<BallCamera>().InvertCamera(invert);
+    }
+
     [ClientRpc]
     void RpcShowScores()
     {

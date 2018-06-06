@@ -43,6 +43,9 @@ public class BallCamera : MonoBehaviour
 
     public bool shouldFollow = true;
 
+    //Control direction for X axis, used to invert camera
+    public int directionControl = 1;
+
     // Use this for initialization
     void Start()
     {
@@ -94,8 +97,8 @@ public class BallCamera : MonoBehaviour
             float trueXSpeed = (isAccurateMode) ? xSpeedAccurate : xSpeed;
             float trueYSpeed = (isAccurateMode) ? ySpeedAccurate : ySpeed;
 
-            x += Input.GetAxis("Mouse X") * trueXSpeed * Mathf.Pow(Mathf.Clamp(distance,1f,distanceMax), 1f / 3f) * Time.deltaTime;
-            y -= Input.GetAxis("Mouse Y") * trueYSpeed * Time.deltaTime;
+            x += directionControl * Input.GetAxis("Mouse X") * trueXSpeed * Mathf.Pow(Mathf.Clamp(distance,1f,distanceMax), 1f / 3f) * Time.deltaTime;
+            y -= directionControl * Input.GetAxis("Mouse Y") * trueYSpeed * Time.deltaTime;
 
             y = ClampAngle(y, yMinLimit, yMaxLimit);
 
@@ -161,5 +164,10 @@ public class BallCamera : MonoBehaviour
         if (angle > 360F)
             angle -= 360F;
         return Mathf.Clamp(angle, min, max);
+    }
+
+    public void InvertCamera(bool invert)
+    {
+        directionControl = invert ? 1 : -1;
     }
 }
