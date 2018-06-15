@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -93,6 +94,13 @@ public class EditorManager : MonoBehaviour
     public InputField inputTravelTime;
     public InputField inputMovePauseTime;
 
+    [Header("Custom Script")]
+    public Text textBoosterPad;
+    public InputField inputMultFactorBP;
+    public InputField inputAddFactorBP;
+    public Text textWindArea;
+    public InputField inputStrengthWA;
+
     [Header("Gizmo")]
     public GizmoRotateScript gizmoRotate;
     public GizmoScaleScript gizmoScale;
@@ -123,6 +131,13 @@ public class EditorManager : MonoBehaviour
     private static InputField _inputMoveDestZ;
     private static InputField _inputTravelTime;
     private static InputField _inputMovePauseTime;
+    // Booster pad
+    private static Text _textBoosterPad;
+    private static InputField _inputMultFactorBP;
+    private static InputField _inputAddFactorBP;
+    //Wind area
+    private static Text _textWindArea;
+    private static InputField _inputStrengthWA;
     //Gizmo things
     private static GizmoRotateScript _gizmoRotate;
     private static GizmoScaleScript _gizmoScale;
@@ -238,6 +253,11 @@ public class EditorManager : MonoBehaviour
         _gizmoRotate = gizmoRotate;
         _gizmoScale = gizmoScale;
         _gizmoTranslate = gizmoTranslate;
+        _textBoosterPad = textBoosterPad;
+        _inputMultFactorBP = inputMultFactorBP;
+        _inputAddFactorBP = inputAddFactorBP;
+        _textWindArea = textWindArea;
+        _inputStrengthWA = inputStrengthWA;
 
         // Grab the lemvpManager instance
         lemvpManager = LevelEditorMovingPieceManager._instance;
@@ -1155,6 +1175,8 @@ public class EditorManager : MonoBehaviour
     // Sets the piece info such as position, rotation, booster pad, spinning piece parameters
     private static void SetPieceInfoData()
     {
+        DisableCustomScriptEntries();
+
         if (selectedPiecesInPlace.Count == 1)
         {
             // Position and rotation are displayed by default
@@ -1215,6 +1237,34 @@ public class EditorManager : MonoBehaviour
             _inputRotY.interactable = true;
             _inputRotZ.interactable = true;
 
+
+            CustomScript customScript = piece.GetComponentInChildren<CustomScript>();
+            if (customScript != null)
+            {
+                System.Type scriptType = customScript.GetType();
+
+                if(scriptType == typeof(BoosterPad))
+                {
+                    BoosterPad bp = customScript as BoosterPad;
+
+                    _textBoosterPad.gameObject.SetActive(true);
+                    _inputAddFactorBP.gameObject.SetActive(true);
+                    _inputMultFactorBP.gameObject.SetActive(true);
+
+                    _inputMultFactorBP.text = bp.multFactor.ToString("F");
+                    _inputAddFactorBP.text = bp.addFactor.ToString("F");
+                }
+
+                if(scriptType == typeof(WindArea))
+                {
+                    WindArea wa = customScript as WindArea;
+
+                    _textWindArea.gameObject.SetActive(true);
+                    _inputStrengthWA.gameObject.SetActive(true);
+
+                    _inputStrengthWA.text = wa.strength.ToString("F");
+                }
+            }
 
         }
         else if (selectedPiecesInPlace.Count > 1)
@@ -1281,6 +1331,9 @@ public class EditorManager : MonoBehaviour
             _inputRotX.interactable = sameVals[3];
             _inputRotY.interactable = sameVals[4];
             _inputRotZ.interactable = sameVals[5];
+
+            // Disable everything related to custom scripts
+            DisableCustomScriptEntries();
         }
         else
             Debug.LogError("No piece are selected and we try to set the data for the piece information display");
@@ -1290,6 +1343,15 @@ public class EditorManager : MonoBehaviour
     private static bool ApproximatelyEquals(float a, float b)
     {
         return Mathf.Abs(a - b) < epsilon;
+    }
+
+    private static void DisableCustomScriptEntries()
+    {
+        _textBoosterPad.gameObject.SetActive(false);
+        _inputAddFactorBP.gameObject.SetActive(false);
+        _inputMultFactorBP.gameObject.SetActive(false);
+        _textWindArea.gameObject.SetActive(false);
+        _inputStrengthWA.gameObject.SetActive(false);
     }
 
 
@@ -1770,6 +1832,39 @@ public class EditorManager : MonoBehaviour
         }
         else
             Debug.LogError("No piece are selected and we try to set the spin time");
+    }
+
+    /*****************************
+     *  BoosterPad
+     *****************************/
+    public void updateBootserPad()
+    {
+        if(selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            BoosterPad bp = piece.GetComponentInChildren<BoosterPad>();
+
+            bp.multFactor = float.Parse(inputMultFactorBP.text);
+            bp.addFactor = float.Parse(inputAddFactorBP.text);
+        }
+        else
+            Debug.Log("No or 2+ pieces selected whenre trying to update boosterpad");
+    }
+
+    /*****************************
+     *  Wind Area
+     *****************************/
+     public void updateWindArea()
+    {
+        if (selectedPiecesInPlace.Count == 1)
+        {
+            GameObject piece = selectedPiecesInPlace[0];
+            WindArea wa = piece.GetComponentInChildren<WindArea>();
+
+            wa.strength = float.Parse(inputStrengthWA.text);
+        }
+        else
+            Debug.Log("No or 2+ pieces selected whenre trying to update wind area");
     }
 
     #endregion
