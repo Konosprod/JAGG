@@ -54,6 +54,7 @@ public class EditorManager : MonoBehaviour
     public static List<GameObject> selectedPiecesInPlace; // Piece that was placed that the player wants to edit
 
     private static GameObject[] spawnPoints = new GameObject[maxHoles]; // SpawnPoints of the holes
+    private static GameObject[] spawnPointsLinkedPiece = new GameObject[maxHoles]; // Pieces linked to the SpawnPoints of the holes
     private static GameObject[] levelsProperties = new GameObject[maxHoles]; // levelProperties of the holes
     private static List<GameObject>[] piecesInPlace; // List of pieces placed
 
@@ -643,7 +644,24 @@ public class EditorManager : MonoBehaviour
                     // Use shift + S to define the piece as the spawning point of the level
                     else if (Input.GetKeyDown(KeyCode.S) && (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)))
                     {
-                        currParams = undoRedoStack.Do(new SetSpawnPointCommand(), currParams);
+                        //currParams = undoRedoStack.Do(new SetSpawnPointCommand(), currParams);
+                        GameObject piece = selectedPiecesInPlace[0];
+                        GameObject spawnP = spawnPoints[currentHole];
+
+                        spawnP.transform.position = new Vector3(piece.transform.position.x, piece.transform.position.y + 0.2f, piece.transform.position.z);
+
+                        GameObject currentLink = spawnPointsLinkedPiece[currentHole];
+                        if (currentLink != null)
+                        {
+                            Destroy(currentLink.GetComponent<SpawnPointLE>());
+                        }
+
+                        SpawnPointLE sple;
+                        sple = piece.AddComponent<SpawnPointLE>();
+                        sple.spawnPoint = spawnP;
+                        spawnPointsLinkedPiece[currentHole] = piece;
+
+                        spawnP.transform.GetChild(0).gameObject.SetActive(true);
                     }
                 }
 
@@ -1895,7 +1913,7 @@ public class EditorManager : MonoBehaviour
         public GameObject result;
 
         // AddPieceCommand (stores the child pieces in case of multiple pieces copy)
-        // DeletePieceCommand (stores the pieces to restore if undo / delete if out of the redo stack)
+        // DeletePiecesCommand (stores the pieces to restore if undo / delete if out of the redo stack)
         // RotateSelectedPiecesCommand (parameter)
         // SelectSinglePieceCommand (stores the pieces that were deselected)
         // DeselectAllPiecesCommand (stores the pieces that were deselected)
@@ -2025,6 +2043,11 @@ public class EditorManager : MonoBehaviour
             {
                 go.SetActive(false);
                 SetHighlight(false, go);
+
+                if(go == spawnPointsLinkedPiece[currentHole])
+                {
+                    spawnPoints[currentHole].transform.GetChild(0).gameObject.SetActive(false);
+                }
             }
 
             // Hide the piece info
@@ -2040,7 +2063,16 @@ public class EditorManager : MonoBehaviour
                 go.SetActive(true);
                 SetHighlight(true, go);
                 selectedPiecesInPlace.Add(go);
+
+                if (go == spawnPointsLinkedPiece[currentHole])
+                {
+                    spawnPoints[currentHole].transform.GetChild(0).gameObject.SetActive(true);
+                }
             }
+
+            //Activate translation gizmo
+            _gizmoTranslate.translateTarget = selectedPiecesInPlace;
+            _gizmoTranslate.gameObject.SetActive(true);
 
             // Display the piece info
             SetPieceInfoPanelVisibility();
@@ -2510,7 +2542,7 @@ public class EditorManager : MonoBehaviour
     }
 
     // Set the spawn point
-    public class SetSpawnPointCommand : ICommand<CommandParams>
+    /*public class SetSpawnPointCommand : ICommand<CommandParams>
     {
         private CommandParams _CP = new CommandParams();
 
@@ -2531,6 +2563,17 @@ public class EditorManager : MonoBehaviour
             _CP.prefab.transform.position = _CP.result.transform.position;
             _CP.prefab.transform.position = new Vector3(_CP.prefab.transform.position.x, _CP.prefab.transform.position.y + 0.2f, _CP.prefab.transform.position.z);
 
+            GameObject currentLink = spawnPointsLinkedPiece[currentHole];
+            if(currentLink != null)
+            {
+                Destroy(currentLink.GetComponent<SpawnPointLE>());
+            }
+
+            SpawnPointLE sple;
+            sple = _CP.result.AddComponent<SpawnPointLE>();
+            sple.spawnPoint = _CP.prefab;
+            spawnPointsLinkedPiece[currentHole] = _CP.result;
+
             _CP.prefab.transform.GetChild(0).gameObject.SetActive(true);
             return _CP;
         }
@@ -2542,7 +2585,7 @@ public class EditorManager : MonoBehaviour
             _CP.prefab.transform.GetChild(0).gameObject.SetActive(_CP.b);
             return _CP;
         }
-    }
+    }*/
 
 
     public class UndoRedoStack<T>
