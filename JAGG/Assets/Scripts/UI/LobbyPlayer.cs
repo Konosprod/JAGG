@@ -179,7 +179,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     IEnumerator DownloadMap(string levelId)
     {
-        string url = "https://jagg.konosprod.fr/api/maps/" + levelId + "/download";
+        string url = "https://jagg-api.konosprod.fr/api/maps/" + levelId + "/download";
         lobbyControls.mapDownloading.gameObject.SetActive(true);
         lobbyControls.mapDownloading.PlayAnimation();
 

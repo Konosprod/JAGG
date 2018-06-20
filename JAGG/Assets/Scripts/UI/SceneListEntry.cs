@@ -42,7 +42,7 @@ public class SceneListEntry : MonoBehaviour {
 
     IEnumerator LoadMapPreview(string id)
     {
-        WWW www = new WWW("https://jagg.konosprod.fr/thumbs/" + id + ".png");
+        WWW www = new WWW("https://jagg-api.konosprod.fr/thumbs/" + id + ".png");
         yield return www;
         imagePreview.sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0, 0));
     }
