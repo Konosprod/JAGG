@@ -418,18 +418,27 @@ public class EditorManager : MonoBehaviour
                             {
                                 //Debug.Log("hitPoint : " + rayHitPlane.point);
                                 // Round to the lowest even integer in order to move correctly on the grid
-                                x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
+                                /*x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
                                 x = (x % 2 == 0) ? x : x - 1;
                                 x += offsetGridX;
                                 y = rayHit.point.y + 0.001f;
                                 z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
                                 z = (z % 2 == 0) ? z : z - 1;
                                 z += offsetGridZ;
-                                Vector3 pos = new Vector3(x, rayHit.point.y + 0.001f, z);
-                                if (rayHit.transform.gameObject.name == "Slope")
+                                Vector3 pos = new Vector3(x, rayHit.point.y + 0.01f, z);*/
+
+                                Vector3 pos = new Vector3(rayHit.transform.position.x, rayHit.transform.position.y, rayHit.transform.position.z);
+                                float offsetY = 0f;
+
+                                if (rayHit.transform.gameObject.name == "Slope") // Custom position for the correct height
                                 {
-                                    y = 0.391f;
-                                    pos.y = 0.391f;
+                                    //y = 0.391f;
+                                    //pos.y = 0.391f;
+                                    offsetY = 0.391f;
+                                }
+                                else
+                                {
+                                    offsetY = 0.101f;
                                 }
 
                                 // Align the booster pad alongside the piece
@@ -439,6 +448,7 @@ public class EditorManager : MonoBehaviour
                                     currentPiece.transform.rotation = Quaternion.FromToRotation(Vector3.up, rayHit.normal);
                                 }
                                 //Debug.Log("pos : " + pos);
+                                pos += (rayHit.normal * offsetY);
                                 currentPiece.transform.position = pos;
 
 
@@ -461,7 +471,7 @@ public class EditorManager : MonoBehaviour
                                 x = Mathf.Floor(rayHit.point.x + 1 - offsetGridX); // + 1 because of grid offset (It is placed on (-1;0;-1))
                                 x = (x % 2 == 0) ? x : x - 1;
                                 x += offsetGridX;
-                                y = rayHit.point.y;
+                                y = rayHit.point.y + 0.001f;
                                 z = Mathf.Floor(rayHit.point.z + 1 - offsetGridZ);
                                 z = (z % 2 == 0) ? z : z - 1;
                                 z += offsetGridZ;
