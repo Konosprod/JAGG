@@ -192,7 +192,7 @@ public class EditorManager : MonoBehaviour
             // /!\ CHANGES THE PREFAB ITSELF /!\
             foreach (Renderer r in pref.GetComponentsInChildren<Renderer>())
             {
-                if(LayerMask.NameToLayer("SnapPoint") != r.gameObject.layer)
+                if (LayerMask.NameToLayer("SnapPoint") != r.gameObject.layer)
                     if (!(r is UnityEngine.ParticleSystemRenderer) && r.gameObject.GetComponent<MaterialSwaperoo>() == null)
                         r.gameObject.AddComponent<MaterialSwaperoo>();
             }
@@ -445,7 +445,8 @@ public class EditorManager : MonoBehaviour
                                 if (rayHit.normal != targetNormal)
                                 {
                                     targetNormal = rayHit.normal;
-                                    currentPiece.transform.rotation = Quaternion.FromToRotation(Vector3.up, rayHit.normal);
+                                    // Some voodoo, a bit of internet, works. Maybe. Hopefully. ternary <3
+                                    currentPiece.transform.rotation = Quaternion.LookRotation((Vector3.ProjectOnPlane(Vector3.forward, rayHit.normal) == Vector3.zero ? Vector3.up : Vector3.ProjectOnPlane(Vector3.forward, rayHit.normal)), rayHit.normal);
                                 }
                                 //Debug.Log("pos : " + pos);
                                 pos += (rayHit.normal * offsetY);
@@ -718,7 +719,7 @@ public class EditorManager : MonoBehaviour
                                         sp.isSnapped = true;
                                         sp.col.isTrigger = false;
 
-                                        selectedSnapPoints[0].transform.parent.transform.rotation = Quaternion.LookRotation(-1*piece.transform.forward);
+                                        selectedSnapPoints[0].transform.parent.transform.rotation = Quaternion.LookRotation(-1 * piece.transform.forward);
 
                                         Vector3 offset = piece.transform.position - selectedSnapPoints[0].transform.position;
                                         selectedSnapPoints[0].transform.parent.transform.position += offset;
@@ -799,9 +800,9 @@ public class EditorManager : MonoBehaviour
                     currParams = undoRedoStack.Do(new ResetOriginCommand(), currParams);
                 }
 
-                
+
                 // The user left-clicked so we have a potential start of a box selection, we check if the mouse moved since he started holding the click
-                if(!isBoxSelectionActive && isBoxSelection)
+                if (!isBoxSelectionActive && isBoxSelection)
                 {
                     if (Input.mousePosition != mousePositionStart)
                         isBoxSelectionActive = true;
@@ -833,10 +834,10 @@ public class EditorManager : MonoBehaviour
 
                             List<GameObject> boxSelectedPieces = new List<GameObject>();
 
-                            foreach(GameObject piece in piecesInPlace[currentHole])
+                            foreach (GameObject piece in piecesInPlace[currentHole])
                             {
                                 // If the piece is contained in the selection rectangle, we add it to the selection
-                                if(bounds.Contains(Camera.main.WorldToViewportPoint(piece.transform.position)))
+                                if (bounds.Contains(Camera.main.WorldToViewportPoint(piece.transform.position)))
                                 {
                                     boxSelectedPieces.Add(piece);
                                 }
@@ -1168,15 +1169,15 @@ public class EditorManager : MonoBehaviour
     // So that the user can get an idea of what the movement will be like
     private static void GenerateMovingPiecePreview(GameObject piece, MovingPiece mvp)
     {
-        if(piece != null && mvp != null && mvp.enabled)
+        if (piece != null && mvp != null && mvp.enabled)
         {
             // The destination has to be non-zero for us to have a preview to make at all 
-            if(mvp.destPos != mvp.initPos)
+            if (mvp.destPos != mvp.initPos)
             {
                 // From 1 to 10 pieces for the preview
                 int nbPreviewPieces = Mathf.Max(1, Mathf.Min(((int)(mvp.destPos - mvp.initPos).magnitude / 3), 10));
 
-                for(int i=0; i<nbPreviewPieces; i++)
+                for (int i = 0; i < nbPreviewPieces; i++)
                 {
                     Vector3 pos = mvp.initPos + (((float)(i + 1) / nbPreviewPieces) * (mvp.destPos - mvp.initPos));
                     GameObject previewPiece = Instantiate(prefabs[piece.name.Split('(')[0]], pos, piece.transform.rotation);
@@ -1193,7 +1194,7 @@ public class EditorManager : MonoBehaviour
     // Clear preview pieces
     private static void ClearMVPPreviewPieces()
     {
-        for(int i = mvpPreviewPieces.Count-1; i>=0; i--)
+        for (int i = mvpPreviewPieces.Count - 1; i >= 0; i--)
         {
             Destroy(mvpPreviewPieces[i]);
         }
@@ -1271,7 +1272,7 @@ public class EditorManager : MonoBehaviour
             {
                 System.Type scriptType = customScript.GetType();
 
-                if(scriptType == typeof(BoosterPad))
+                if (scriptType == typeof(BoosterPad))
                 {
                     BoosterPad bp = customScript as BoosterPad;
 
@@ -1283,7 +1284,7 @@ public class EditorManager : MonoBehaviour
                     _inputAddFactorBP.text = bp.addFactor.ToString("F");
                 }
 
-                if(scriptType == typeof(WindArea))
+                if (scriptType == typeof(WindArea))
                 {
                     WindArea wa = customScript as WindArea;
 
@@ -1867,7 +1868,7 @@ public class EditorManager : MonoBehaviour
      *****************************/
     public void updateBootserPad()
     {
-        if(selectedPiecesInPlace.Count == 1)
+        if (selectedPiecesInPlace.Count == 1)
         {
             GameObject piece = selectedPiecesInPlace[0];
             BoosterPad bp = piece.GetComponentInChildren<BoosterPad>();
@@ -1882,7 +1883,7 @@ public class EditorManager : MonoBehaviour
     /*****************************
      *  Wind Area
      *****************************/
-     public void updateWindArea()
+    public void updateWindArea()
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -2054,7 +2055,7 @@ public class EditorManager : MonoBehaviour
                 go.SetActive(false);
                 SetHighlight(false, go);
 
-                if(go == spawnPointsLinkedPiece[currentHole])
+                if (go == spawnPointsLinkedPiece[currentHole])
                 {
                     spawnPoints[currentHole].transform.GetChild(0).gameObject.SetActive(false);
                 }
