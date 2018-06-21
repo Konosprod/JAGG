@@ -12,6 +12,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     public Text playerNameLabel;
     public Toggle toggleReady;
     public Text readyText;
+    public Button kickButton;
     public Image avatar;
 
     public Color localPlayerColor = new Color(1, 1, 1);
@@ -29,6 +30,8 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     void Start () {
         LobbyPlayerList._instance.AddPlayer(this);
         //DontDestroyOnLoad(this);
+
+        kickButton.onClick.AddListener(KickPlayer);
 
         if (isLocalPlayer)
         {
@@ -94,6 +97,12 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     private void SetupOtherPlayer()
     {
         toggleReady.interactable = false;
+
+        if(isServer)
+        {
+            kickButton.gameObject.SetActive(true);
+        }
+
         //playerName.text = "Player " + LobbyManager.instance.numPlayers.ToString();
     }
 
@@ -264,6 +273,11 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         flipped.Apply();
 
         return flipped;
+    }
+
+    private void KickPlayer()
+    {
+        connectionToClient.Disconnect();
     }
 
     #region Command
