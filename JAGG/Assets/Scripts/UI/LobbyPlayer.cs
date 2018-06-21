@@ -6,6 +6,7 @@ using System.Collections;
 using System.IO;
 using SimpleJSON;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class LobbyPlayer : NetworkLobbyPlayer {
 
@@ -14,6 +15,8 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     public Text readyText;
     public Button kickButton;
     public Image avatar;
+
+    private static Dictionary<ulong, Texture2D> avatarCache = new Dictionary<ulong, Texture2D>();
 
     public Color localPlayerColor = new Color(1, 1, 1);
 
@@ -219,7 +222,18 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     private void OnAvatarLoaded(AvatarImageLoaded_t callback)
     {
-        Texture2D texture = GetSteamImageAsTexture2D(callback.m_iImage);
+        ulong steamId = callback.m_steamID.m_SteamID;
+        Texture2D texture = null;
+
+        if (avatarCache.ContainsKey(steamId))
+        {
+            texture = avatarCache[steamId];
+        }
+        else
+        {
+            texture = GetSteamImageAsTexture2D(callback.m_iImage);
+            avatarCache.Add(steamId, texture);
+        }
 
         avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
     }
@@ -328,7 +342,16 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
         if (avatarId != -1)
         {
-            Texture2D texture = GetSteamImageAsTexture2D(avatarId);
+            Texture2D texture = null;
+            if (avatarCache.ContainsKey(steamid))
+            {
+                texture = avatarCache[steamid];
+            }
+            else
+            {
+                texture = GetSteamImageAsTexture2D(avatarId);
+                avatarCache.Add(steamid, texture);
+            }
 
             avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
         }
