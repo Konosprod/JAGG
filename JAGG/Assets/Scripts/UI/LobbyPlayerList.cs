@@ -6,35 +6,31 @@ using UnityEngine.UI;
 
 public class LobbyPlayerList : MonoBehaviour
 {
-
+    public GameObject scrollviewContent;
     public static LobbyPlayerList _instance = null;
-
-    public RectTransform playerListContentTransform;
 
     protected List<LobbyPlayer> _players = new List<LobbyPlayer>();
 
-    public void OnEnable()
+    void OnEnable()
     {
         _instance = this;
     }
-    
 
     public void AddPlayer(LobbyPlayer player)
     {
-        if (_players.Contains(player))
-            return;
-
         _players.Add(player);
+        player.transform.SetParent(scrollviewContent.transform, false);
     }
 
     public void RemovePlayer(LobbyPlayer player)
     {
-        _players.Remove(player);
+        if (_players.Contains(player))
+            _players.Remove(player);
     }
 
     public void RemovePlayerByConnectionID(int conn)
     {
-        foreach(LobbyPlayer lp in _players)
+        foreach (LobbyPlayer lp in _players)
         {
             if (lp.GetComponent<NetworkIdentity>().connectionToClient.connectionId == conn)
             {
@@ -49,10 +45,19 @@ public class LobbyPlayerList : MonoBehaviour
         _players.Clear();
     }
 
-    public void SetLobbyPlayersVisibility(bool visi)
+    public void UpdateSelectedMap(string levelname)
     {
-        foreach (LobbyPlayer lp in _players)
-            lp.SetVisibility(visi);
+        foreach(LobbyPlayer lp in _players)
+        {
+            lp.UpdateSelectedScene(levelname);
+        }
     }
 
+    public void UpdateAvatar(ulong steamid)
+    {
+        foreach(LobbyPlayer lp in _players)
+        {
+            lp.CmdUpdateAvatar(steamid);
+        }
+    }
 }

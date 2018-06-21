@@ -255,9 +255,12 @@ public class PlayerManager : NetworkBehaviour {
 
     public void RemovePlayer(int connId)
     {
-        GameObject o = players[connId];
-        players.Remove(connId);
-        playersNames.Remove(o.GetComponent<PlayerController>().playerName);
+        if (players.Keys.Contains(connId))
+        {
+            GameObject o = players[connId];
+            players.Remove(connId);
+            playersNames.Remove(o.GetComponent<PlayerController>().playerName);
+        }
     }
 
     public bool AllPlayersDone()

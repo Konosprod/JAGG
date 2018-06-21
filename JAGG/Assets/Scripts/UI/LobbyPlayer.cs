@@ -9,18 +9,14 @@ using UnityEngine.SceneManagement;
 
 public class LobbyPlayer : NetworkLobbyPlayer {
 
-    public GameObject socle;
-    public GameObject canvas;
-    public GameObject ball;
-
     public Text playerNameLabel;
     public Toggle toggleReady;
     public Text readyText;
-
-    [SyncVar/*(hook = "OnPosition")*/]
-    public Vector3 position;
+    public Image avatar;
 
     public Color localPlayerColor = new Color(1, 1, 1);
+
+    protected Callback<AvatarImageLoaded_t> avatarLoadedCallback;
 
     [SyncVar(hook = "OnMyName")]
     public string playerName = "";
@@ -32,7 +28,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     // Use this for initialization
     void Start () {
         LobbyPlayerList._instance.AddPlayer(this);
-        DontDestroyOnLoad(this);
+        //DontDestroyOnLoad(this);
 
         if (isLocalPlayer)
         {
@@ -44,6 +40,8 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         }
 
         authenticationManager = AuthenticationManager._instance;
+
+        avatarLoadedCallback = Callback<AvatarImageLoaded_t>.Create(OnAvatarLoaded);
     }
 
     public void ResetStatus()
@@ -57,15 +55,16 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     public override void OnClientEnterLobby()
     {
-        if(lobbyControls == null)
+        if (lobbyControls == null)
             lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
 
         if (lobbyControls.selectedScene != "")
-            lobbyControls.SetSelectedScene();
+            LobbyPlayerList._instance.UpdateSelectedMap(lobbyControls.selectedScene);
 
         OnMyName(playerName);
         OnClientReady(toggleReady.isOn);
-        OnPosition(position);
+
+        LobbyPlayerList._instance.UpdateAvatar(SteamUser.GetSteamID().m_SteamID);
     }
 
     private void SetupLocalPlayer()
@@ -73,7 +72,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         toggleReady.onValueChanged.RemoveAllListeners();
         toggleReady.onValueChanged.AddListener(OnReadyClicked);
 
-        if (playerName == "")
+        if (playerName == "")CmdUpdateAvatar(SteamUser.GetSteamID().m_SteamID);
             CmdNameChanged(SteamFriends.GetPersonaName());
 
         if (isServer)
@@ -81,6 +80,8 @@ public class LobbyPlayer : NetworkLobbyPlayer {
             lobbyControls.EnableEditButton(isServer);
             lobbyControls.EnableRulesButton(isServer);
         }
+
+        CmdUpdateAvatar(SteamUser.GetSteamID().m_SteamID);
 
         lobbyControls.lobbyPlayer = this;
     }
@@ -93,7 +94,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     private void SetupOtherPlayer()
     {
         toggleReady.interactable = false;
-
         //playerName.text = "Player " + LobbyManager.instance.numPlayers.ToString();
     }
 
@@ -106,11 +106,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         {
             playerNameLabel.color = localPlayerColor;
         }
-    }
-
-    private void OnPosition(Vector3 pos)
-    {
-        transform.position = pos;
     }
 
     private void OnReadyClicked(bool newValue)
@@ -153,13 +148,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
             toggleReady.isOn = false;
             readyText.text = "Not Ready";
         }
-    }
-
-    public void SetVisibility(bool visi)
-    {
-        socle.SetActive(visi);
-        canvas.SetActive(visi);
-        ball.SetActive(visi);
     }
 
     private bool CheckLevel(string levelId)
@@ -220,13 +208,71 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         }
     }
 
+    private void OnAvatarLoaded(AvatarImageLoaded_t callback)
+    {
+        Texture2D texture = GetSteamImageAsTexture2D(callback.m_iImage);
+
+        avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+    }
+
     public string ByteArrayToString(byte[] ba)
     {
         string hex = System.BitConverter.ToString(ba);
         return hex.Replace("-", "");
     }
 
+    private Texture2D GetSteamImageAsTexture2D(int iImage)
+    {
+        Texture2D ret = null;
+        uint ImageWidth;
+        uint ImageHeight;
+        bool bIsValid = SteamUtils.GetImageSize(iImage, out ImageWidth, out ImageHeight);
+
+        if (bIsValid)
+        {
+            byte[] Image = new byte[ImageWidth * ImageHeight * 4];
+
+            bIsValid = SteamUtils.GetImageRGBA(iImage, Image, (int)(ImageWidth * ImageHeight * 4));
+            if (bIsValid)
+            {
+                ret = new Texture2D((int)ImageWidth, (int)ImageHeight, TextureFormat.RGBA32, false, true);
+                ret.LoadRawTextureData(Image);
+                ret.Apply();
+
+                ret = FlipTexture(ret);
+            }
+        }
+
+        return ret;
+    }
+
+    private Texture2D FlipTexture(Texture2D original)
+    {
+        Texture2D flipped = new Texture2D(original.width, original.height);
+
+        int xN = original.width;
+        int yN = original.height;
+
+        for (int i = 0; i < xN; i++)
+        {
+            for (int j = 0; j < yN; j++)
+            {
+                flipped.SetPixel(i, yN - j - 1, original.GetPixel(i, j));
+            }
+        }
+
+        flipped.Apply();
+
+        return flipped;
+    }
+
     #region Command
+
+    [Command]
+    public void CmdUpdateAvatar(ulong steamid)
+    {
+        RpcUpdateAvatar(steamid);
+    }
 
     [Command]
     public void CmdNameChanged(string name)
@@ -259,5 +305,18 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         lobbyControls.UpdateMapPreview();
 
         LobbyManager._instance.customMapFile = value;
+    }
+
+    [ClientRpc]
+    public void RpcUpdateAvatar(ulong steamid)
+    {
+        int avatarId = SteamFriends.GetLargeFriendAvatar(new CSteamID(steamid));
+
+        if (avatarId != -1)
+        {
+            Texture2D texture = GetSteamImageAsTexture2D(avatarId);
+
+            avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+        }
     }
 }

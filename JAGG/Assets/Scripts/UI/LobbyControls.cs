@@ -6,7 +6,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections;
 
-public class LobbyControls : NetworkBehaviour {
+public class LobbyControls : MonoBehaviour {
 
     public Transform contentPanel;
     public GameObject prefabButton;
@@ -28,7 +28,7 @@ public class LobbyControls : NetworkBehaviour {
     [Header("Game Logic")]
     public string selectedScene;
 
-    [SyncVar(hook ="OnSelectedSceneChange")]
+    //[SyncVar(hook ="OnSelectedSceneChange")]
     public string levelName;
 
     public LobbyManager lobbyManager;
@@ -115,6 +115,9 @@ public class LobbyControls : NetworkBehaviour {
 
     public void SetSelectedScene()
     {
+        if (lobbyPlayer == null)
+            Debug.Log("lobby player null");
+
         lobbyPlayer.UpdateSelectedScene(selectedScene);
 
         if (SceneUtility.GetBuildIndexByScenePath(selectedScene) != -1)

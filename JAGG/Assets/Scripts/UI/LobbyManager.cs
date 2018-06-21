@@ -43,13 +43,6 @@ public class LobbyManager : NetworkLobbyManager
     [HideInInspector]
     public string winnerName = "";
 
-    private static Vector3[] positions = new Vector3[] {
-        new Vector3(-320, 0, 220),
-        new Vector3(-118, 0, 220),
-        new Vector3(97, 0, 220),
-        new Vector3(315, 0, 220)
-    };
-
     //0 = normal, 1 = low, 2 = high
     public GravityType gravity;
 
@@ -199,6 +192,8 @@ public class LobbyManager : NetworkLobbyManager
             isStarted = true;
             gameTimer = GameObject.Find("GameTimer").GetComponent<GameTimer>();
 
+            hole = GameObject.Find("Hole " + currentHole.ToString());
+
             gameTimer.StartTimer(GetMaxTime());
 
             MovingPieceManager._instance.GrabAllRotatePieces();
@@ -213,7 +208,6 @@ public class LobbyManager : NetworkLobbyManager
             Cursor.visible = true;
 
             mainPanel.SetActive(false);
-            LobbyPlayerList._instance.SetLobbyPlayersVisibility(true);
             controlPanel.SetActive(true);
         }
         else
@@ -251,7 +245,6 @@ public class LobbyManager : NetworkLobbyManager
             }
 
             mainPanel.SetActive(false);
-            LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
             controlPanel.SetActive(false);
         }
     }
@@ -264,8 +257,7 @@ public class LobbyManager : NetworkLobbyManager
         {
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
-            
-            LobbyPlayerList._instance.SetLobbyPlayersVisibility(true);
+
             controlPanel.SetActive(true);
             
             for(int i = 0; i < lobbySlots.Length; i++)
@@ -281,14 +273,12 @@ public class LobbyManager : NetworkLobbyManager
         else if(SceneManager.GetSceneAt(0).name == "Victory")
         {
             mainPanel.SetActive(false);
-            LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
             controlPanel.SetActive(false);
         }
         else
         {
             isStarted = false;
             mainPanel.SetActive(false);
-            LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
             controlPanel.SetActive(false);
         }
     }
@@ -305,15 +295,9 @@ public class LobbyManager : NetworkLobbyManager
         return base.OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer);
     }
 
-    public override GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn, short playerControllerId)
-    {
-        return base.OnLobbyServerCreateGamePlayer(conn, playerControllerId);
-    }
-
     public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
     {
         GameObject o = Instantiate(lobbyPlayerPrefab.gameObject) as GameObject;
-        o.GetComponent<LobbyPlayer>().position = positions[numPlayers];
 
         return o;
     }
@@ -328,14 +312,8 @@ public class LobbyManager : NetworkLobbyManager
     public override void OnClientConnect(NetworkConnection conn)
     {
         mainPanel.SetActive(false);
-        LobbyPlayerList._instance.SetLobbyPlayersVisibility(true);
         controlPanel.SetActive(true);
         base.OnClientConnect(conn);
-    }
-
-    public override void OnServerConnect(NetworkConnection conn)
-    {
-        base.OnServerConnect(conn);
     }
 
     public override void OnClientDisconnect(NetworkConnection conn)
@@ -350,7 +328,6 @@ public class LobbyManager : NetworkLobbyManager
         }
 
         mainPanel.SetActive(true);
-        LobbyPlayerList._instance.SetLobbyPlayersVisibility(false);
         controlPanel.SetActive(false);
 
         Cursor.lockState = CursorLockMode.Confined;
