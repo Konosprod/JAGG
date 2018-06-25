@@ -8,7 +8,6 @@ public class FreeCamera : MonoBehaviour {
     [SerializeField] private Vector3 _target = Vector3.zero;
     [SerializeField]
     private float
-        _distance = 10f,
         _xSpeed = 250f,
         _ySpeed = 120f,
         _xSlideSpeed = 250f,
@@ -23,8 +22,13 @@ public class FreeCamera : MonoBehaviour {
     public EditorManager editorManager = null;
 
     [Header("Camera Moving")]
+    public float _distance = 10f;
     public int sizeEdge = 15;
     public float movingSpeed = 30;
+    public bool bMoveOnEdge = false;
+    public enum Move {NoMove, Left, Right, Top, Bottom };
+    public Move cameraMoveOnEdge = Move.NoMove;
+    public bool jaiEnvieDeFaireChierAlex = false;
 
     private float ClampAngle(float angle, float min = 0f, float max = 360f)
     {
@@ -60,10 +64,12 @@ public class FreeCamera : MonoBehaviour {
             _distance += num * (Mathf.Max(_distance, 0.5f) * 0.03f);*/
 
             // Scale zoomSpeed based on distance to target
-            _distance -= (wheel * (Mathf.Max(_distance, _zoomSpeed))); 
+            _distance -= (wheel * (Mathf.Max(_distance, _zoomSpeed)));
             // Stops from zooming to close
             if (_distance <= -2f)
                 _distance = -2f;
+            else if (_distance >= 70f)
+                _distance = 70f;
         }
         else if (Input.GetMouseButton(1))
         {
@@ -85,35 +91,49 @@ public class FreeCamera : MonoBehaviour {
             _target = _startPos;
         }*/
 
-        /*Move camera when close to edges
-        if (Input.mousePosition.x > (Screen.width - sizeEdge))
+        cameraMoveOnEdge = Move.NoMove;
+        if (bMoveOnEdge)
         {
-            Vector3 a = transform.rotation * Vector3.right;
-            Vector3 a2 = transform.rotation * Vector3.up;
-            Vector3 a3 = -a * axis * movingSpeed * Time.deltaTime;
-            Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
-            _target += (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.01f);
-        }
+            // Move camera when close to edges
+            if (Input.mousePosition.x > (Screen.width - sizeEdge))
+            {
+                cameraMoveOnEdge = Move.Right;
+                Vector3 a = transform.rotation * Vector3.right;
+                Vector3 a2 = transform.rotation * Vector3.up;
+                Vector3 a3 = -a * axis * movingSpeed * Time.deltaTime;
+                Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
+                _target += (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.001f * movingSpeed);
+            }
 
-        if (Input.mousePosition.x < sizeEdge)
-        {
-            Vector3 a = transform.rotation * Vector3.right;
-            Vector3 a2 = transform.rotation * Vector3.up;
-            Vector3 a3 = -a * Time.deltaTime;
-            Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
-            _target -= (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.01f);
-        }
-        /*
-        if (Input.mousePosition.y < sizeEdge)
-        {
-            _target -= new Vector3(0, 0, Time.deltaTime * movingSpeed);
-        }
+            if (Input.mousePosition.x < sizeEdge)
+            {
+                cameraMoveOnEdge = Move.Left;
+                Vector3 a = transform.rotation * Vector3.right;
+                Vector3 a2 = transform.rotation * Vector3.up;
+                Vector3 a3 = -a * axis * movingSpeed * Time.deltaTime;
+                Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
+                _target -= (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.001f * movingSpeed);
+            }
 
-        if (Input.mousePosition.y > (Screen.height - sizeEdge))
-        {
-            _target += new Vector3(0, 0, Time.deltaTime * movingSpeed);
+            if (Input.mousePosition.y < sizeEdge)
+            {
+                cameraMoveOnEdge = Move.Bottom;
+                if (jaiEnvieDeFaireChierAlex)
+                    _target -= new Vector3(0, 0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed);
+                else
+                    _target -= new Vector3(0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed, 0);
+            }
+
+            if (Input.mousePosition.y > (Screen.height - sizeEdge))
+            {
+                cameraMoveOnEdge = Move.Top;
+                if(jaiEnvieDeFaireChierAlex)
+                    _target += new Vector3(0, 0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed);
+                else
+                    _target += new Vector3(0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed, 0);
+            }
         }
-        */
+        
         Quaternion rotation = Quaternion.Euler(_y, _x, 0f);
         Vector3 position = rotation * new Vector3(0f, 0f, -_distance) + _target;
         transform.rotation = rotation;
