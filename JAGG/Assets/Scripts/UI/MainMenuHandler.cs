@@ -12,6 +12,7 @@ public class MainMenuHandler : MonoBehaviour
     public Button btn_Quit;
     public Button btn_Start;
     public Fader fader;
+    public Text version;
     public CanvasGroup canvasGroup;
     
     [HideInInspector]
@@ -31,6 +32,8 @@ public class MainMenuHandler : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
+
+        version.text = "Version " + Application.version;
     }
 
     private void FadeOutMenu()

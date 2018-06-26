@@ -112,6 +112,8 @@ public class PanelReport : MonoBehaviour {
         str += "\n[screen size] " + Screen.width + " x " + Screen.height;
         str += "\n[screen pixel density dpi] " + Screen.dpi;
 
+        str += "\n[build version]" + Application.version;
+
         return str;
     }
 }
