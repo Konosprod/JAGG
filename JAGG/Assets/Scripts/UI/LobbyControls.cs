@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections;
+using System;
 
 public class LobbyControls : MonoBehaviour {
 
@@ -24,12 +25,18 @@ public class LobbyControls : MonoBehaviour {
     public Text labelLevelName;
     public Image imageScenePreview;
     public Text lobbyLevelName;
+    public GameObject panelListScene;
+    public GameObject panelVersionInfo;
+    public Text labelVersion;
+    public Text labelAuthor;
 
     [Header("Game Logic")]
     public string selectedScene;
 
     //[SyncVar(hook ="OnSelectedSceneChange")]
     public string levelName;
+
+    public CustomLevel levelInfo;
 
     public LobbyManager lobbyManager;
 
@@ -43,7 +50,7 @@ public class LobbyControls : MonoBehaviour {
     void OnEnable()
     {
         selectButton.onClick.RemoveAllListeners();
-        selectButton.onClick.AddListener(SetSelectedScene);
+        selectButton.onClick.AddListener(VersionCheck);
 
         returnButton.onClick.RemoveListener(OnReturnButtonClick);
         returnButton.onClick.AddListener(OnReturnButtonClick);
@@ -62,7 +69,7 @@ public class LobbyControls : MonoBehaviour {
                 GameObject newButton = Instantiate(prefabButton, contentPanel);
 
                 SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-                entry.SetUp(Path.GetFileNameWithoutExtension(path), labelLevelName, imageScenePreview, this);
+                entry.SetUp(Path.GetFileNameWithoutExtension(path), this);
             }
         }
 
@@ -76,7 +83,7 @@ public class LobbyControls : MonoBehaviour {
             GameObject newButton = Instantiate(prefabButton, contentPanel);
 
             SceneListEntry entry = newButton.GetComponent<SceneListEntry>();
-            entry.SetUp(Path.GetFileNameWithoutExtension(file), labelLevelName, imageScenePreview, this);
+            entry.SetUp(Path.GetFileNameWithoutExtension(file), this);
         }
     }
 
@@ -153,5 +160,30 @@ public class LobbyControls : MonoBehaviour {
         WWW www = new WWW("https://jagg-api.konosprod.fr/thumbs/" + id + ".png");
         yield return www;
         editButton.image.sprite = Sprite.Create(www.texture, new Rect(0, 0, www.texture.width, www.texture.height), new Vector2(0, 0));
+    }
+
+    private void VersionCheck()
+    {
+        if (levelInfo.version != null)
+        {
+            int[] mapVersion = Array.ConvertAll(((string)levelInfo.version).Split('.'), s => int.Parse(s));
+            int[] appVersion = Array.ConvertAll(Application.version.Split('.'), s => int.Parse(s));
+
+
+            if (mapVersion[0] != appVersion[0] || mapVersion[1] != appVersion[1] || mapVersion[2] != appVersion[2])
+            {
+                panelVersionInfo.gameObject.SetActive(true);
+            }
+            else
+            {
+                panelListScene.SetActive(false);
+                SetSelectedScene();
+            }
+
+        }
+        else
+        {
+            panelVersionInfo.gameObject.SetActive(true);
+        }
     }
 }

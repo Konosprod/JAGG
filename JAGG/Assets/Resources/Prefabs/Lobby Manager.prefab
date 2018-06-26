@@ -2342,8 +2342,17 @@ MonoBehaviour:
   labelLevelName: {fileID: 114622533902587220}
   imageScenePreview: {fileID: 0}
   lobbyLevelName: {fileID: 114321064053259966}
+  panelListScene: {fileID: 0}
+  panelVersionInfo: {fileID: 0}
+  labelVersion: {fileID: 0}
+  labelAuthor: {fileID: 0}
   selectedScene: 
   levelName: 
+  levelInfo:
+    name: 
+    author: 
+    version: 
+    holes: []
   lobbyManager: {fileID: 114839421058634028}
   lobbyPlayer: {fileID: 0}
 --- !u!114 &114676101988650418
@@ -2675,8 +2684,7 @@ MonoBehaviour:
   m_MaxPlayers: 4
   m_MaxPlayersPerConnection: 1
   m_MinPlayers: 1
-  m_LobbyPlayerPrefab: {fileID: 114795957504913198, guid: 13ed231d73f5de1468199b4ecaae0a78,
-    type: 2}
+  m_LobbyPlayerPrefab: {fileID: 0}
   m_GamePlayerPrefab: {fileID: 1696014211341154, guid: 0614ac1af499786488e3e44fe40f97bc,
     type: 2}
   m_LobbyScene: Lobby
@@ -2697,6 +2705,7 @@ MonoBehaviour:
   ruleSet:
     name: 
     author: 
+    version: 
     holes: []
   winnerName: 
   gravity: 0

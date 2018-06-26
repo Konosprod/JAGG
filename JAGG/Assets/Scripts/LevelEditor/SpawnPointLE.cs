@@ -5,7 +5,7 @@ using UnityEngine;
 // Handle the SpawnPoint in the LevelEditor
 public class SpawnPointLE : CustomScript {
 
-    [CustomProp]
+    //[CustomProp]
     public GameObject spawnPoint = null; // The spawnPoint linked to the piece;
 
     // Update is called once per frame

@@ -6,6 +6,7 @@ using Ionic.Zip;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Bson;
+using System;
 
 public class CustomLevelLoader : MonoBehaviour {
 
@@ -58,6 +59,33 @@ public class CustomLevelLoader : MonoBehaviour {
 
         if(level["mapid"] != null)
             mapid = (int)level["mapid"];
+
+        if(level["version"] != null)
+        {
+            int[] mapVersion = Array.ConvertAll(((string)level["version"]).Split('.'), s => int.Parse(s));
+            int[] appVersion = Array.ConvertAll(Application.version.Split('.'), s => int.Parse(s));
+
+
+            if(mapVersion[0] < appVersion[0] || mapVersion[1] < appVersion[1] || mapVersion[2] < appVersion[2])
+            {
+                Debug.Log("It's an old map, might have bugs");
+            }
+            else if(mapVersion[0] > appVersion[0] || mapVersion[1] > appVersion[1] || mapVersion[2] > appVersion[2])
+            {
+                Debug.Log("It's a map from the future");
+            }
+            else
+            {
+
+            }
+
+            Debug.Log("Map version : " + level["version"] + " Application version : " + Application.version);
+
+        }
+        else
+        {
+            Debug.Log("Map without version number, might have bugs");
+        }
 
         List<GameObject> spawnPositions = new List<GameObject>();
 

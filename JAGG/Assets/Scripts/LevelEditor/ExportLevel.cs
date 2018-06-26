@@ -40,6 +40,7 @@ public class ExportLevel : MonoBehaviour {
 
         customLevel.Add("author", author);
         customLevel.Add("name", levelName);
+        customLevel.Add("version", Application.version);
 
         JArray jholes = new JArray();
 

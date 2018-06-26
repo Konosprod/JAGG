@@ -35,6 +35,7 @@ public class CustomLevel
 {
     public string name;
     public string author;
+    public string version;
     public List<Hole> holes;
 }
 
