@@ -226,4 +226,12 @@ public class SettingsManager : MonoBehaviour {
         if (returnPanel != null)
             returnPanel.SetActive(true);
     }
+
+    public void ShowMapDirectory()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "Levels/");
+        path = path.Replace(@"/", @"\");   // explorer doesn't like front slashes
+        Debug.Log(path);
+        System.Diagnostics.Process.Start("explorer.exe", "" + path);
+    }
 }
