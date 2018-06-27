@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class FreeCamera : MonoBehaviour {
+public class FreeCamera : MonoBehaviour
+{
 
     [SerializeField] private Vector3 _target = Vector3.zero;
     [SerializeField]
@@ -25,10 +26,10 @@ public class FreeCamera : MonoBehaviour {
     public float _distance = 10f;
     public int sizeEdge = 15;
     public float movingSpeed = 30;
-    public bool bMoveOnEdge = false;
-    public enum Move {NoMove, Left, Right, Top, Bottom };
-    public Move cameraMoveOnEdge = Move.NoMove;
-    public bool jaiEnvieDeFaireChierAlex = false;
+    public bool bMoveOnEdge = false; // Is the camera allowed to move
+    public bool cameraMoveOnEdge = false; // Is the camera moving
+    public enum Move { NoMove, Left, Right, Top, Bottom, Forward, Backward };
+    public Move gizmoDirection = Move.NoMove; // Direction and axis of the gizmo (X axis with positive movement is Right, etc)
 
     private float ClampAngle(float angle, float min = 0f, float max = 360f)
     {
@@ -91,49 +92,29 @@ public class FreeCamera : MonoBehaviour {
             _target = _startPos;
         }*/
 
-        cameraMoveOnEdge = Move.NoMove;
+        cameraMoveOnEdge = false;
         if (bMoveOnEdge)
         {
             // Move camera when close to edges
-            if (Input.mousePosition.x > (Screen.width - sizeEdge))
+            if (Input.mousePosition.x > (Screen.width - sizeEdge) || Input.mousePosition.x < sizeEdge || Input.mousePosition.y > (Screen.height - sizeEdge) || Input.mousePosition.y < sizeEdge)
             {
-                cameraMoveOnEdge = Move.Right;
-                Vector3 a = transform.rotation * Vector3.right;
-                Vector3 a2 = transform.rotation * Vector3.up;
-                Vector3 a3 = -a * axis * movingSpeed * Time.deltaTime;
-                Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
-                _target += (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.001f * movingSpeed);
-            }
+                cameraMoveOnEdge = true;
 
-            if (Input.mousePosition.x < sizeEdge)
-            {
-                cameraMoveOnEdge = Move.Left;
-                Vector3 a = transform.rotation * Vector3.right;
-                Vector3 a2 = transform.rotation * Vector3.up;
-                Vector3 a3 = -a * axis * movingSpeed * Time.deltaTime;
-                Vector3 b = -a2 * axis2 * _ySlideSpeed * 0.02f;
-                _target -= (a + a3) * (Mathf.Max(_distance, 4.0f) * 0.001f * movingSpeed);
-            }
-
-            if (Input.mousePosition.y < sizeEdge)
-            {
-                cameraMoveOnEdge = Move.Bottom;
-                if (jaiEnvieDeFaireChierAlex)
+                if(gizmoDirection == Move.Right)
+                    _target += new Vector3(Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed, 0, 0);
+                else if(gizmoDirection == Move.Left)
+                    _target -= new Vector3(Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed, 0, 0);
+                else if (gizmoDirection == Move.Forward)
+                    _target += new Vector3(0, 0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed);
+                else if (gizmoDirection == Move.Backward)
                     _target -= new Vector3(0, 0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed);
-                else
+                else if (gizmoDirection == Move.Top)
+                    _target += new Vector3(0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed, 0);
+                else if (gizmoDirection == Move.Bottom)
                     _target -= new Vector3(0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed, 0);
             }
-
-            if (Input.mousePosition.y > (Screen.height - sizeEdge))
-            {
-                cameraMoveOnEdge = Move.Top;
-                if(jaiEnvieDeFaireChierAlex)
-                    _target += new Vector3(0, 0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed);
-                else
-                    _target += new Vector3(0, Mathf.Max(_distance, 4.0f) * 0.06f * Time.deltaTime * movingSpeed, 0);
-            }
         }
-        
+
         Quaternion rotation = Quaternion.Euler(_y, _x, 0f);
         Vector3 position = rotation * new Vector3(0f, 0f, -_distance) + _target;
         transform.rotation = rotation;

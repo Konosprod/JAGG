@@ -140,14 +140,24 @@ public class GizmoTranslateScript : MonoBehaviour
 
 
                             Vector3 inputVector = (new Vector3(Input.GetAxis("Mouse X"), 0f, -Input.GetAxis("Mouse Y")).normalized);
-                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.right, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
+                            float dir = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.right, inputVector);
+                            delta = dir * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
                             offset = Vector3.right * delta;
                             offset = new Vector3(offset.x, 0.0f, 0.0f);
+                            
+                            if(!fc.cameraMoveOnEdge && dir < 0)
+                            {
+                                fc.gizmoDirection = FreeCamera.Move.Left;
+                            }
+                            else if(!fc.cameraMoveOnEdge && dir > 0)
+                            {
+                                fc.gizmoDirection = FreeCamera.Move.Right;
+                            }
 
-                            if (fc.cameraMoveOnEdge == FreeCamera.Move.Left)
-                                offset.x = -(Mathf.Max(fc._distance, 4.0f) * 0.001f * fc.movingSpeed);
-                            else if (fc.cameraMoveOnEdge == FreeCamera.Move.Right)
-                                offset.x = (Mathf.Max(fc._distance, 4.0f) * 0.001f * fc.movingSpeed);
+                            if (fc.cameraMoveOnEdge && fc.gizmoDirection == FreeCamera.Move.Right)
+                                offset.x = Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
+                            else if (fc.cameraMoveOnEdge && fc.gizmoDirection == FreeCamera.Move.Left)
+                                offset.x = -Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
 
                             foreach (GameObject go in translateTarget)
                             {
@@ -159,17 +169,24 @@ public class GizmoTranslateScript : MonoBehaviour
                     // Y Axis
                     case 1:
                         {
-                            fc.jaiEnvieDeFaireChierAlex = false;
-
                             float delta = Input.GetAxis("Mouse Y") * (Time.deltaTime * distance);
                             offset = Vector3.up * delta;
                             offset = new Vector3(0.0f, offset.y, 0.0f);
 
-                            if (fc.cameraMoveOnEdge == FreeCamera.Move.Top)
-                                offset.y = Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
-                            else if (fc.cameraMoveOnEdge == FreeCamera.Move.Bottom)
-                                offset.y = -Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
+                            if(!fc.cameraMoveOnEdge && delta >0)
+                            {
+                                fc.gizmoDirection = FreeCamera.Move.Top;
+                            }
+                            else if(!fc.cameraMoveOnEdge && delta < 0)
+                            {
+                                fc.gizmoDirection = FreeCamera.Move.Bottom;
+                            }
 
+                            if (fc.cameraMoveOnEdge && fc.gizmoDirection == FreeCamera.Move.Top)
+                                offset.y = Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
+                            else if (fc.cameraMoveOnEdge && fc.gizmoDirection == FreeCamera.Move.Bottom)
+                                offset.y = -Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
+                            
                             foreach (GameObject go in translateTarget)
                             {
                                 go.transform.Translate(offset, Space.World);
@@ -180,22 +197,31 @@ public class GizmoTranslateScript : MonoBehaviour
                     // Z Axis
                     case 2:
                         {
-                            fc.jaiEnvieDeFaireChierAlex = true;
-
                             distance = Vector3.Distance(Camera.main.transform.position, translateTarget[0].transform.position);
                             distance = distance * 2.0f;
                             float delta = 0;
 
 
                             Vector3 inputVector = (new Vector3(-Input.GetAxis("Mouse X"), 0f, Input.GetAxis("Mouse Y")).normalized);
-                            delta = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.back, inputVector) * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
+                            float dir = Vector3.Dot(Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y, Vector3.up) * Vector3.back, inputVector);
+                            delta =  dir * ((Mathf.Abs(-Input.GetAxis("Mouse Y")) + Mathf.Abs(Input.GetAxis("Mouse X"))) / 2f) * (Time.deltaTime * distance);
                             offset = Vector3.back * delta;
                             offset = new Vector3(0.0f, 0.0f, offset.z);
 
-                            if (fc.cameraMoveOnEdge == FreeCamera.Move.Top)
+                            if(!fc.cameraMoveOnEdge&& dir < 0)
+                            {
+                                fc.gizmoDirection = FreeCamera.Move.Forward;
+                            }
+                            else if(!fc.cameraMoveOnEdge && dir > 0)
+                            {
+                                fc.gizmoDirection = FreeCamera.Move.Backward;
+                            }
+
+                            if (fc.cameraMoveOnEdge && fc.gizmoDirection == FreeCamera.Move.Forward)
                                 offset.z = Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
-                            else if (fc.cameraMoveOnEdge == FreeCamera.Move.Bottom)
+                            else if (fc.cameraMoveOnEdge && fc.gizmoDirection == FreeCamera.Move.Backward)
                                 offset.z = -Mathf.Max(fc._distance, 4.0f) * 0.06f * Time.deltaTime * fc.movingSpeed;
+                            
 
                             foreach (GameObject go in translateTarget)
                             {
@@ -220,6 +246,7 @@ public class GizmoTranslateScript : MonoBehaviour
         if(noPress)
         {
             fc.bMoveOnEdge = false;
+            fc.gizmoDirection = FreeCamera.Move.NoMove;
         }
     }
 
