@@ -234,6 +234,11 @@ public class GizmoTranslateScript : MonoBehaviour
                 // Move the gizmo to match the target position
                 transform.position = translateTarget[0].transform.position;
 
+
+                // Update the position in the piece info panel
+                EditorManager.SetPieceInfoData();
+
+
                 break;
             }
             else

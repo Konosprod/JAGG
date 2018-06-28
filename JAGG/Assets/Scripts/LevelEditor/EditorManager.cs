@@ -1202,7 +1202,7 @@ public class EditorManager : MonoBehaviour
     }
 
     // Sets the piece info such as position, rotation, booster pad, spinning piece parameters
-    private static void SetPieceInfoData()
+    public static void SetPieceInfoData()
     {
         DisableCustomScriptEntries();
 

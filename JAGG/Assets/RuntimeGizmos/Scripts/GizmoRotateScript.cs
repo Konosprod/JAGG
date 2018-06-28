@@ -79,7 +79,7 @@ public class GizmoRotateScript : MonoBehaviour {
         for (int i = 0; i < 3; i++) {
 
             if (Input.GetMouseButton(0) && detectors[i].pressing) {
-
+                
                 // Rotation angle
                 float delta = (Input.GetAxis("Mouse X") - Input.GetAxis("Mouse Y")) * (Time.deltaTime);
                 delta *= rotationSpeed;
@@ -103,6 +103,9 @@ public class GizmoRotateScript : MonoBehaviour {
                         gameObject.transform.Rotate(Vector3.back, delta);
                          break;
                 }
+
+                // Update the rotation in the piece info panel
+                EditorManager.SetPieceInfoData();
 
                 break;
             }
