@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Handle the SpawnPoint in the LevelEditor
-public class SpawnPointLE : CustomScript {
+public class SpawnPointLE : MonoBehaviour {
 
     //[CustomProp]
     public GameObject spawnPoint = null; // The spawnPoint linked to the piece;

@@ -11,7 +11,6 @@ public class TestMode : MonoBehaviour {
     public GameObject GUICamera;
     public GameObject slider;
     public GameObject background;   // Piece selection
-    public GameObject scrollView;   // Piece selection
     public GameObject testButton;
     public GameObject exitTestButton;
     public GameObject holeSelection;
@@ -87,7 +86,6 @@ public class TestMode : MonoBehaviour {
             GUICamera.GetComponent<BallCamera>().enabled = start;
 
             background.SetActive(!start);
-            scrollView.SetActive(!start);
             testButton.SetActive(!start);
             exitTestButton.SetActive(start);
             holeSelection.SetActive(!start);
