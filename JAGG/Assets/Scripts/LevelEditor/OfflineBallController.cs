@@ -118,8 +118,10 @@ public class OfflineBallController : MonoBehaviour {
         if (otherGO.CompareTag("Hole"))
         {
             testMode.TestHole(false);
-            testMode.EndOfTest(shots, timer);
-            resetTest();
+            int saveShots = shots;
+            float saveTimer = timer;
+            ResetTest();
+            testMode.EndOfTest(saveShots, saveTimer);
         }
     }
 
@@ -191,11 +193,14 @@ public class OfflineBallController : MonoBehaviour {
     }*/
 
 
-    public void resetTest()
+    public void ResetTest()
     {
         shots = 0;
         timer = 0f;
         rb.velocity = Vector3.zero;
+
+        ResetSlider();
+        gameObject.SetActive(false);
     }
 
     private void UpdateSlider()

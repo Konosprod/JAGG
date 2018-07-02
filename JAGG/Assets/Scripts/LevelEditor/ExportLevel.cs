@@ -47,9 +47,9 @@ public class ExportLevel : MonoBehaviour {
         if (checkHoleValidity)
         {
             int i = 0;
-            while (i < 18)
+            while (i < EditorManager.maxHoles)
             {
-                bool isvalid = editorManager.isHoleValid(i);
+                bool isvalid = editorManager.IsHoleValid(i);
 
                 if (isvalid)
                 {

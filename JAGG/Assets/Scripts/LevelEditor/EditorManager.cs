@@ -44,7 +44,7 @@ public class EditorManager : MonoBehaviour
     public GameObject prefabLevelProperties;
 
     private static int currentHole = 0; // The hole that the player is currently editing
-    private const int maxHoles = 18;
+    public const int maxHoles = 18;
 
     public GameObject holesObject = null;
     private static GameObject currentHoleObject = null;
@@ -990,6 +990,29 @@ public class EditorManager : MonoBehaviour
                 ms.SwapToGrey(false);
             }
         }
+    }
+
+    // Enable/Disable MaterialSwaperoo
+    public void EnableMaterialSwaperoo(bool enable)
+    {
+        int saveCurrentHole = currentHole;
+
+        for(int i=0; i<maxHoles; i++)
+        {
+            if (i != saveCurrentHole)
+            {
+                currentHole = i;
+                currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
+
+                foreach (MaterialSwaperoo ms in currentHoleObject.GetComponentsInChildren<MaterialSwaperoo>())
+                {
+                    ms.SwapToGrey(enable);
+                }
+            }
+        }
+
+        currentHole = saveCurrentHole;
+        currentHoleObject = GameObject.Find("Hole " + (currentHole + 1));
     }
 
 
@@ -2671,14 +2694,14 @@ public class EditorManager : MonoBehaviour
 
     #endregion
 
-    public Vector3 getSpawnPosition()
+    public Vector3 GetSpawnPosition()
     {
         return spawnPoints[currentHole].transform.position;
     }
 
 
     // holeNb goes from 0 to 17
-    public bool isHoleValid(int holeNb)
+    public bool IsHoleValid(int holeNb)
     {
         bool test = spawnPoints[holeNb].transform.GetChild(0).gameObject.activeSelf; // The spawnpoint must be placed
         if (test)
@@ -2704,12 +2727,36 @@ public class EditorManager : MonoBehaviour
         return test;
     }
 
-    public bool canStartTestMode()
+    // Used for validation. Gets the next valid hole in the list (people can do Hole 1 and 12 only np)
+    // -1 if there is no other valid hole
+    public int GetNextValidHole(int currentHole)
     {
-        return isHoleValid(currentHole);
+        int res = -1;
+        if(currentHole < maxHoles-1)
+        {
+            for(int i=currentHole+1; i<maxHoles; i++)
+            {
+                if(IsHoleValid(i))
+                {
+                    res = i;
+                    break;
+                }
+            }
+        }
+        return res;
     }
 
-    public GameObject getCurrentHoleLevelProp()
+    public void ChangeCurrentHole(int hole)
+    {
+        currentHole = hole;
+    }
+
+    public bool CanStartTestMode()
+    {
+        return IsHoleValid(currentHole);
+    }
+
+    public GameObject GetCurrentHoleLevelProp()
     {
         return levelsProperties[currentHole];
     }

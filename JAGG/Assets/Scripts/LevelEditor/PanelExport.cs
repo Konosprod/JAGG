@@ -51,7 +51,8 @@ public class PanelExport : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        uploadButton.onClick.AddListener(UploadMap);
+        //uploadButton.onClick.AddListener(UploadMap);
+        uploadButton.onClick.AddListener(ValidationBeforeUpload);
         saveLocalButton.onClick.AddListener(SaveLocal);
 
         authenticationManager = AuthenticationManager._instance;
@@ -81,6 +82,21 @@ public class PanelExport : MonoBehaviour {
     void OnDisable()
     {
         editorManager.canEdit = true;
+    }
+
+    public void ValidationBeforeUpload()
+    {
+        if(EditorManager.isModified)
+        {
+            // If the level was modified you need to validate it before it can be uploaded
+            editorManager.testMode.TestHole(true, true);
+            this.gameObject.SetActive(false);
+            editorManager.escapeMenu.gameObject.SetActive(false);
+        }
+        else
+        {
+            UploadMap();
+        }
     }
 
     public void UploadMap()

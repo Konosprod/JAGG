@@ -23,6 +23,7 @@ public class SaveBeforeExit : MonoBehaviour {
             UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         };
         editorManager.panelExport.gameObject.SetActive(true);
+        this.gameObject.SetActive(false);
     }
 
     public void DiscardAndQuit()
