@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c1f298cfc3e6484eb3a0e3631db82b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trailParticle: {fileID: 1376422760}
+  trailParticle: {fileID: 2140095204}
   panelUI: {fileID: 1450628244}
   colorPicker: {fileID: 979231782}
 --- !u!4 &132147995
@@ -426,6 +426,7 @@ MonoBehaviour:
   shakingTime: 0.75
   isShaking: 0
   shouldFollow: 1
+  directionControl: 1
 --- !u!114 &366079108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2238,7 +2239,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1046027835384560, guid: 0ac82a97e55f18e40be907a855eb526f, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4190526492708832, guid: 0ac82a97e55f18e40be907a855eb526f, type: 2}
       propertyPath: m_RootOrder
@@ -6926,7 +6927,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1376422758
 Transform:
   m_ObjectHideFlags: 0
@@ -11915,3 +11916,8 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!198 &2140095204 stripped
+ParticleSystem:
+  m_PrefabParentObject: {fileID: 198729237808899924, guid: 0ac82a97e55f18e40be907a855eb526f,
+    type: 2}
+  m_PrefabInternal: {fileID: 1046591807}
