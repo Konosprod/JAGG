@@ -86,6 +86,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: c7c5195252016fa42b6a20b61e2b0a97, type: 2}
   m_StaticBatchInfo:
@@ -148,5 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 535c3d22cc697964e969de852b193c5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: Other/RoadCrosswalk
+  id: Other/RoadCrossWalk
   prefab: 1
+  number: 0
+  parentNumber: -1
