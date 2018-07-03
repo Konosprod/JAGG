@@ -51,8 +51,8 @@ public class PanelExport : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        //uploadButton.onClick.AddListener(UploadMap);
-        uploadButton.onClick.AddListener(ValidationBeforeUpload);
+        uploadButton.onClick.AddListener(UploadMap);
+        //uploadButton.onClick.AddListener(ValidationBeforeUpload);
         saveLocalButton.onClick.AddListener(SaveLocal);
 
         authenticationManager = AuthenticationManager._instance;
