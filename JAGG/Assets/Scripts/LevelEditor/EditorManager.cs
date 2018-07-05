@@ -1127,7 +1127,7 @@ public class EditorManager : MonoBehaviour
 
 
     // Fixes a weird bug with object that uses png textures and outline effect (fucking flag)
-    public void setSelection(bool b)
+    public void SetSelection(bool b)
     {
         if (b)
         {
@@ -1414,7 +1414,7 @@ public class EditorManager : MonoBehaviour
      *  Piece position
      *****************************/
 
-    public void updatePosX(string val)
+    public void UpdatePosX(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1446,7 +1446,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updatePosY(string val)
+    public void UpdatePosY(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1478,7 +1478,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updatePosZ(string val)
+    public void UpdatePosZ(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1514,7 +1514,7 @@ public class EditorManager : MonoBehaviour
      *  Piece rotation
      *****************************/
 
-    public void updateRotX(string val)
+    public void UpdateRotX(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1546,7 +1546,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updateRotY(string val)
+    public void UpdateRotY(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1578,7 +1578,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updateRotZ(string val)
+    public void UpdateRotZ(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1613,7 +1613,7 @@ public class EditorManager : MonoBehaviour
      *  SpinningPiece
      *****************************/
 
-    public void spinningPieceToggleValueChanged(bool tog)
+    public void SpinningPieceToggleValueChanged(bool tog)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1654,7 +1654,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updateSpinTime(string val)
+    public void UpdateSpinTime(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1676,7 +1676,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updatePauseTime(string val)
+    public void UpdatePauseTime(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1698,7 +1698,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updateNbRotations(string val)
+    public void UpdateNbRotations(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1724,7 +1724,7 @@ public class EditorManager : MonoBehaviour
      *  MovingPiece
      *****************************/
 
-    public void movingPieceToggleValueChanged(bool tog)
+    public void MovingPieceToggleValueChanged(bool tog)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1765,7 +1765,7 @@ public class EditorManager : MonoBehaviour
             Debug.LogError("No piece are selected and we try to activate/deactivate the spinning");
     }
 
-    public void updateMoveDestX(string val)
+    public void UpdateMoveDestX(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1791,7 +1791,7 @@ public class EditorManager : MonoBehaviour
             Debug.LogError("No piece are selected and we try to set the X coordinate of the destination");
     }
 
-    public void updateMoveDestY(string val)
+    public void UpdateMoveDestY(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1817,7 +1817,7 @@ public class EditorManager : MonoBehaviour
             Debug.LogError("No piece are selected and we try to set the Y coordinate of the destination");
     }
 
-    public void updateMoveDestZ(string val)
+    public void UpdateMoveDestZ(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1844,7 +1844,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updateMoveTravelTime(string val)
+    public void UpdateMoveTravelTime(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1866,7 +1866,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    public void updateMovePauseTime(string val)
+    public void UpdateMovePauseTime(string val)
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1890,7 +1890,7 @@ public class EditorManager : MonoBehaviour
     /*****************************
      *  BoosterPad
      *****************************/
-    public void updateBootserPad()
+    public void UpdateBoosterPad()
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1901,13 +1901,13 @@ public class EditorManager : MonoBehaviour
             bp.addFactor = float.Parse(inputAddFactorBP.text);
         }
         else
-            Debug.Log("No or 2+ pieces selected whenre trying to update boosterpad");
+            Debug.LogError("No or 2+ pieces selected whenre trying to update boosterpad");
     }
 
     /*****************************
      *  Wind Area
      *****************************/
-    public void updateWindArea()
+    public void UpdateWindArea()
     {
         if (selectedPiecesInPlace.Count == 1)
         {
@@ -1917,7 +1917,7 @@ public class EditorManager : MonoBehaviour
             wa.strength = float.Parse(inputStrengthWA.text);
         }
         else
-            Debug.Log("No or 2+ pieces selected whenre trying to update wind area");
+            Debug.LogError("No or 2+ pieces selected whenre trying to update wind area");
     }
 
     #endregion
