@@ -31,7 +31,7 @@ public class UIPieceHandler : MonoBehaviour
     {
         //Debug.Log(Mouse click");
         target = Color.blue;
-        editorMan.clickOnPiece(gameObject.name);
+        editorMan.ClickOnPiece(gameObject.name);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

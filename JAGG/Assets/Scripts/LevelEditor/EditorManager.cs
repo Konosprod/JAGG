@@ -316,7 +316,7 @@ public class EditorManager : MonoBehaviour
                     // We use a raycast to find the plane (layerPlane)
                     RaycastHit rayHitPlane;
                     Ray rayPlane = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(rayPlane, out rayHitPlane, Mathf.Infinity))
+                    if (Physics.Raycast(rayPlane, out rayHitPlane, Mathf.Infinity, ~(1 << layerSnap)))
                     {
                         if (rayHitPlane.transform.gameObject.layer == layerPlane)
                         {
@@ -341,7 +341,7 @@ public class EditorManager : MonoBehaviour
                                 currentPiece.transform.position = pos;
 
                                 // If you left-click and the position is free, place the piece
-                                if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
+                                if (Input.GetMouseButtonDown(0) && IsPositionValid(pos, currentPiece))
                                 {
                                     currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
                                 }
@@ -407,7 +407,7 @@ public class EditorManager : MonoBehaviour
                     // The booster pads go on top of the floor pieces so we use a raycast to find them
                     RaycastHit rayHit;
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out rayHit, Mathf.Infinity))
+                    if (Physics.Raycast(ray, out rayHit, Mathf.Infinity, ~(1 << layerSnap)))
                     {
                         if (rayHit.transform.gameObject.layer == layerFloor) // If we hit a floor we put the BoosterPad on top
                         {
@@ -454,7 +454,7 @@ public class EditorManager : MonoBehaviour
 
 
                                 // If you left-click and the position is free, place the piece
-                                if (Input.GetMouseButtonDown(0) && isPositionValid(pos, currentPiece))
+                                if (Input.GetMouseButtonDown(0) && IsPositionValid(pos, currentPiece))
                                 {
                                     currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
                                     currParams.result.transform.parent = rayHit.transform.parent;
@@ -606,7 +606,7 @@ public class EditorManager : MonoBehaviour
                     {
                         // Name of the piece has (Clone) so we remove it to get the prefab name
                         // Get a copy of the selected piece in hand
-                        clickOnPiece(selectedPiecesInPlace[0].name.Split('(')[0]);
+                        ClickOnPiece(selectedPiecesInPlace[0].name.Split('(')[0]);
                     }
                     else
                     {
@@ -906,7 +906,7 @@ public class EditorManager : MonoBehaviour
                         //Debug.Log(pName);
 
                         // Get a copy of the clicked piece in hand
-                        clickOnPiece(pName);
+                        ClickOnPiece(pName);
                     }
                 }
             }
@@ -914,7 +914,7 @@ public class EditorManager : MonoBehaviour
     }
 
     // Returns true if the piece can be placed on the specific position
-    private bool isPositionValid(Vector3 pos, GameObject piece = null)
+    private bool IsPositionValid(Vector3 pos, GameObject piece = null)
     {
         bool res = true;
 
@@ -927,13 +927,14 @@ public class EditorManager : MonoBehaviour
             if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
             {
                 res = false;
+                Debug.Log(rayHitPiece.collider.gameObject.name);
             }
         }
 
         return res;
     }
 
-    public void clickOnPiece(string pieceName)
+    public void ClickOnPiece(string pieceName)
     {
         if (pieceName != "")
         {
