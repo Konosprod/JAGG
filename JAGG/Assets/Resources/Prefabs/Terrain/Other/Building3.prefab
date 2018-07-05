@@ -91,6 +91,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: c7c5195252016fa42b6a20b61e2b0a97, type: 2}
   m_StaticBatchInfo:
@@ -203,6 +204,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Other/Building3
   prefab: 1
+  number: 0
+  parentNumber: -1
 --- !u!136 &136409784790097754
 CapsuleCollider:
   m_ObjectHideFlags: 1

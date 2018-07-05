@@ -88,6 +88,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 74b8043317d61a94b8db3c29cafad3c5, type: 2}
   m_StaticBatchInfo:
@@ -164,6 +165,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Other/TreeFir
   prefab: 1
+  number: 0
+  parentNumber: -1
 --- !u!136 &136501881997643732
 CapsuleCollider:
   m_ObjectHideFlags: 1
