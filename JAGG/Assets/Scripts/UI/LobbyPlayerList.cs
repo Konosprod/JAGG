@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class LobbyPlayerList : MonoBehaviour
 {
     public GameObject scrollviewContent;
+    public VerticalLayoutGroup _layout;
     public static LobbyPlayerList _instance = null;
 
     protected List<LobbyPlayer> _players = new List<LobbyPlayer>();
@@ -14,6 +15,12 @@ public class LobbyPlayerList : MonoBehaviour
     void OnEnable()
     {
         _instance = this;
+    }
+
+    void Update()
+    {
+        if (_layout)
+            _layout.childAlignment = Time.frameCount % 2 == 0 ? TextAnchor.UpperCenter : TextAnchor.UpperLeft;
     }
 
     public void AddPlayer(LobbyPlayer player)
@@ -57,7 +64,8 @@ public class LobbyPlayerList : MonoBehaviour
     {
         foreach(LobbyPlayer lp in _players)
         {
-            lp.CmdUpdateAvatar(steamid);
+            if(lp.isLocalPlayer)
+                lp.CmdUpdateAvatar(steamid);
         }
     }
 }
