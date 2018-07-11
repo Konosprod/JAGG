@@ -64,6 +64,7 @@ public class TestMode : MonoBehaviour {
     // Unity <3
     public void TestHoleForButton()
     {
+        editorManager.DisableGizmos();
         TestHole(true);
     }
 
