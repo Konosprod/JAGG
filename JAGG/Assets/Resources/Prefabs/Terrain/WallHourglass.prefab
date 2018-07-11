@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 23959028894438166}
   - component: {fileID: 64050033216583530}
   - component: {fileID: 114560246524068318}
+  - component: {fileID: 114502710247917132}
   m_Layer: 27
   m_Name: WallHourglass
   m_TagString: Untagged
@@ -99,6 +100,17 @@ MeshCollider:
   m_CookingOptions: 14
   m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: 491f9f27dd32bca489cc766c44efc203, type: 2}
+--- !u!114 &114502710247917132
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1452951725053272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114560246524068318
 MonoBehaviour:
   m_ObjectHideFlags: 1
