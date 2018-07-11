@@ -104,7 +104,7 @@ public class TestMode : MonoBehaviour {
             Cursor.visible = !start;
 
             MainCamera.GetComponent<FreeCamera>().enabled = !start;
-            editorManager.setSelection(start);
+            editorManager.SetSelection(start);
             MainCamera.GetComponent<BallCamera>().enabled = start;
             GUICamera.GetComponent<BallCamera>().enabled = start;
 
