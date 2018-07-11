@@ -1,7 +1,5 @@
 fileFormatVersion: 2
-guid: b6b740cfcf1a864459ae87e92b241785
-timeCreated: 1508344483
-licenseType: Free
+guid: 5dbbd6a8d2ea02e43ab08dc05cb2372d
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
@@ -51,6 +49,11 @@ ModelImporter:
     400040: UCX_Hole_18
     400042: UCX_Hole_19
     400044: UCX_Hole_20
+    2100000: Greed.002
+    2100002: Red.005
+    2100004: Grass
+    2100006: Red
+    2100008: GreyDCDCDC
     2300000: Hole
     2300002: UCX_Hole_00
     2300004: UCX_Hole_01
@@ -117,37 +120,12 @@ ModelImporter:
     4300038: UCX_Hole_01
     4300040: UCX_Hole_00
     4300042: Hole
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Grass
-    second: {fileID: 2100000, guid: 51ddfdf90cd5a944ea5d318b422b9801, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Greed.002
-    second: {fileID: 2100000, guid: 0e7af42fa6ffd544ab87e086ca67e3a2, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: GreyDCDCDC
-    second: {fileID: 2100000, guid: 74a5249ae5ca1b4439298f2d062483a8, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Red
-    second: {fileID: 2100000, guid: feb680471103a9b4fab0d18bba84bdb0, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Red.005
-    second: {fileID: 2100000, guid: 706520cad922c4643b969ebdb07e097b, type: 2}
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 0
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -161,6 +139,7 @@ ModelImporter:
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -185,6 +164,8 @@ ModelImporter:
     optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88

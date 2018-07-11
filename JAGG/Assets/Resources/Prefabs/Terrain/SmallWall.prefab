@@ -57,8 +57,9 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 1780709cb3e202e478ce14c44a3f0f5e, type: 2}
+  - {fileID: 2100000, guid: feb680471103a9b4fab0d18bba84bdb0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -110,6 +111,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: SmallWall
   prefab: 1
+  number: 0
+  parentNumber: -1
 --- !u!114 &114350983787747508
 MonoBehaviour:
   m_ObjectHideFlags: 1
