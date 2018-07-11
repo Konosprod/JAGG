@@ -429,12 +429,12 @@ public class EditorManager : MonoBehaviour
 
                                 Vector3 pos = new Vector3(rayHit.transform.position.x, rayHit.transform.position.y, rayHit.transform.position.z);
                                 float offsetY = 0f;
-
-                                if (rayHit.transform.gameObject.name == "Slope") // Custom position for the correct height
+                                
+                                if (rayHit.transform.gameObject.name.Split('(')[0] == "SlopeBase") // Custom position for the correct height
                                 {
                                     //y = 0.391f;
                                     //pos.y = 0.391f;
-                                    offsetY = 0.391f;
+                                    offsetY = 0.501f;
                                 }
                                 else
                                 {
@@ -2508,9 +2508,9 @@ public class EditorManager : MonoBehaviour
             {
                 off = new Vector3(0f, 0f, 0.4f);
             }
-            else if (pName == "Slope" || pName == "SlopeNoWall")
+            else if (pName == "Slope" || pName == "SlopeBase")
             {
-                off = new Vector3(0f, 0.57875f, 0f);
+                off = new Vector3(0f, 0.8f, 0f);
             }
 
             if (off != Vector3.zero)
