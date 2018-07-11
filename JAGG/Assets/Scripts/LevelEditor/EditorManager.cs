@@ -267,7 +267,7 @@ public class EditorManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!testMode.isInTest() && canEdit)
+        if (!testMode.IsInTest() && canEdit)
         {
             //Handle Escape for menus
             if (Input.GetKeyUp(KeyCode.Escape))
@@ -1020,7 +1020,7 @@ public class EditorManager : MonoBehaviour
     // Handle loss/gain of focus
     private void OnApplicationFocus(bool focus)
     {
-        if (!testMode.isInTest())
+        if (!testMode.IsInTest())
         {
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;

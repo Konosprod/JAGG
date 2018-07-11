@@ -309,7 +309,7 @@ public class PlayerManager : NetworkBehaviour {
         return sc;
     }
 
-    public bool isPlayerOnLayerDone(int layer)
+    public bool IsPlayerOnLayerDone(int layer)
     {
         bool res = false;
 

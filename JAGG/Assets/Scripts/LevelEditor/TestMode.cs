@@ -184,7 +184,7 @@ public class TestMode : MonoBehaviour {
     }
 
 
-    public bool isInTest()
+    public bool IsInTest()
     {
         return isTestMode;
     }
