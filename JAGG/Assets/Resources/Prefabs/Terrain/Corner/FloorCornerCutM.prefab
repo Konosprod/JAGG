@@ -38,7 +38,6 @@ GameObject:
   - component: {fileID: 33549276896218480}
   - component: {fileID: 23665440199582646}
   - component: {fileID: 64859969908255632}
-  - component: {fileID: 114105087127472618}
   - component: {fileID: 114001483705176684}
   m_Layer: 26
   m_Name: FloorCornerCutM
@@ -142,21 +141,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114105087127472618
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1201837988487846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 535c3d22cc697964e969de852b193c5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: Corner/FloorCornerCutM
-  prefab: 1
-  number: 0
-  parentNumber: -1
 --- !u!114 &114198141326619412
 MonoBehaviour:
   m_ObjectHideFlags: 1
