@@ -135,7 +135,8 @@ public class CustomLevelLoader : MonoBehaviour {
 
                 if (objectToLoad == null)
                 {
-                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
+                    Debug.Log("Unable to load : " + jPiece["id"]);
+                    //objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
                 }
 
                 GameObject o = Instantiate(objectToLoad, hole.transform);
