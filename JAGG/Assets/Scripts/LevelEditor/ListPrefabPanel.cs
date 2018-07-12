@@ -95,17 +95,6 @@ public class ListPrefabPanel : MonoBehaviour {
 
     public void AddPiece(GameObject pref)
     {
-        GameObject previewImage = new GameObject(pref.name);
-
-        previewImage.AddComponent<RectTransform>();
-        previewImage.AddComponent<LayoutElement>();
-
-        Image pi_im = previewImage.AddComponent<Image>();
-        pi_im.sprite = Resources.Load<Sprite>("Previews/" + pref.name + "Preview");
-
-        UIPieceHandler uiph = previewImage.AddComponent<UIPieceHandler>();
-        uiph.editorMan = editorManager;
-
         string id = pref.GetComponent<TerrainPiece>().id;
         string type = "";
 
@@ -114,7 +103,18 @@ public class ListPrefabPanel : MonoBehaviour {
 
         if (type != "")
         {
-            if(type == "straight")
+            GameObject previewImage = new GameObject(pref.name);
+
+            previewImage.AddComponent<RectTransform>();
+            previewImage.AddComponent<LayoutElement>();
+
+            Image pi_im = previewImage.AddComponent<Image>();
+            pi_im.sprite = Resources.Load<Sprite>("Previews/" + pref.name + "Preview");
+
+            UIPieceHandler uiph = previewImage.AddComponent<UIPieceHandler>();
+            uiph.editorMan = editorManager;
+
+            if (type == "straight")
                 previewImage.transform.SetParent(listStraight.transform);
             else if(type == "corner")
                 previewImage.transform.SetParent(listCorner.transform);
