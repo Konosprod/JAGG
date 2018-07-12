@@ -2431,7 +2431,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4460291286733438, guid: 886d3975e09665643b4644334e016e32, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 0.000000029802322
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 886d3975e09665643b4644334e016e32, type: 2}
@@ -3382,7 +3382,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4681678896294642, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.20000002
       objectReference: {fileID: 0}
     - target: {fileID: 4681678896294642, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
       propertyPath: m_LocalPosition.z
@@ -3427,13 +3427,17 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4632199057037338, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 23223073396016340, guid: 1bf6726602fdf3f47a67e78ba92486a6,
         type: 2}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 357b891f777cb3544948a8933bfdd810, type: 2}
+    - target: {fileID: 4560454851524010, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1bf6726602fdf3f47a67e78ba92486a6, type: 2}
   m_IsPrefabParent: 0
@@ -5978,19 +5982,19 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4613078004002160, guid: 8f2952a7251666248aaf99352d876b1b, type: 2}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.008802021
       objectReference: {fileID: 0}
     - target: {fileID: 4613078004002160, guid: 8f2952a7251666248aaf99352d876b1b, type: 2}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.008649722
       objectReference: {fileID: 0}
     - target: {fileID: 4613078004002160, guid: 8f2952a7251666248aaf99352d876b1b, type: 2}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: 0.008649722
       objectReference: {fileID: 0}
     - target: {fileID: 4613078004002160, guid: 8f2952a7251666248aaf99352d876b1b, type: 2}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.99988645
       objectReference: {fileID: 0}
     - target: {fileID: 4613078004002160, guid: 8f2952a7251666248aaf99352d876b1b, type: 2}
       propertyPath: m_RootOrder
@@ -6008,6 +6012,36 @@ Transform:
   m_PrefabParentObject: {fileID: 4613078004002160, guid: 8f2952a7251666248aaf99352d876b1b,
     type: 2}
   m_PrefabInternal: {fileID: 1270214923}
+--- !u!1 &1270214925 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1344412935227136, guid: 8f2952a7251666248aaf99352d876b1b,
+    type: 2}
+  m_PrefabInternal: {fileID: 1270214923}
+--- !u!114 &1270214926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1270214925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82e19412ef540c94b9a8165d92134b01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spinTime: 1
+  pauseTime: 0.2
+  timerOffset: 0
+  nbRotations: 4
+  initX: -1
+  initY: -1
+  initZ: -1
+  initialRotation: {x: 1, y: 1, z: 1}
+  flagStopRotation: 0
+  isRotation: 0
+  timer: -0
+  rotationAngle: 90
+  ballsOnTop: []
+  goalAngle: {x: 0, y: 0, z: 0, w: 1}
 --- !u!1001 &1284674890
 Prefab:
   m_ObjectHideFlags: 0
@@ -9792,7 +9826,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4369369362634632, guid: 91243737eb2c8254297f9a6c9319d1f3, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0.11000001
+      value: 0.101
       objectReference: {fileID: 0}
     - target: {fileID: 4369369362634632, guid: 91243737eb2c8254297f9a6c9319d1f3, type: 2}
       propertyPath: m_LocalPosition.z
