@@ -291,6 +291,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     private void KickPlayer()
     {
+        LobbyManager._instance.playerManager.RemovePlayer(connectionToClient.connectionId);
         connectionToClient.Disconnect();
     }
 
