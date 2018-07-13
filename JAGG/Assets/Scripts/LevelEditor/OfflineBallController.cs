@@ -38,6 +38,12 @@ public class OfflineBallController : MonoBehaviour {
     private bool flagEnableTrail = false;
 
 
+    // Handling reset of position when out-of-bounds
+    private float oobInitialResetTimer = 2.0f;
+    private float oobActualResetTimer;
+    private bool isOOB = false;
+
+
     // Use this for initialization
     void Start () {
         layerWall = LayerMask.NameToLayer("Wall");
@@ -109,6 +115,34 @@ public class OfflineBallController : MonoBehaviour {
             sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
 
         timer += Time.deltaTime;
+
+
+        if (!Physics.Raycast(new Vector3(transform.position.x, transform.position.y - 0.05f, transform.position.z), Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
+        {
+            if (isOOB)
+            {
+                //Debug.Log(oobActualResetTimer);
+                oobActualResetTimer -= Time.deltaTime;
+                if (oobActualResetTimer < 0f)
+                {
+                    isOOB = false;
+                    ParticleSystem.EmissionModule em = trail.emission;
+                    em.enabled = false;
+                    rb.velocity = Vector3.zero;
+                    transform.position = lastPos;
+                    flagEnableTrail = true;
+                }
+            }
+            else
+            {
+                isOOB = true;
+                oobActualResetTimer = oobInitialResetTimer;
+            }
+        }
+        else
+        {
+            isOOB = false;
+        }
     }
 
     

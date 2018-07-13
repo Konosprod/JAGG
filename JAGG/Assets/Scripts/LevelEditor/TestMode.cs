@@ -15,6 +15,9 @@ public class TestMode : MonoBehaviour {
     public GameObject exitTestButton;
     public GameObject holeSelection;
     public EditorManager editorManager;
+    public BoxCollider planeDecorCol; // Activate the plane's collider during tests
+    public GameObject planeRaycast; // Disable the plane raycast (for piece placement) during tests
+    public GameObject grid;         // Disable the grid during tests as well
 
 
     [Header("End of game panel")]
@@ -112,6 +115,9 @@ public class TestMode : MonoBehaviour {
             testButton.SetActive(!start);
             exitTestButton.SetActive(start);
             holeSelection.SetActive(!start);
+            planeDecorCol.enabled = start;
+            planeRaycast.SetActive(!start);
+            grid.SetActive(!start);
 
             ball.transform.position = editorManager.GetSpawnPosition();
 
