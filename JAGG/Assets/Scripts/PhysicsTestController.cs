@@ -7,16 +7,7 @@ public class PhysicsTestController : MonoBehaviour {
     public Rigidbody rb;
     public ParticleSystem trail;
     public Transform sphere;
-
-
-    [Header("Simulation properties")]
-    public Vector3 shootDirection;
-    public float forceOfShot;
-    public float timerRestart; // In seconds
-
-    private float currentTimer;
-    private Vector3 startPos;
-
+    
     private bool isMoving = false;
 
     private bool IsGrounded;
@@ -25,7 +16,6 @@ public class PhysicsTestController : MonoBehaviour {
     private int frameHit;
     private int layerWall;
 
-    private bool flagEnableTrail = false;
 
 
     // Handling reset of position when out-of-bounds
@@ -37,8 +27,6 @@ public class PhysicsTestController : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        startPos = transform.position;
-        currentTimer = timerRestart;
         layerWall = LayerMask.NameToLayer("Wall");
         i = frameHit = 0;
         lastWallHit = new Vector3(Mathf.Infinity, Mathf.Infinity, Mathf.Infinity);
@@ -48,12 +36,6 @@ public class PhysicsTestController : MonoBehaviour {
     void Update()
     {
 
-        if (flagEnableTrail)
-        {
-            ParticleSystem.EmissionModule em = trail.emission;
-            em.enabled = true;
-            flagEnableTrail = false;
-        }
 
         isMoving = rb.velocity.magnitude >= 0.001f;
         
@@ -66,25 +48,12 @@ public class PhysicsTestController : MonoBehaviour {
             flagEnableTrail = true;
         }*/
         
-        if(currentTimer == timerRestart)
-        {
-            rb.AddForce(shootDirection * forceOfShot);
-        }
+        
 
 
         if (rb.velocity.magnitude > 0.005f)
             sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
-
-        currentTimer -= Time.deltaTime;
-        if(currentTimer <= 0)
-        {
-            ParticleSystem.EmissionModule em = trail.emission;
-            em.enabled = false;
-            rb.velocity = Vector3.zero;
-            transform.position = startPos;
-            currentTimer = timerRestart;
-            flagEnableTrail = true;
-        }
+        
     }
 
 
