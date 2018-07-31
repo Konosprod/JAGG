@@ -12,6 +12,9 @@ public class SnappingPoint : MonoBehaviour {
     public LayerMask layerMask;
     public MeshRenderer sphere;
 
+    public Color selectedColor;
+    public Color unselectedColor;
+
     private Vector3 direction;
     private Vector3 origin;
     //private float currentHitDistance;
@@ -55,6 +58,13 @@ public class SnappingPoint : MonoBehaviour {
         }
 
     }
+
+    public void Selected(bool isSelected = true)
+    {
+        sphere.material.SetColor("_Color", isSelected ? selectedColor : unselectedColor);
+        sphere.material.SetColor("_SpecColor", isSelected ? selectedColor : unselectedColor);
+    }
+
     /*
     private void OnDrawGizmosSelected()
     {

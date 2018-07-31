@@ -707,24 +707,33 @@ public class EditorManager : MonoBehaviour
                                 {
                                     if (selectedSnapPoints.Count < 1)
                                     {
-                                        Debug.Log("Add snap point");
-                                        selectedSnapPoints.Add(piece);
+
+                                        if(piece.transform.parent.gameObject.Equals(selectedPiecesInPlace[0]))
+                                        {
+                                            piece.GetComponent<SnappingPoint>().Selected(true);
+                                            selectedSnapPoints.Add(piece);
+                                        }
                                     }
                                     else
                                     {
-                                        gizmoTranslate.gameObject.SetActive(false);
-                                        SnappingPoint sp = selectedSnapPoints[0].transform.gameObject.GetComponent<SnappingPoint>();
+                                        if (piece.transform.parent.gameObject != selectedPiecesInPlace[0])
+                                        {
+                                            gizmoTranslate.gameObject.SetActive(false);
+                                            SnappingPoint sp = selectedSnapPoints[0].transform.gameObject.GetComponent<SnappingPoint>();
 
-                                        sp.shouldSnap = false;
-                                        sp.isSnapped = true;
-                                        sp.col.isTrigger = false;
+                                            sp.shouldSnap = false;
+                                            sp.isSnapped = true;
+                                            sp.col.isTrigger = false;
 
-                                        selectedSnapPoints[0].transform.parent.transform.rotation = Quaternion.LookRotation(-1 * piece.transform.forward);
+                                            Quaternion deltaRot = piece.transform.rotation * selectedSnapPoints[0].transform.rotation;
+                                            selectedSnapPoints[0].transform.parent.transform.rotation *= deltaRot;
 
-                                        Vector3 offset = piece.transform.position - selectedSnapPoints[0].transform.position;
-                                        selectedSnapPoints[0].transform.parent.transform.position += offset;
+                                            Vector3 offset = piece.transform.position - selectedSnapPoints[0].transform.position;
+                                            selectedSnapPoints[0].transform.parent.transform.position += offset;
 
-                                        selectedSnapPoints.Clear();
+                                            selectedSnapPoints[0].GetComponent<SnappingPoint>().Selected(false);
+                                            selectedSnapPoints.Clear();
+                                        }
                                     }
                                 }
                                 else
@@ -783,6 +792,9 @@ public class EditorManager : MonoBehaviour
                                     gizmoScale.gameObject.SetActive(false);
                                     gizmoTranslate.gameObject.SetActive(false);
                                     currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
+                                    if (selectedSnapPoints.Count > 0)
+                                        selectedSnapPoints[0].GetComponent<SnappingPoint>().Selected(false);
+                                    selectedSnapPoints.Clear();
                                 }
                             }
                         }
