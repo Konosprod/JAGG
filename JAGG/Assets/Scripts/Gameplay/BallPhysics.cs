@@ -204,7 +204,9 @@ public class BallPhysics : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError("Fuck this"); // Very unlikely to be overlapping an object but unable to find it with a raycast
+                        Debug.LogError("Fuck this : " + cols[0].gameObject.name); // Very unlikely to be overlapping an object but unable to find it with a raycast
+                        Debug.DrawRay(transform.position, Vector3.up * 5f, Color.yellow, 5f);
+                        Debug.Break();
                     }
                 }
             }
@@ -237,10 +239,17 @@ public class BallPhysics : MonoBehaviour
                 // Apply gravity 
                 // We project the gravity along the slope
                 // Using the dot product we get a value that is bigger the higher the angle of the slope is
-                Vector3 projectGrav = Vector3.ProjectOnPlane(grav, normal).normalized;
-                float dotGrav = Vector3.Dot(grav.normalized, projectGrav);
-                //Debug.Log("Dot grav : " + dotGrav);
-                rb.AddForce(projectGrav * grav.magnitude * dotGrav);
+                if(normal.y >= 0f)
+                {
+                    Vector3 projectGrav = Vector3.ProjectOnPlane(grav, normal).normalized;
+                    float dotGrav = Vector3.Dot(grav.normalized, projectGrav);
+                    //Debug.Log("Dot grav : " + dotGrav + ", normal : " + normal + ", projectGrav : " + projectGrav);
+                    rb.AddForce(projectGrav * grav.magnitude * dotGrav);
+                }
+                else
+                {
+                    rb.AddForce(grav);
+                }
             }
         }
         else
