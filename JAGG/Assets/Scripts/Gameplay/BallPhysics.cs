@@ -90,8 +90,6 @@ public class BallPhysics : MonoBehaviour
             // Check on the left and right of the ball
 
             // Right first because why not
-            float angle = Vector3.Angle(Vector3.forward, rb.velocity);
-
             Vector3 start = transform.position + rb.velocity * Time.fixedDeltaTime;
             Vector3 end = start + transform.right * 0.055f;
 
