@@ -368,7 +368,7 @@ public class PlayerManager : NetworkBehaviour {
 
             if(networkIdentity.netId.Value != netid)
             {
-                go.GetComponent<CustomPhysics>().ChangeGravity(type);
+                go.GetComponent<BallPhysicsNetwork>().ChangeGravity(type);
             }
         }
 
@@ -379,7 +379,7 @@ public class PlayerManager : NetworkBehaviour {
     {
         foreach (GameObject go in players.Values)
         {
-            go.GetComponent<CustomPhysics>().ResetGravity();
+            go.GetComponent<BallPhysicsNetwork>().ResetGravity();
         }
     }
 

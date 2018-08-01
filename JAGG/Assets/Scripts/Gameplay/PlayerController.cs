@@ -31,8 +31,9 @@ public class PlayerController : NetworkBehaviour {
 
     private GameObject guiCam;
 
-    public Rigidbody rb;
+    private Rigidbody rb;
     private PreviewLine line;
+    private BallPhysicsNetwork ballPhysN;
     private LobbyManager lobbyManager;
     public ParticleSystem trail;
     public ParticleSystem explosion;
@@ -85,6 +86,7 @@ public class PlayerController : NetworkBehaviour {
 
         rb = GetComponent<Rigidbody>();
         line = GetComponent<PreviewLine>();
+        ballPhysN = GetComponent<BallPhysicsNetwork>();
         lobbyManager = LobbyManager._instance;
 
         playerNameText.text = playerName;
@@ -158,7 +160,7 @@ public class PlayerController : NetworkBehaviour {
             if (!isMoving)
             {
                 // Update the last position where the ball stopped
-                if (GetComponent<CustomPhysics>().stable && !isOOB)
+                if (ballPhysN.stable && !isOOB)
                     lastStopPos = transform.position;
 
                 int maxShot = lobbyManager.GetMaxShot();

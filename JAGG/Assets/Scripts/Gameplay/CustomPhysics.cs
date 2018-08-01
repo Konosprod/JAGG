@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
 
-public enum GravityType
+/*public enum GravityType
 {
     Normal = 0,
     Low = 1,
     High = 2
-};
+};*/
 
 public class CustomPhysics : NetworkBehaviour
 {

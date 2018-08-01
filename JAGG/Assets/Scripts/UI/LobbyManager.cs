@@ -289,7 +289,7 @@ public class LobbyManager : NetworkLobbyManager
 
         gamePlayer.layer = getNextLayer();
         gamePlayer.GetComponent<PlayerController>().playerName = lobbyPlayer.GetComponent<LobbyPlayer>().playerName;
-        gamePlayer.GetComponent<CustomPhysics>().gravityType = gravity;
+        gamePlayer.GetComponent<BallPhysicsNetwork>().gravityType = gravity;
         playerManager.AddPlayer(gamePlayer, lobbyPlayer.GetComponent<NetworkIdentity>().connectionToClient.connectionId);
 
         return base.OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer);

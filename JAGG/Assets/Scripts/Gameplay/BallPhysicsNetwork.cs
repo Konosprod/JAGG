@@ -1,20 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine;
 
-public class BallPhysics : MonoBehaviour
+
+public enum GravityType
 {
+    Normal = 0,
+    Low = 1,
+    High = 2
+};
+
+public class BallPhysicsNetwork : NetworkBehaviour {
 
     private Rigidbody rb;
-
     private int layerFloor;
     private int layerWall;
 
+    public Transform sphere; // Transform of the mesh of the sphere so we can rotate it
+    Quaternion serverRota = Quaternion.identity;
+
+    public GravityType gravityType;
+    private GravityType oldGravityType;
 
     public bool squareDrag = false;
 
-    private bool stable = false; // The ball is on the floor, not on a slope / mid-air
+    [HideInInspector]
+    public bool stable = false; // The ball is on the floor, not on a slope / mid-air
     private Vector3 currentFloorNormal = Vector3.up;
-    
+
     // Hack for the trail on high-speed wall collisions
     private bool flagFixPos = false;
     private Vector3 fixedPos;
@@ -30,17 +44,30 @@ public class BallPhysics : MonoBehaviour
 
     void Update()
     {
-
-
-        if(flagFixPos)
+        // Fix the position of the ball after a collision with a wall (allows the trail to work normally)
+        // Rotate the ball if we are moving
+        if (isServer)
+        {
+            if (rb.velocity.magnitude > 0.005f)
+                sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
+            RpcRotateBall(sphere.rotation);
+        }
+        if (flagFixPos)
         {
             transform.position = fixedPos;
             flagFixPos = false;
         }
     }
 
+
+
     void FixedUpdate()
     {
+        if (!isServer)
+        {
+            sphere.transform.rotation = Quaternion.Slerp(sphere.transform.rotation, serverRota, 15f * Time.deltaTime);
+            return;
+        }
 
         // Handle collisions with walls
         RaycastHit rayWallHit = CheckMovementWallCollision(transform.position, rb.velocity);
@@ -61,7 +88,7 @@ public class BallPhysics : MonoBehaviour
                 fixedPos = rayWallHit.point + wallDir * 0.055f;
             else
                 fixedPos = transform.position;
-            
+
 
             // We must check if we aren't in a corner and risk going into a wall
             Collider otherWallCol;
@@ -147,6 +174,7 @@ public class BallPhysics : MonoBehaviour
         // Stop the ball at low speeds
         float stopSpeedThreshold = 0.1f;
         float unevenGroundstopSpeedThreshold = 0.01f;
+        
 
         if (grounded)
         {
@@ -176,7 +204,7 @@ public class BallPhysics : MonoBehaviour
             Vector3 end = start + rb.velocity * Time.fixedDeltaTime;
 
             RaycastHit floorHit;
-            bool floorCheck = Physics.SphereCast(position, 0.05f, rb.velocity, out floorHit, 0.01f * Mathf.Max(1f,rb.velocity.magnitude), (1 << layerFloor));
+            bool floorCheck = Physics.SphereCast(position, 0.05f, rb.velocity, out floorHit, 0.01f * Mathf.Max(1f, rb.velocity.magnitude), (1 << layerFloor));
 
             if (floorCheck)
             {
@@ -195,13 +223,13 @@ public class BallPhysics : MonoBehaviour
             else
             {
                 // Double-check with overlapsphere
-                Collider[] cols = Physics.OverlapSphere(position, 0.05f, (1 << layerFloor));
-                if(cols.Length > 0)
+                Collider[] cols = Physics.OverlapSphere(position, 0.045f, (1 << layerFloor));
+                if (cols.Length > 0)
                 {
                     //Debug.Log("We are overlapped with " + cols.Length + " colliders, the first is " + cols[0].gameObject.name);
                     RaycastHit lineHit;
-                    bool line = Physics.Linecast(transform.position, cols[0].transform.position, out lineHit, (1<<layerFloor));
-                    if(line)
+                    bool line = Physics.Linecast(transform.position, cols[0].transform.position, out lineHit, (1 << layerFloor));
+                    if (line)
                     {
                         float distToOverlap = (0.05f - Vector3.Distance(transform.position, lineHit.point));
                         //Debug.Log("distToOverLap = " + distToOverlap);
@@ -214,13 +242,32 @@ public class BallPhysics : MonoBehaviour
                     {
                         Debug.LogError("Fuck this : " + cols[0].gameObject.name); // Very unlikely to be overlapping an object but unable to find it with a raycast
                         Debug.DrawRay(transform.position, Vector3.up * 5f, Color.yellow, 5f);
-                        Debug.Break();
                     }
                 }
             }
         }
 
-        Vector3 grav = Physics.gravity;
+        // Can use custom gravity to obtain various results
+        Vector3 grav;
+
+        switch (gravityType)
+        {
+            case GravityType.Normal:
+                grav = Physics.gravity;
+                break;
+
+            case GravityType.Low:
+                grav = new Vector3(0, Physics.gravity.y + 7, 0);
+                break;
+
+            case GravityType.High:
+                grav = new Vector3(0, Physics.gravity.y - 7, 0);
+                break;
+
+            default:
+                grav = Physics.gravity;
+                break;
+        }
 
         if (!stable)
         {
@@ -247,7 +294,7 @@ public class BallPhysics : MonoBehaviour
                 // Apply gravity 
                 // We project the gravity along the slope
                 // Using the dot product we get a value that is bigger the higher the angle of the slope is
-                if(normal.y >= 0f)
+                if (normal.y >= 0f)
                 {
                     Vector3 projectGrav = Vector3.ProjectOnPlane(grav, normal).normalized;
                     float dotGrav = Vector3.Dot(grav.normalized, projectGrav);
@@ -287,13 +334,32 @@ public class BallPhysics : MonoBehaviour
 
         Vector3 start = pos;
         Vector3 end = start + vel * Time.fixedDeltaTime;
-        
+
         Physics.SphereCast(start, 0.05f, end - start, out rayHit, (end - start).magnitude, (1 << layerWall));
 
         //Debug.Log("Hit : " + rayHit.collider.gameObject.name + " in : " + transform.parent.gameObject.name);
         //Debug.DrawRay(start, end - start, Color.red, 0.5f);
         //Debug.Break();
-        
+
         return rayHit;
+    }
+
+
+    public void ChangeGravity(GravityType gravityType)
+    {
+        oldGravityType = this.gravityType;
+        this.gravityType = gravityType;
+    }
+    public void ResetGravity()
+    {
+        gravityType = oldGravityType;
+    }
+
+
+    [ClientRpc]
+    void RpcRotateBall(Quaternion rota)
+    {
+        //sphere.transform.rotation = rota;
+        serverRota = rota;
     }
 }
