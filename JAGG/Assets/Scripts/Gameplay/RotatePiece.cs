@@ -50,6 +50,9 @@ public class RotatePiece : CustomScript
     [HideInInspector]
     public Coroutine coroutine;
 
+
+    private int layerMoveRotate;
+
     private List<ChildColliderMovingPiece> ccmvps;
     
     // List of the balls that are currently on top on the piece
@@ -74,7 +77,7 @@ public class RotatePiece : CustomScript
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach(Collider col in cols)
         {
-            if (col.gameObject.layer == LayerMask.NameToLayer("Floor"))
+            if (col.gameObject.layer == layerMoveRotate)
             {
                 ChildColliderMovingPiece ccmvp = col.gameObject.AddComponent<ChildColliderMovingPiece>();
                 ccmvp.SetRtpParent(this);
@@ -93,6 +96,7 @@ public class RotatePiece : CustomScript
 
     void Awake()
     {
+        layerMoveRotate = LayerMask.NameToLayer("MoveRotate");
         ballsOnTop = new List<GameObject>();
         ccmvps = new List<ChildColliderMovingPiece>();
     }

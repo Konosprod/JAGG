@@ -52,6 +52,8 @@ public class MovingPiece : CustomScript {
     public int counterManager = 0;
 
 
+    private int layerMoveRotate;
+
     // Script that goes on every collider and reports when balls collide with the piece
     private List<ChildColliderMovingPiece> ccmvps;
 
@@ -60,6 +62,7 @@ public class MovingPiece : CustomScript {
 
     void Awake()
     {
+        layerMoveRotate = LayerMask.NameToLayer("MoveRotate");
         ballsOnTop = new List<GameObject>();
         ccmvps = new List<ChildColliderMovingPiece>();
     }
@@ -84,9 +87,12 @@ public class MovingPiece : CustomScript {
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach (Collider col in cols)
         {
-            ChildColliderMovingPiece ccmvp = col.gameObject.AddComponent<ChildColliderMovingPiece>();
-            ccmvp.SetMvpParent(this);
-            ccmvps.Add(ccmvp);
+            if (col.gameObject.layer == layerMoveRotate)
+            {
+                ChildColliderMovingPiece ccmvp = col.gameObject.AddComponent<ChildColliderMovingPiece>();
+                ccmvp.SetMvpParent(this);
+                ccmvps.Add(ccmvp);
+            }
         }
 
     }

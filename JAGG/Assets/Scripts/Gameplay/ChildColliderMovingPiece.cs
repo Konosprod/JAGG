@@ -33,7 +33,49 @@ public class ChildColliderMovingPiece : MonoBehaviour
     }
 
 
-    void OnCollisionStay(Collision collisionInfo)
+    void OnTriggerEnter(Collider col)
+    {
+        GameObject ball = col.gameObject;
+        if (ball.layer >= layerBall && ball.layer <= layerBall4)
+        {
+            if (rtpParent != null)
+            {
+                if (!rtpParent.ballsOnTop.Contains(ball))
+                    rtpParent.ballsOnTop.Add(ball);
+            }
+            if (mvpParent != null)
+            {
+                if (!mvpParent.ballsOnTop.Contains(ball))
+                    mvpParent.ballsOnTop.Add(ball);
+            }
+            
+
+            if(rtpParent == null && mvpParent == null)
+                Debug.LogError("Impossibru !?!");
+        }
+    }
+
+    void OnTriggerExit(Collider col)
+    {
+        GameObject ball = col.gameObject;
+        if (ball.layer >= layerBall && ball.layer <= layerBall4)
+        {
+            if (rtpParent != null)
+            {
+                rtpParent.ballsOnTop.Remove(ball);
+            }
+            if (mvpParent != null)
+            {
+                mvpParent.ballsOnTop.Remove(ball);
+            }
+
+
+            if (rtpParent == null && mvpParent == null)
+                Debug.LogError("Impossibru !?!");
+        }
+    }
+
+    /*void OnCollisionStay(Collision collisionInfo)
     {
         GameObject ball = collisionInfo.gameObject;
         if (ball.layer >= layerBall && ball.layer <= layerBall4)
@@ -52,7 +94,7 @@ public class ChildColliderMovingPiece : MonoBehaviour
             else
                 Debug.LogError("Impossibru !?!");
         }
-    }
+    }*/
 
     void OnCollisionExit(Collision collisionInfo)
     {
