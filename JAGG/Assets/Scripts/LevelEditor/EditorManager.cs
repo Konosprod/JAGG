@@ -940,7 +940,7 @@ public class EditorManager : MonoBehaviour
             if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
             {
                 res = false;
-                //Debug.Log(rayHitPiece.collider.gameObject.name);
+                Debug.Log("Cannot put the piece because of : " + rayHitPiece.collider.gameObject.name);
             }
         }
 

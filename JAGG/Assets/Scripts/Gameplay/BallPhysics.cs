@@ -208,7 +208,7 @@ public class BallPhysics : MonoBehaviour
                     {
                         Debug.LogError("Fuck this : " + cols[0].gameObject.name); // Very unlikely to be overlapping an object but unable to find it with a raycast
                         Debug.DrawRay(transform.position, Vector3.up * 5f, Color.yellow, 5f);
-                        Debug.Break();
+                        //Debug.Break();
                     }
                 }
             }

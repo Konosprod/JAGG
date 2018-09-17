@@ -161,7 +161,6 @@ GameObject:
   - component: {fileID: 23396849394279352}
   - component: {fileID: 64696663815402058}
   - component: {fileID: 65705117947940192}
-  - component: {fileID: 114457587998859352}
   - component: {fileID: 114383629880259420}
   m_Layer: 26
   m_Name: SlopeBase
@@ -555,21 +554,6 @@ MonoBehaviour:
   sphere: {fileID: 23119155268518504}
   selectedColor: {r: 1, g: 0, b: 0, a: 1}
   unselectedColor: {r: 0.13559687, g: 0.8669342, b: 0.97058815, a: 1}
---- !u!114 &114457587998859352
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1909194948720662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 535c3d22cc697964e969de852b193c5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: Straight/SlopeBase
-  prefab: 1
-  number: 0
-  parentNumber: -1
 --- !u!114 &114597247900118288
 MonoBehaviour:
   m_ObjectHideFlags: 1
