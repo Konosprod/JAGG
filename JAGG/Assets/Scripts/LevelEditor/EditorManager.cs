@@ -343,6 +343,7 @@ public class EditorManager : MonoBehaviour
                                 // If you left-click and the position is free, place the piece
                                 if (Input.GetMouseButtonDown(0) && IsPositionValid(pos, currentPiece))
                                 {
+                                    //Debug.Log("Putting piece : " + currentPiece.name);
                                     currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
                                 }
 

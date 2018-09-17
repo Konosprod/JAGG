@@ -197,12 +197,6 @@ public class BallPhysicsNetwork : NetworkBehaviour {
             // We are falling, we must check if we are not going inside a floor
             currentFloorNormal = Vector3.up;
 
-
-            float angle = Vector3.Angle(Vector3.forward, rb.velocity);
-
-            Vector3 start = transform.position /*+ vel * Time.fixedDeltaTime*/ + rb.velocity.normalized * 0.05f * Mathf.Abs(Mathf.Cos(angle) + Mathf.Sin(angle));
-            Vector3 end = start + rb.velocity * Time.fixedDeltaTime;
-
             RaycastHit floorHit;
             bool floorCheck = Physics.SphereCast(position, 0.05f, rb.velocity, out floorHit, 0.01f * Mathf.Max(1f, rb.velocity.magnitude), (1 << layerFloor));
 

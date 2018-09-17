@@ -18,8 +18,8 @@ public class PhysicsTestDebug : MonoBehaviour {
     private bool flagEnableTrail = false;
 
 
-    private int layerFloor,
-                layerWall;
+    private int layerFloor/*,
+                layerWall*/;
 
     void Awake()
     {
@@ -27,7 +27,7 @@ public class PhysicsTestDebug : MonoBehaviour {
         currentTimer = timerRestart;
         rb = GetComponent<Rigidbody>();
         layerFloor = LayerMask.NameToLayer("Floor");
-        layerWall = LayerMask.NameToLayer("Wall");
+        //layerWall = LayerMask.NameToLayer("Wall");
     }
 
     void Update()
@@ -62,10 +62,10 @@ public class PhysicsTestDebug : MonoBehaviour {
         {
             Vector3 point = contact.point;
             Vector3 normal = contact.normal;
-            
-            if(contact.otherCollider.gameObject.layer == layerFloor)
+
+            if (contact.otherCollider.gameObject.layer == layerFloor)
             {
-                if(/*contact.otherCollider.transform*/Vector3.up != normal)
+                if (/*contact.otherCollider.transform*/Vector3.up != normal)
                 {
                     Debug.DrawRay(point, normal, Color.red, 3f);
                     //Debug.Log(normal);
@@ -73,7 +73,10 @@ public class PhysicsTestDebug : MonoBehaviour {
                 }
             }
             else
+            {
+                Debug.Log(collision.gameObject.name);
                 Debug.DrawRay(point, normal, Color.cyan, 1f);
+            }
         }
     }
 }

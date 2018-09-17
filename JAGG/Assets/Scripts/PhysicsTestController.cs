@@ -8,7 +8,7 @@ public class PhysicsTestController : MonoBehaviour {
     public ParticleSystem trail;
     public Transform sphere;
     
-    private bool isMoving = false;
+    //private bool isMoving = false;
 
     private bool IsGrounded;
     private int i;
@@ -19,9 +19,9 @@ public class PhysicsTestController : MonoBehaviour {
 
 
     // Handling reset of position when out-of-bounds
-    private float oobInitialResetTimer = 2.0f;
-    private float oobActualResetTimer;
-    private bool isOOB = false;
+    //private float oobInitialResetTimer = 2.0f;
+    //private float oobActualResetTimer;
+    //private bool isOOB = false;
 
 
     // Use this for initialization
@@ -37,7 +37,7 @@ public class PhysicsTestController : MonoBehaviour {
     {
 
 
-        isMoving = rb.velocity.magnitude >= 0.001f;
+        //isMoving = rb.velocity.magnitude >= 0.001f;
         
         /*if (Input.GetKeyDown(KeyCode.R) && lastPos != Vector3.zero)
         {

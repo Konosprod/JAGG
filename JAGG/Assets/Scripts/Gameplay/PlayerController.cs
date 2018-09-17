@@ -69,7 +69,7 @@ public class PlayerController : NetworkBehaviour {
     private float oobInitialResetTimer = 2.0f;
     private float oobActualResetTimer;
     private bool isOOB = false;
-    private static int layerDecor;
+    //private static int layerDecor;
 
     //Item to use
     private GameObject item;
@@ -92,7 +92,7 @@ public class PlayerController : NetworkBehaviour {
         playerNameText.text = playerName;
         guiCam = GameObject.FindWithTag("GUICamera");
 
-        layerDecor = LayerMask.NameToLayer("Decor");
+        //layerDecor = LayerMask.NameToLayer("Decor");
 
         if (!isServer)
             rb.isKinematic = true;
