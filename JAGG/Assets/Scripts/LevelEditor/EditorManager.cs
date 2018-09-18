@@ -940,7 +940,7 @@ public class EditorManager : MonoBehaviour
             if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
             {
                 res = false;
-                Debug.Log("Cannot put the piece because of : " + rayHitPiece.collider.gameObject.name);
+                Debug.Log("Cannot put the piece because of : " + rayHitPiece.transform.gameObject.name + ", parent : " + rayHitPiece.transform.parent.gameObject.name);
             }
         }
 
@@ -2809,6 +2809,14 @@ public class EditorManager : MonoBehaviour
                     MovingPiece mvp = p.gameObject.GetComponent<MovingPiece>();
                     if (mvp != null)
                         lemvpManager.AddMovingPiece(mvp);
+                }
+            }
+
+            if(i>0)
+            {
+                foreach (MaterialSwaperoo ms in hole.GetComponentsInChildren<MaterialSwaperoo>())
+                {
+                    ms.SwapToGrey(true);
                 }
             }
         }
