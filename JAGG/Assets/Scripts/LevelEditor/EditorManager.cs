@@ -270,8 +270,9 @@ public class EditorManager : MonoBehaviour
         if (!testMode.IsInTest() && canEdit)
         {
             //Handle Escape for menus
-            if (Input.GetKeyUp(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
+                Debug.Log("Escape pressed, no test mode");
                 if (!escapeMenu.gameObject.activeSelf)
                 {
                     escapeMenu.gameObject.SetActive(true);

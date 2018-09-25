@@ -29,7 +29,7 @@ public class MaterialSwaperoo : MonoBehaviour
             }
             catch(System.NullReferenceException e)
             {
-                Debug.Log("Error on object : " + gameObject.name + ", parent : " + transform.parent.gameObject.name);
+                Debug.Log("Exception : " + e.Message + ", error on object : " + gameObject.name + ", parent : " + transform.parent.gameObject.name);
                 Debug.Break();
             }
 
