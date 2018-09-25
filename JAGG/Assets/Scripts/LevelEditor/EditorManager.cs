@@ -272,7 +272,6 @@ public class EditorManager : MonoBehaviour
             //Handle Escape for menus
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                Debug.Log("Escape pressed, no test mode");
                 if (!escapeMenu.gameObject.activeSelf)
                 {
                     escapeMenu.gameObject.SetActive(true);
@@ -289,7 +288,7 @@ public class EditorManager : MonoBehaviour
 #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Z))
 #else
-        if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Z))
+            if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Z))
 #endif
             {
                 currParams = undoRedoStack.Undo(currParams);
@@ -300,11 +299,23 @@ public class EditorManager : MonoBehaviour
 #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Y))
 #else
-        if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Y))
+            if((Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)) && Input.GetKeyDown(KeyCode.Y))
 #endif
             {
                 currParams = undoRedoStack.Redo(currParams);
             }
+
+
+            // Move the grid up or down (uses slope as reference for the movement)
+            if(Input.GetKeyDown(KeyCode.KeypadPlus) || Input.GetKeyDown(KeyCode.PageUp))
+            {
+                SetGridOffset(0f, offsetGridY + 0.8f, 0f);
+            }
+            if(Input.GetKeyDown(KeyCode.KeypadMinus) || Input.GetKeyDown(KeyCode.PageDown))
+            {
+                SetGridOffset(0f, offsetGridY - 0.8f, 0f);
+            }
+
 
             if (currentPiece != null)
             {
@@ -1161,11 +1172,12 @@ public class EditorManager : MonoBehaviour
 
     // Moves the grid to align with the end of the selected piece
     // It takes the calculated offset as parameter and moves the grid accordingly
-    // The planeGO is what go beneath the grid to catch RayCasts
+    // The planeGO is what goes beneath the grid to catch RayCasts
     private static void SetGridOffset(float offX = 0f, float offY = 0f, float offZ = 0f)
     {
-        gridGO.transform.position += new Vector3(offX - offsetGridX, offY - offsetGridY, offZ - offsetGridZ);
-        planeGO.transform.position += new Vector3(offX - offsetGridX, offY - offsetGridY, offZ - offsetGridZ);
+        float yPosChange = Mathf.Clamp(gridGO.transform.position.y + (offY - offsetGridY), 0f, 50f) - gridGO.transform.position.y;
+        gridGO.transform.position += new Vector3(offX - offsetGridX, yPosChange, offZ - offsetGridZ);
+        planeGO.transform.position += new Vector3(offX - offsetGridX, yPosChange, offZ - offsetGridZ);
         offsetGridX = offX;
         offsetGridY = offY;
         offsetGridZ = offZ;
