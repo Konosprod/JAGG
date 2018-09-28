@@ -206,10 +206,10 @@ public class BallPhysicsNetwork : NetworkBehaviour {
 
                 // We calculate the perfect bounce angle with the floor
                 Vector3 dir = rb.velocity;
-                Vector3 wallDir = floorHit.normal;
+                currentFloorNormal = floorHit.normal;
 
                 // New velocity direction
-                Vector3 res = dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir);
+                Vector3 res = dir - 2f * (Vector3.Dot(dir, currentFloorNormal) * currentFloorNormal);
                 res = Vector3.Lerp(dir, res, 0.7f); // Random as fuck but works
 
                 rb.velocity = res;
@@ -229,7 +229,8 @@ public class BallPhysicsNetwork : NetworkBehaviour {
                         //Debug.Log("distToOverLap = " + distToOverlap);
                         if (distToOverlap > -0.03f)
                         {
-                            transform.position += lineHit.normal * 0.025f;
+                            transform.position += lineHit.normal * 0.005f;
+                            currentFloorNormal = lineHit.normal;
                         }
                     }
                     else
