@@ -307,11 +307,11 @@ public class EditorManager : MonoBehaviour
 
 
             // Move the grid up or down (uses slope as reference for the movement)
-            if(Input.GetKeyDown(KeyCode.KeypadPlus) || Input.GetKeyDown(KeyCode.PageUp))
+            if (Input.GetKeyDown(KeyCode.KeypadPlus) || Input.GetKeyDown(KeyCode.PageUp))
             {
                 SetGridOffset(0f, offsetGridY + 0.8f, 0f);
             }
-            if(Input.GetKeyDown(KeyCode.KeypadMinus) || Input.GetKeyDown(KeyCode.PageDown))
+            if (Input.GetKeyDown(KeyCode.KeypadMinus) || Input.GetKeyDown(KeyCode.PageDown))
             {
                 SetGridOffset(0f, offsetGridY - 0.8f, 0f);
             }
@@ -442,7 +442,7 @@ public class EditorManager : MonoBehaviour
 
                                 Vector3 pos = new Vector3(rayHit.transform.position.x, rayHit.transform.position.y, rayHit.transform.position.z);
                                 float offsetY = 0f;
-                                
+
                                 if (rayHit.transform.gameObject.name.Split('(')[0] == "SlopeBase") // Custom position for the correct height
                                 {
                                     //y = 0.391f;
@@ -721,7 +721,7 @@ public class EditorManager : MonoBehaviour
                                     if (selectedSnapPoints.Count < 1)
                                     {
 
-                                        if(piece.transform.parent.gameObject.Equals(selectedPiecesInPlace[0]))
+                                        if (piece.transform.parent.gameObject.Equals(selectedPiecesInPlace[0]))
                                         {
                                             piece.GetComponent<SnappingPoint>().Selected(true);
                                             selectedSnapPoints.Add(piece);
@@ -731,6 +731,8 @@ public class EditorManager : MonoBehaviour
                                     {
                                         if (piece.transform.parent.gameObject != selectedPiecesInPlace[0])
                                         {
+                                            Debug.Log("Snap time");
+
                                             gizmoTranslate.gameObject.SetActive(false);
                                             SnappingPoint sp = selectedSnapPoints[0].transform.gameObject.GetComponent<SnappingPoint>();
 
@@ -738,8 +740,18 @@ public class EditorManager : MonoBehaviour
                                             sp.isSnapped = true;
                                             sp.col.isTrigger = false;
 
-                                            Quaternion deltaRot = piece.transform.rotation * selectedSnapPoints[0].transform.rotation;
+
+                                            //Debug.Log("First piece : " + selectedSnapPoints[0].transform.parent.name + ", SnapPoint Rotation : " + selectedSnapPoints[0].transform.rotation.eulerAngles  + " / Second piece : " + piece.transform.parent.name + ", SnapPoint Rotation : " + piece.transform.rotation.eulerAngles);
+
+                                            bool checkZeroOrOneEighty = selectedSnapPoints[0].transform.rotation.eulerAngles.y == 0f || selectedSnapPoints[0].transform.rotation.eulerAngles.y == 180f;
+                                            //Debug.Log(selectedSnapPoints[0].transform.rotation.eulerAngles.y + ", b=" + checkZeroOrOneEighty);
+
+                                            Quaternion deltaRot = piece.transform.rotation * selectedSnapPoints[0].transform.rotation * ((checkZeroOrOneEighty) ? Quaternion.Euler(0, 180f, 0) : Quaternion.identity);
+                                            deltaRot.eulerAngles = new Vector3(0f, Mathf.Round(deltaRot.eulerAngles.y * 100f) / 100f, 0f);
                                             selectedSnapPoints[0].transform.parent.transform.rotation *= deltaRot;
+
+                                            //Debug.Log(selectedSnapPoints[0].transform.rotation.eulerAngles.y);
+                                            //Debug.Log("deltaRot : " + deltaRot.eulerAngles.y);
 
                                             Vector3 offset = piece.transform.position - selectedSnapPoints[0].transform.position;
                                             selectedSnapPoints[0].transform.parent.transform.position += offset;
@@ -1026,7 +1038,7 @@ public class EditorManager : MonoBehaviour
     {
         int saveCurrentHole = currentHole;
 
-        for(int i=0; i<maxHoles; i++)
+        for (int i = 0; i < maxHoles; i++)
         {
             if (i != saveCurrentHole)
             {
@@ -2762,11 +2774,11 @@ public class EditorManager : MonoBehaviour
     public int GetNextValidHole(int currentHole)
     {
         int res = -1;
-        if(currentHole < maxHoles-1)
+        if (currentHole < maxHoles - 1)
         {
-            for(int i=currentHole+1; i<maxHoles; i++)
+            for (int i = currentHole + 1; i < maxHoles; i++)
             {
-                if(IsHoleValid(i))
+                if (IsHoleValid(i))
                 {
                     res = i;
                     break;
@@ -2828,7 +2840,7 @@ public class EditorManager : MonoBehaviour
                 }
             }
 
-            if(i>0)
+            if (i > 0)
             {
                 foreach (MaterialSwaperoo ms in hole.GetComponentsInChildren<MaterialSwaperoo>())
                 {
