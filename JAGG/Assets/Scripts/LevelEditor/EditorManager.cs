@@ -763,7 +763,10 @@ public class EditorManager : MonoBehaviour
                                     {
                                         if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
                                         {
-                                            currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                            if (selectedPiecesInPlace.Count > 1) // Shift-clicking on the only selected piece will do nothing (as it should)
+                                            {
+                                                currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                            }
                                         }
                                         else
                                         {
