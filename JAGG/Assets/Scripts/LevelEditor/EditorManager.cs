@@ -733,7 +733,7 @@ public class EditorManager : MonoBehaviour
                                         {
                                             Debug.Log("Snap time");
 
-                                            gizmoTranslate.gameObject.SetActive(false);
+                                            //gizmoTranslate.gameObject.SetActive(false);
                                             SnappingPoint sp = selectedSnapPoints[0].transform.gameObject.GetComponent<SnappingPoint>();
 
                                             sp.shouldSnap = false;
@@ -743,11 +743,13 @@ public class EditorManager : MonoBehaviour
 
                                             //Debug.Log("First piece : " + selectedSnapPoints[0].transform.parent.name + ", SnapPoint Rotation : " + selectedSnapPoints[0].transform.rotation.eulerAngles  + " / Second piece : " + piece.transform.parent.name + ", SnapPoint Rotation : " + piece.transform.rotation.eulerAngles);
 
+                                            // Utiliser ApproximatelyEquals serait peut-être mieux mais ne semble pas nécessaire
                                             bool checkZeroOrOneEighty = selectedSnapPoints[0].transform.rotation.eulerAngles.y == 0f || selectedSnapPoints[0].transform.rotation.eulerAngles.y == 180f;
+                                            
                                             //Debug.Log(selectedSnapPoints[0].transform.rotation.eulerAngles.y + ", b=" + checkZeroOrOneEighty);
 
                                             Quaternion deltaRot = piece.transform.rotation * selectedSnapPoints[0].transform.rotation * ((checkZeroOrOneEighty) ? Quaternion.Euler(0, 180f, 0) : Quaternion.identity);
-                                            deltaRot.eulerAngles = new Vector3(0f, Mathf.Round(deltaRot.eulerAngles.y * 100f) / 100f, 0f);
+                                            deltaRot.eulerAngles = new Vector3(deltaRot.eulerAngles.x, Mathf.Round(deltaRot.eulerAngles.y * 100f) / 100f, deltaRot.eulerAngles.z);
                                             selectedSnapPoints[0].transform.parent.transform.rotation *= deltaRot;
 
                                             //Debug.Log(selectedSnapPoints[0].transform.rotation.eulerAngles.y);
