@@ -110,6 +110,7 @@ public class TestMode : MonoBehaviour {
             editorManager.SetSelection(start);
             MainCamera.GetComponent<BallCamera>().enabled = start;
             GUICamera.GetComponent<BallCamera>().enabled = start;
+            MainCamera.GetComponent<cakeslice.OutlineEffect>().enabled = !start;
 
             background.SetActive(!start);
             testButton.SetActive(!start);

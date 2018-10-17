@@ -29,9 +29,7 @@ public class EditorManager : MonoBehaviour
     public PanelHoleProperties panelHoleProperties;
     public SaveBeforeExit saveBeforeExit;
     public GameObject grid;
-    public GameObject plane;
     private static GameObject gridGO;
-    private static GameObject planeGO;
     public TestMode testMode;
     public Dropdown holeSelection;
 
@@ -217,7 +215,6 @@ public class EditorManager : MonoBehaviour
 
         // GameObjects
         gridGO = grid;
-        planeGO = plane;
 
         // Setup our layerMask
         layerPlane = LayerMask.NameToLayer("LevelEditor");
@@ -1189,12 +1186,10 @@ public class EditorManager : MonoBehaviour
 
     // Moves the grid to align with the end of the selected piece
     // It takes the calculated offset as parameter and moves the grid accordingly
-    // The planeGO is what goes beneath the grid to catch RayCasts
     private static void SetGridOffset(float offX = 0f, float offY = 0f, float offZ = 0f)
     {
         float yPosChange = Mathf.Clamp(gridGO.transform.position.y + (offY - offsetGridY), 0f, 50f) - gridGO.transform.position.y;
         gridGO.transform.position += new Vector3(offX - offsetGridX, yPosChange, offZ - offsetGridZ);
-        planeGO.transform.position += new Vector3(offX - offsetGridX, yPosChange, offZ - offsetGridZ);
         offsetGridX = offX;
         offsetGridY = offY;
         offsetGridZ = offZ;
