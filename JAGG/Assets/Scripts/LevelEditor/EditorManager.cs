@@ -1064,11 +1064,14 @@ public class EditorManager : MonoBehaviour
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
         }
+#if UNITY_EDITOR
+#else
         else
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
+#endif
     }
 
 
@@ -1446,7 +1449,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-    #region PieceInformationEdit
+#region PieceInformationEdit
 
     /*****************************
      *  Piece position
@@ -1958,9 +1961,9 @@ public class EditorManager : MonoBehaviour
             Debug.LogError("No or 2+ pieces selected whenre trying to update wind area");
     }
 
-    #endregion
+#endregion
 
-    #region Undo/Redo Stack
+#region Undo/Redo Stack
     public interface ICommand<T>
     {
         T Do(T input);
@@ -2731,7 +2734,7 @@ public class EditorManager : MonoBehaviour
 
 
 
-    #endregion
+#endregion
 
     public Vector3 GetSpawnPosition()
     {
@@ -2790,6 +2793,11 @@ public class EditorManager : MonoBehaviour
         currentHole = hole;
     }
 
+    public int GetCurrentHoleNumber()
+    {
+        return currentHole;
+    }
+
     public bool CanStartTestMode()
     {
         return IsHoleValid(currentHole);
@@ -2798,6 +2806,11 @@ public class EditorManager : MonoBehaviour
     public GameObject GetCurrentHoleLevelProp()
     {
         return levelsProperties[currentHole];
+    }
+
+    public GameObject GetNextHoleLevelProp()
+    {
+        return levelsProperties[GetNextValidHole(currentHole)];
     }
 
     private float ClampAngle(float angle, float min = 0f, float max = 360f)
@@ -2956,9 +2969,9 @@ public class EditorManager : MonoBehaviour
         spawnPoints[currentHole].transform.position = newPos;
     }
 
-    public void UpdateLevelProperties(int par, int maxshot, int time)
+    public void UpdateLevelProperties(int par, int maxshot, int time, int hole = -1)
     {
-        GameObject currentLevelProperties = levelsProperties[currentHole];
+        GameObject currentLevelProperties = levelsProperties[(hole == -1)?currentHole:hole];
 
         LevelProperties levelProp = currentLevelProperties.GetComponent<LevelProperties>();
 
@@ -2966,7 +2979,7 @@ public class EditorManager : MonoBehaviour
         levelProp.maxShot = maxshot;
         levelProp.maxTime = time;
 
-        levelsProperties[currentHole] = currentLevelProperties;
+        levelsProperties[(hole == -1) ? currentHole : hole] = currentLevelProperties;
     }
 
     private static void EnableSnappingPoints(GameObject o)

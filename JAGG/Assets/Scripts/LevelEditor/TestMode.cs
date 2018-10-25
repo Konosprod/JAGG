@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class TestMode : MonoBehaviour {
 
-
+    [Header("Test objects")]
     public GameObject ball;
     public GameObject MainCamera;
     public GameObject GUICamera;
@@ -28,8 +28,14 @@ public class TestMode : MonoBehaviour {
     public Text timeText;
     public Text maxTimeText;
 
+
+    [Header("Validation panels")]
+    public GameObject validationBetweenHolePanel;
+    public GameObject validationFailHolePanel;
+
     private bool isTestMode = false;
     private bool isValidationMode = false;
+    private int saveCurrentHole;
     private int currentValidationHole = -1;
     private Vector3 saveCameraPos = Vector3.zero;
     
@@ -47,7 +53,7 @@ public class TestMode : MonoBehaviour {
                 TestHole(true);
             }
 
-            if (Input.GetKeyDown(KeyCode.Escape) && isTestMode)
+            if (Input.GetKeyDown(KeyCode.Escape) && isTestMode && !isValidationMode)
             {
                 TestHole(false, false, true);
                 ball.GetComponent<OfflineBallController>().ResetTest();
@@ -86,6 +92,7 @@ public class TestMode : MonoBehaviour {
                     Debug.LogError("We try to validate but there are no valid holes :[");
                 else
                 {
+                    saveCurrentHole = editorManager.GetCurrentHoleNumber();
                     // Disable all MaterialSwaperoos
                     editorManager.EnableMaterialSwaperoo(false);
                     // Set currentHole to the one we are first testing
@@ -93,7 +100,9 @@ public class TestMode : MonoBehaviour {
                 }
             }
 
-            if(start)
+#if UNITY_EDITOR
+#else
+            if (start)
             {
                 saveCameraPos = MainCamera.transform.position;
                 Cursor.lockState = CursorLockMode.Locked;
@@ -103,8 +112,9 @@ public class TestMode : MonoBehaviour {
                 MainCamera.transform.position = saveCameraPos;
                 Cursor.lockState = CursorLockMode.Confined;
             }
-            
+
             Cursor.visible = !start;
+#endif
 
             MainCamera.GetComponent<FreeCamera>().enabled = !start;
             editorManager.SetSelection(start);
@@ -143,9 +153,9 @@ public class TestMode : MonoBehaviour {
 
             if (success)
             {
-                currentValidationHole = editorManager.GetNextValidHole(currentValidationHole);
+                int nextValidationHole = editorManager.GetNextValidHole(currentValidationHole);
                 // Well job, good done
-                if (currentValidationHole == -1)
+                if (nextValidationHole == -1)
                 {
                     // Validation is over :D
                     isValidationMode = false;
@@ -157,22 +167,33 @@ public class TestMode : MonoBehaviour {
 
                     // Enable all MaterialSwaperoos
                     editorManager.EnableMaterialSwaperoo(true);
+                    // Set the current hole back to what it was before validation
+                    editorManager.ChangeCurrentHole(saveCurrentHole);
                 }
                 else
                 {
                     // Go to the next hole
-                    editorManager.ChangeCurrentHole(currentValidationHole);
+#if UNITY_EDITOR
+#else
+                    Cursor.lockState = CursorLockMode.Confined;
+                    Cursor.visible = true;
+#endif
 
-                    ball.transform.position = editorManager.GetSpawnPosition();
-                    ball.SetActive(true);
+                    validationBetweenHolePanel.SetActive(true);
+                    validationBetweenHolePanel.GetComponent<PanelValidationBetweenHole>().SetTestResults(shots, timer);
                 }
             }
             else
             {
                 // Filthy casual, get on your level
+#if UNITY_EDITOR
+#else
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+#endif
 
-                ball.transform.position = editorManager.GetSpawnPosition();
-                ball.SetActive(true);
+                validationFailHolePanel.SetActive(true);
+                validationFailHolePanel.GetComponent<PanelValidationFailHole>().SetTestResults(shots, timer);
             }
         }
         else
@@ -189,6 +210,34 @@ public class TestMode : MonoBehaviour {
             endOfTestPanel.SetActive(true);
         }
     }
+
+    public void ValidationGoToNextHole()
+    {
+        currentValidationHole = editorManager.GetNextValidHole(currentValidationHole);
+        editorManager.ChangeCurrentHole(currentValidationHole);
+
+#if UNITY_EDITOR
+#else
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+#endif
+
+        ball.transform.position = editorManager.GetSpawnPosition();
+        ball.SetActive(true);
+    }
+
+    public void ValidationReplayHole()
+    {
+#if UNITY_EDITOR
+#else
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+#endif
+
+        ball.transform.position = editorManager.GetSpawnPosition();
+        ball.SetActive(true);
+    }
+
 
 
     public bool IsInTest()

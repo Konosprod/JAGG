@@ -29,6 +29,7 @@ public class PanelExport : MonoBehaviour {
     [Header("Other")]
     public GameObject grid;
     public EditorManager editorManager;
+    public GameObject panelValidationStart;
 
     public ExportLevel levelExporter;
 
@@ -51,8 +52,8 @@ public class PanelExport : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        uploadButton.onClick.AddListener(UploadMap);
-        //uploadButton.onClick.AddListener(ValidationBeforeUpload);
+        //uploadButton.onClick.AddListener(UploadMap);
+        uploadButton.onClick.AddListener(ValidationBeforeUpload);
         saveLocalButton.onClick.AddListener(SaveLocal);
 
         authenticationManager = AuthenticationManager._instance;
@@ -89,7 +90,8 @@ public class PanelExport : MonoBehaviour {
         if(EditorManager.isModified)
         {
             // If the level was modified you need to validate it before it can be uploaded
-            editorManager.testMode.TestHole(true, true);
+            // editorManager.testMode.TestHole(true, true);
+            panelValidationStart.SetActive(true);
             this.gameObject.SetActive(false);
             editorManager.escapeMenu.gameObject.SetActive(false);
         }
