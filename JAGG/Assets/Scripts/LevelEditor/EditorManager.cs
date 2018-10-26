@@ -15,6 +15,7 @@ public class EditorManager : MonoBehaviour
     private static int layerDecor;
     private static int layerGizmo;
     private static int layerSnap;
+    private static int layerMoveRotate;
 
     // Specific pieces that go on top of other pieces and/or have a special layer due to their behaviour
     // Only instance to date are booster pads
@@ -224,6 +225,7 @@ public class EditorManager : MonoBehaviour
         layerOverlay = LayerMask.NameToLayer("Overlay");
         layerGizmo = LayerMask.NameToLayer("Gizmo");
         layerSnap = LayerMask.NameToLayer("SnapPoint");
+        layerMoveRotate = LayerMask.NameToLayer("MoveRotate");
         layerMaskPieceSelection = (1 << layerFloor | 1 << layerWall | 1 << layerOverlay | 1 << layerDecor | 1 << layerGizmo | 1 << layerSnap);
 
 
@@ -417,7 +419,7 @@ public class EditorManager : MonoBehaviour
                     // The booster pads go on top of the floor pieces so we use a raycast to find them
                     RaycastHit rayHit;
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    if (Physics.Raycast(ray, out rayHit, Mathf.Infinity, ~(1 << layerSnap)))
+                    if (Physics.Raycast(ray, out rayHit, Mathf.Infinity, ~(1 << layerSnap | 1 << layerMoveRotate)))
                     {
                         if (rayHit.transform.gameObject.layer == layerFloor) // If we hit a floor we put the BoosterPad on top
                         {
