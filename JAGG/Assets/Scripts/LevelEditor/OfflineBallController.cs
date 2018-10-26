@@ -17,7 +17,11 @@ public class OfflineBallController : MonoBehaviour {
 
     public float lineLength = 0.85f;
 
-    
+    [Header("UI")]
+    public Text shotsText;
+    public Text timeText;
+
+
     private bool isMoving = false;
     private bool isShooting = false;
     private bool slideUp = true;
@@ -41,11 +45,28 @@ public class OfflineBallController : MonoBehaviour {
     void Start () {
 
     }
-	
-	// Update is called once per frame
-	void Update () {
 
-        if(flagEnableTrail)
+    void OnEnable()
+    {
+        Debug.Log("Here");
+        shotsText.gameObject.SetActive(true);
+        timeText.gameObject.SetActive(true);
+    }
+
+    void OnDisable()
+    {
+        Debug.Log("lul");
+        shotsText.gameObject.SetActive(false);
+        timeText.gameObject.SetActive(false);
+    }
+
+    // Update is called once per frame
+    void Update () {
+
+        shotsText.text = shotsText.text.Split(':')[0] + ": " + shots;
+        timeText.text = timeText.text.Split(':')[0] + ": " + timer.ToString("0.##") + "s";
+
+        if (flagEnableTrail)
         {
             ParticleSystem.EmissionModule em = trail.emission;
             em.enabled = true;
