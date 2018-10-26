@@ -37,9 +37,16 @@ public class TestMode : MonoBehaviour {
     private bool isValidationMode = false;
     private int saveCurrentHole;
     private int currentValidationHole = -1;
+    private LevelProperties currentLevelProp;
     private Vector3 saveCameraPos = Vector3.zero;
+    private OfflineBallController ballController;
     
     private float panelTimer = 0f;
+
+    void Start()
+    {
+        ballController = ball.GetComponent<OfflineBallController>();
+    }
 
 
     // Update is called once per frame
@@ -97,6 +104,7 @@ public class TestMode : MonoBehaviour {
                     editorManager.EnableMaterialSwaperoo(false);
                     // Set currentHole to the one we are first testing
                     editorManager.ChangeCurrentHole(currentValidationHole);
+                    currentLevelProp = editorManager.GetCurrentHoleLevelProp().GetComponent<LevelProperties>();
                 }
             }
 
@@ -143,13 +151,13 @@ public class TestMode : MonoBehaviour {
         }
     }
 
-    public void EndOfTest(int shots, float timer)
+    public void EndOfTest(int shots, float timer, bool maxShotFail = false)
     {
         if (isValidationMode)
         {
             LevelProperties lvlProp = editorManager.GetCurrentHoleLevelProp().GetComponent<LevelProperties>();
             Debug.Log("Shots : " + shots + ", timer : " + timer);
-            bool success = shots <= lvlProp.maxShot && timer < lvlProp.maxTime;
+            bool success = shots <= lvlProp.maxShot && timer < lvlProp.maxTime && !maxShotFail;
 
             if (success)
             {
@@ -215,6 +223,7 @@ public class TestMode : MonoBehaviour {
     {
         currentValidationHole = editorManager.GetNextValidHole(currentValidationHole);
         editorManager.ChangeCurrentHole(currentValidationHole);
+        currentLevelProp = editorManager.GetCurrentHoleLevelProp().GetComponent<LevelProperties>();
 
 #if UNITY_EDITOR
 #else
@@ -238,11 +247,33 @@ public class TestMode : MonoBehaviour {
         ball.SetActive(true);
     }
 
+    public void CheckShots(int shots, float time)
+    {
+        if(shots >= currentLevelProp.maxShot)
+        {
+            EndOfTest(shots, time, true);
+            ballController.ResetTest();
+        }
+    }
+
+    public void CheckTime(float time, int shots)
+    {
+        if(time >= currentLevelProp.maxTime)
+        {
+            EndOfTest(shots, time);
+            ballController.ResetTest();
+        }
+    }
 
 
     public bool IsInTest()
     {
         return isTestMode;
+    }
+
+    public bool IsInValidation()
+    {
+        return isValidationMode;
     }
 
 }

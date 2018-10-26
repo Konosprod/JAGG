@@ -48,23 +48,23 @@ public class OfflineBallController : MonoBehaviour {
 
     void OnEnable()
     {
-        Debug.Log("Here");
         shotsText.gameObject.SetActive(true);
         timeText.gameObject.SetActive(true);
     }
 
     void OnDisable()
     {
-        Debug.Log("lul");
         shotsText.gameObject.SetActive(false);
         timeText.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
     void Update () {
-
         shotsText.text = shotsText.text.Split(':')[0] + ": " + shots;
         timeText.text = timeText.text.Split(':')[0] + ": " + timer.ToString("0.##") + "s";
+
+        if (testMode.IsInValidation())
+            testMode.CheckTime(timer, shots);
 
         if (flagEnableTrail)
         {
@@ -78,6 +78,9 @@ public class OfflineBallController : MonoBehaviour {
         if (!isMoving)
         {
             lastPos = transform.position;
+
+            if(testMode.IsInValidation())
+                testMode.CheckShots(shots, timer);
 
             if (!line.enabled)
                 line.enabled = true;
