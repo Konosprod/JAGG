@@ -32,6 +32,7 @@ public class TestMode : MonoBehaviour {
     [Header("Validation panels")]
     public GameObject validationBetweenHolePanel;
     public GameObject validationFailHolePanel;
+    public GameObject validationEndPanel;
 
     private bool isTestMode = false;
     private bool isValidationMode = false;
@@ -40,6 +41,11 @@ public class TestMode : MonoBehaviour {
     private LevelProperties currentLevelProp;
     private Vector3 saveCameraPos = Vector3.zero;
     private OfflineBallController ballController;
+
+    [HideInInspector]
+    public int[] validationShots = new int[18];
+    [HideInInspector]
+    public float[] validationTimes = new float[18];
     
     private float panelTimer = 0f;
 
@@ -161,22 +167,15 @@ public class TestMode : MonoBehaviour {
 
             if (success)
             {
+                // Save the shots and time
+                validationShots[currentValidationHole] = shots;
+                validationTimes[currentValidationHole] = timer;
+
                 int nextValidationHole = editorManager.GetNextValidHole(currentValidationHole);
                 // Well job, good done
                 if (nextValidationHole == -1)
                 {
-                    // Validation is over :D
-                    isValidationMode = false;
-                    TestHole(false);
-
-                    editorManager.escapeMenu.gameObject.SetActive(true);
-                    editorManager.panelExport.gameObject.SetActive(true);
-                    editorManager.panelExport.UploadMap();
-
-                    // Enable all MaterialSwaperoos
-                    editorManager.EnableMaterialSwaperoo(true);
-                    // Set the current hole back to what it was before validation
-                    editorManager.ChangeCurrentHole(saveCurrentHole);
+                    validationEndPanel.SetActive(true);
                 }
                 else
                 {
@@ -274,6 +273,23 @@ public class TestMode : MonoBehaviour {
     public bool IsInValidation()
     {
         return isValidationMode;
+    }
+
+    // Uploads the map, should be called from PanelValidationEnd only
+    public void UploadMap()
+    {
+        // Validation is over :D
+        isValidationMode = false;
+        TestHole(false);
+
+        editorManager.escapeMenu.gameObject.SetActive(true);
+        editorManager.panelExport.gameObject.SetActive(true);
+        editorManager.panelExport.UploadMap();
+
+        // Enable all MaterialSwaperoos
+        editorManager.EnableMaterialSwaperoo(true);
+        // Set the current hole back to what it was before validation
+        editorManager.ChangeCurrentHole(saveCurrentHole);
     }
 
 }

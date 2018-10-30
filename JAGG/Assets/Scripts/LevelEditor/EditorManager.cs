@@ -2815,6 +2815,11 @@ public class EditorManager : MonoBehaviour
         return levelsProperties[GetNextValidHole(currentHole)];
     }
 
+    public GameObject[] GetAllLevelProperties()
+    {
+        return levelsProperties;
+    }
+
     private float ClampAngle(float angle, float min = 0f, float max = 360f)
     {
         if (angle < -360f)
