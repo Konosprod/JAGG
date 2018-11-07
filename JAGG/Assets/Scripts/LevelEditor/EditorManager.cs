@@ -673,16 +673,18 @@ public class EditorManager : MonoBehaviour
 
                         spawnP.transform.position = new Vector3(piece.transform.position.x, piece.transform.position.y + 0.2f, piece.transform.position.z);
 
-                        GameObject currentLink = spawnPointsLinkedPiece[currentHole];
-                        if (currentLink != null)
+                        GameObject currLinkedPiece = spawnPointsLinkedPiece[currentHole];
+                        if(currLinkedPiece != null)
                         {
-                            Destroy(currentLink.GetComponent<SpawnPointLE>());
+                            Destroy(currLinkedPiece.GetComponent<SaveLinkedPiece>());
                         }
 
-                        SpawnPointLE sple;
-                        sple = piece.AddComponent<SpawnPointLE>();
-                        sple.spawnPoint = spawnP;
+                        // Update the link of the spawn point to the new piece
+                        SaveLinkedPiece slp;
+                        slp = piece.AddComponent<SaveLinkedPiece>();
+                        slp.spawnPoint = spawnP;
                         spawnPointsLinkedPiece[currentHole] = piece;
+
 
                         spawnP.transform.GetChild(0).gameObject.SetActive(true);
                     }
@@ -2854,6 +2856,15 @@ public class EditorManager : MonoBehaviour
                     MovingPiece mvp = p.gameObject.GetComponent<MovingPiece>();
                     if (mvp != null)
                         lemvpManager.AddMovingPiece(mvp);
+
+
+                    // Recreate the link between the spawnpoint and piece
+                    SaveLinkedPiece slp = p.gameObject.GetComponent<SaveLinkedPiece>();
+                    if(slp != null)
+                    {
+                        slp.spawnPoint = spawnPoint;
+                        spawnPointsLinkedPiece[i] = p.gameObject;
+                    }
                 }
             }
 
