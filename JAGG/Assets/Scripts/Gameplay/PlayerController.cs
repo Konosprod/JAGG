@@ -292,7 +292,7 @@ public class PlayerController : NetworkBehaviour {
         }
 
         // Handle oob
-        if(!Physics.Raycast(new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z), Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
+        if(!Physics.Raycast(/*new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z)*/transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
         {
             if (isOOB)
             {

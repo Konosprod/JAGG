@@ -132,11 +132,11 @@ public class OfflineBallController : MonoBehaviour {
         timer += Time.deltaTime;
 
 
-        if (!Physics.Raycast(new Vector3(transform.position.x, transform.position.y - 0.05f, transform.position.z), Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
+        if (!Physics.Raycast(transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
         {
             if (isOOB)
             {
-                //Debug.Log(oobActualResetTimer);
+                Debug.Log("OOB, time left before reset : " + oobActualResetTimer);
                 oobActualResetTimer -= Time.deltaTime;
                 if (oobActualResetTimer < 0f)
                 {
