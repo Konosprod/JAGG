@@ -4,12 +4,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class AuthenticationManager : MonoBehaviour {
 
     public bool isAuthenticated;
+    public bool checkOnStart = true;
     public LoadingOverlay loadingOverlay;
     public int maxRetry = 3;
 
@@ -33,7 +35,8 @@ public class AuthenticationManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        StartCoroutine(GetAuthentication());
+        if(checkOnStart)
+            StartCoroutine(GetAuthentication());
 	}
 	
 	// Update is called once per frame
@@ -41,7 +44,15 @@ public class AuthenticationManager : MonoBehaviour {
 		
 	}
 
-    IEnumerator GetAuthentication()
+    public void CheckAuth(UnityAction callback = null)
+    {
+        if (isAuthenticated)
+            return;
+
+        StartCoroutine(GetAuthentication(callback));
+    }
+
+    IEnumerator GetAuthentication(UnityAction callback = null)
     {
         loadingOverlay.gameObject.SetActive(true);
         loadingOverlay.PlayAnimation();
@@ -66,7 +77,7 @@ public class AuthenticationManager : MonoBehaviour {
 
             if (!isAuthenticated)
             {
-                StartCoroutine(Authenticate());
+                StartCoroutine(Authenticate(callback));
             }
             else
             {
@@ -75,7 +86,7 @@ public class AuthenticationManager : MonoBehaviour {
         }
     }
 
-    IEnumerator Authenticate()
+    IEnumerator Authenticate(UnityAction callback = null)
     {
         if (nbRetry >= maxRetry)
         {
@@ -120,6 +131,8 @@ public class AuthenticationManager : MonoBehaviour {
                     isAuthenticated = true;
                     loadingOverlay.StopAnimation();
                     loadingOverlay.gameObject.SetActive(false);
+                    if(callback != null)
+                        callback.Invoke();
                 }
                 else
                 {
