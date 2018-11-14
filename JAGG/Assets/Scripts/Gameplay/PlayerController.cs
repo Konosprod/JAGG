@@ -190,11 +190,7 @@ public class PlayerController : NetworkBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Transform t = lobbyManager.playerManager.GetAnotherBallTransform(this.netId.Value, tSpectate);
-                if (t != null)
-                {
-                    ChangeCameraTarget(t);
-                }
+                CmdChangeSpectate(tSpectate.gameObject);
             }
         }
 
@@ -371,6 +367,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
+            Debug.Log("ResetCamera");
             isSpectating = false;
             tSpectate = null;
             guiCam.GetComponent<BallCamera>().target = transform;
@@ -380,9 +377,13 @@ public class PlayerController : NetworkBehaviour
 
     public void ChangeCameraTarget(Transform camTarget)
     {
-        tSpectate = camTarget;
-        guiCam.GetComponent<BallCamera>().target = camTarget;
-        Camera.main.GetComponent<BallCamera>().target = camTarget;
+        if (isLocalPlayer)
+        {
+            isSpectating = true;
+            tSpectate = camTarget;
+            guiCam.GetComponent<BallCamera>().target = camTarget;
+            Camera.main.GetComponent<BallCamera>().target = camTarget;
+        }
     }
 
     private void FixedUpdate()
@@ -416,13 +417,7 @@ public class PlayerController : NetworkBehaviour
         {
             if (isLocalPlayer)
             {
-                Transform spectate = lobbyManager.playerManager.GetAnotherBallTransform(this.netId.Value);
-                if (spectate != null)
-                {
-                    isSpectating = true;
-                    ChangeCameraTarget(spectate);
-                }
-
+                CmdGetSpectate();
                 CmdPlayerInHole();
             }
         }
@@ -841,6 +836,19 @@ public class PlayerController : NetworkBehaviour
         RpcExplodeBall();
     }
 
+
+    [Command]
+    private void CmdGetSpectate()
+    {
+        lobbyManager.playerManager.GetSpectate(this.netId.Value);
+    }
+
+    [Command]
+    private void CmdChangeSpectate(GameObject currSpectate)
+    {
+        lobbyManager.playerManager.ChangeSpectate(this.netId.Value, currSpectate);
+    }
+
     #endregion
 
     #region ClientRpc
@@ -1033,6 +1041,28 @@ public class PlayerController : NetworkBehaviour
     {
         lastStopPos = position;
     }
+
+    [ClientRpc]
+    public void RpcChangeSpectate(GameObject spectate)
+    {
+        ChangeCameraTarget(spectate.transform);
+    }
+
+    [ClientRpc]
+    public void RpcResetCameraTarget()
+    {
+        ResetCameraTarget();
+    }
+
+    [ClientRpc]
+    public void RpcCheckSpectate(GameObject spectate)
+    {
+        if (spectate.transform == tSpectate)
+        {
+            CmdGetSpectate();
+        }
+    }
+
 
     #endregion
 }
