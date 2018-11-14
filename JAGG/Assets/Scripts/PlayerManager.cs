@@ -220,6 +220,7 @@ public class PlayerManager : NetworkBehaviour {
         foreach(GameObject o in players.Values)
         {
             PlayerController pc = o.GetComponent<PlayerController>();
+            pc.ResetCameraTarget();
             pc.ForcedMoveTo(nextPosition.position);
             pc.EnablePlayer();
         }
@@ -358,6 +359,51 @@ public class PlayerManager : NetworkBehaviour {
                 }
             }
         }
+    }
+
+    // Spectate another player
+    public Transform GetAnotherBallTransform(uint netid)
+    {
+        Transform t = null;
+
+        Debug.Log("Try to spectate");
+
+        if(!AllPlayersDone())
+        {
+            Debug.Log("Try to spectate p2");
+            foreach (GameObject go in players.Values)
+            {
+                NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+                if (networkIdentity.netId.Value != netid && !go.GetComponent<PlayerController>().done)
+                {
+                    Debug.Log("Try to spectate p3");
+                    t = go.transform;
+                }
+            }
+        }
+
+        return t;
+    }
+    // Change spectate to another player
+    public Transform GetAnotherBallTransform(uint netid, Transform spectate)
+    {
+        Transform t = null;
+
+        if (!AllPlayersDone())
+        {
+            foreach (GameObject go in players.Values)
+            {
+                NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+                if (networkIdentity.netId.Value != netid && !go.GetComponent<PlayerController>().done && spectate != go.transform)
+                {
+                    t = go.transform;
+                }
+            }
+        }
+
+        return t;
     }
 
     public void ChangeGravity(GravityType type, float time, uint netid)
