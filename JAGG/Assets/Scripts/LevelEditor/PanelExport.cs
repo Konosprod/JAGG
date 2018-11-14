@@ -97,7 +97,7 @@ public class PanelExport : MonoBehaviour {
         }
         else
         {
-            UploadMap();
+            authenticationManager.CheckAuth(UploadMap);
         }
     }
 
