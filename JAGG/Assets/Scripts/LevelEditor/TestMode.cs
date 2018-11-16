@@ -284,7 +284,7 @@ public class TestMode : MonoBehaviour {
 
         editorManager.escapeMenu.gameObject.SetActive(true);
         editorManager.panelExport.gameObject.SetActive(true);
-        editorManager.panelExport.UploadMap();
+        editorManager.panelExport.ValidationBeforeUpload();
 
         // Enable all MaterialSwaperoos
         editorManager.EnableMaterialSwaperoo(true);
