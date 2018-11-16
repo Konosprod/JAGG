@@ -7,7 +7,8 @@ using UnityEngine.UI;
 using Assets.Pixelation.Scripts;
 
 [NetworkSettings(sendInterval = 0f)]
-public class PlayerController : NetworkBehaviour {
+public class PlayerController : NetworkBehaviour
+{
 
     [SyncVar]
     bool canShoot = true;
@@ -65,11 +66,13 @@ public class PlayerController : NetworkBehaviour {
 
     private bool firstShotLayerActivated = false;
 
+    private bool isSpectating = false;
+    private Transform tSpectate = null;
+
     // Handling reset of position when out-of-bounds
-    private float oobInitialResetTimer = 2.0f;
+    private const float oobInitialResetTimer = 2.0f;
     private float oobActualResetTimer;
     private bool isOOB = false;
-    //private static int layerDecor;
 
     //Item to use
     private GameObject item;
@@ -120,7 +123,7 @@ public class PlayerController : NetworkBehaviour {
                 guiCam.GetComponent<BallCamera>().shouldFollow = false;
                 canShoot = false;
                 ui.ShowPause(
-                    delegate()
+                    delegate ()
                     {
                         Camera.main.GetComponent<BallCamera>().shouldFollow = true;
                         guiCam.GetComponent<BallCamera>().shouldFollow = true;
@@ -150,7 +153,7 @@ public class PlayerController : NetworkBehaviour {
         }
 
 
-        if(isServer)
+        if (isServer)
         {
             isMoving = rb.velocity.magnitude >= 0.001f;
             /*if(isMoving)
@@ -169,7 +172,7 @@ public class PlayerController : NetworkBehaviour {
                     CmdOutOfStrokes();
                 }
             }
-            
+
             save_velocity = rb.velocity;
         }
 
@@ -181,6 +184,17 @@ public class PlayerController : NetworkBehaviour {
             flagEnableTrail = false;
         }
 
+
+        // The spectator can rotate through the PoVs
+        if (isLocalPlayer && isSpectating)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                CmdChangeSpectate(tSpectate.gameObject);
+            }
+        }
+
+        // Prevent the player from playing if they aren't the local player or if they're done with the level
         if (!isLocalPlayer || isOver)
         {
             return;
@@ -200,9 +214,9 @@ public class PlayerController : NetworkBehaviour {
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.Alpha1) || 
-            Input.GetKeyDown(KeyCode.Alpha2) || 
-            Input.GetKeyDown(KeyCode.Alpha3) || 
+        if (Input.GetKeyDown(KeyCode.Alpha1) ||
+            Input.GetKeyDown(KeyCode.Alpha2) ||
+            Input.GetKeyDown(KeyCode.Alpha3) ||
             Input.GetKeyDown(KeyCode.Alpha4))
         {
             if (item != null)
@@ -227,7 +241,7 @@ public class PlayerController : NetworkBehaviour {
             }
         }
 
-        if(Input.GetKey(KeyCode.Tab))
+        if (Input.GetKey(KeyCode.Tab))
         {
             ui.ShowScores();
         }
@@ -269,7 +283,7 @@ public class PlayerController : NetworkBehaviour {
             }
 
             // Cancel the shooting attempt with right-click
-            if(Input.GetMouseButtonDown(1) && isShooting)
+            if (Input.GetMouseButtonDown(1) && isShooting)
             {
                 isShooting = false;
                 ui.ResetSlider();
@@ -278,27 +292,27 @@ public class PlayerController : NetworkBehaviour {
         else
         {
             // If we get put in motion while trying to shoot we stop and reset the slider
-            if(isShooting)
+            if (isShooting)
             {
                 isShooting = false;
                 ui.ResetSlider();
             }
 
             // Handle the reset button
-            if(Input.GetKeyDown(KeyCode.R) && lastStopPos != Vector3.zero)
+            if (Input.GetKeyDown(KeyCode.R) && lastStopPos != Vector3.zero)
             {
                 CmdResetPosition(lastStopPos);
             }
         }
 
         // Handle oob
-        if(!Physics.Raycast(/*new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z)*/transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
+        if (!Physics.Raycast(/*new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z)*/transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
         {
             if (isOOB)
             {
                 //Debug.Log(oobActualResetTimer);
                 oobActualResetTimer -= Time.deltaTime;
-                if(oobActualResetTimer < 0f)
+                if (oobActualResetTimer < 0f)
                 {
                     isOOB = false;
                     CmdResetPosition(lastStopPos);
@@ -318,7 +332,7 @@ public class PlayerController : NetworkBehaviour {
 
     private void OnApplicationFocus(bool focus)
     {
-        if(isPaused)
+        if (isPaused)
         {
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
@@ -348,6 +362,30 @@ public class PlayerController : NetworkBehaviour {
         CmdChangeColorTrail(SettingsManager._instance.gameSettings.colorTrail);
     }
 
+
+    public void ResetCameraTarget()
+    {
+        if (isLocalPlayer)
+        {
+            Debug.Log("ResetCamera");
+            isSpectating = false;
+            tSpectate = null;
+            guiCam.GetComponent<BallCamera>().target = transform;
+            Camera.main.GetComponent<BallCamera>().target = transform;
+        }
+    }
+
+    public void ChangeCameraTarget(Transform camTarget)
+    {
+        if (isLocalPlayer)
+        {
+            isSpectating = true;
+            tSpectate = camTarget;
+            guiCam.GetComponent<BallCamera>().target = camTarget;
+            Camera.main.GetComponent<BallCamera>().target = camTarget;
+        }
+    }
+
     private void FixedUpdate()
     {
         if (!isServer)
@@ -365,7 +403,7 @@ public class PlayerController : NetworkBehaviour {
             }
         }
 
-        if(isLocalPlayer)
+        if (isLocalPlayer)
         {
             if (isShooting)
                 ui.UpdateSlider();
@@ -379,6 +417,7 @@ public class PlayerController : NetworkBehaviour {
         {
             if (isLocalPlayer)
             {
+                CmdGetSpectate();
                 CmdPlayerInHole();
             }
         }
@@ -395,7 +434,7 @@ public class PlayerController : NetworkBehaviour {
                 Vector3 other_vel = pc_col.save_velocity;
 
                 //Debug.Log(Time.frameCount + "fr, BALLZ : " + LayerMask.LayerToName(collided.layer) + " , my vel : " + save_velocity + ", his vel : " + other_vel);
-                
+
 
                 if ((save_velocity.magnitude > other_vel.magnitude + 3f) && !hasDestroyedPlayer)
                 {
@@ -417,13 +456,13 @@ public class PlayerController : NetworkBehaviour {
 
     void OnCollisionExit(Collision collisionInfo)
     {
-        if(collisionInfo.gameObject.CompareTag("Player") && hasDestroyedPlayer)
+        if (collisionInfo.gameObject.CompareTag("Player") && hasDestroyedPlayer)
         {
             hasDestroyedPlayer = false;
             rb.velocity = restore_velocity;
         }
     }
-    
+
 
     void OnGUI()
     {
@@ -494,7 +533,7 @@ public class PlayerController : NetworkBehaviour {
 
     public void OnBoosterPad(Vector3 direction, float multfactor, float addfactor)
     {
-        if(isLocalPlayer)
+        if (isLocalPlayer)
         {
             CmdBoost(direction, multfactor, addfactor);
         }
@@ -601,7 +640,7 @@ public class PlayerController : NetworkBehaviour {
         for (int i = FirstLayer; i < FirstLayer + 4; i++)
         {
             // We check if the player on that specific layer is done or not to avoid enabling collisions on a player already in the hole
-            if(!lobbyManager.playerManager.IsPlayerOnLayerDone(i))
+            if (!lobbyManager.playerManager.IsPlayerOnLayerDone(i))
                 Physics.IgnoreLayerCollision(gameObject.layer, i, false);
         }
     }
@@ -636,7 +675,7 @@ public class PlayerController : NetworkBehaviour {
 
         int par = lobbyManager.GetPar();
 
-        if(shots == 1)
+        if (shots == 1)
         {
             type = 0;
         }
@@ -644,7 +683,7 @@ public class PlayerController : NetworkBehaviour {
         {
             int diff = par - shots;
 
-            switch(diff)
+            switch (diff)
             {
                 case -2:
                     type = 5;
@@ -697,7 +736,7 @@ public class PlayerController : NetworkBehaviour {
             }
         }
 
-        score.Add(shots+2);
+        score.Add(shots + 2);
         shots = 0;
         RpcDisablePlayerInHole(-2);
         RpcChangeFailSignVisibility(true);
@@ -729,7 +768,7 @@ public class PlayerController : NetworkBehaviour {
     private void CmdBoost(Vector3 dir, float multFactor, float addFactor)
     {
         float angle = Vector3.Angle(rb.velocity, dir);
-        rb.velocity *= multFactor * (angle>90f?-0.1f:1f);
+        rb.velocity *= multFactor * (angle > 90f ? -0.1f : 1f);
         rb.AddForce(dir * addFactor);
     }
 
@@ -761,7 +800,7 @@ public class PlayerController : NetworkBehaviour {
         ball_pc.DisablePlayer();
         ball_pc.ChangeBallVisibility(false);
         ball_pc.ExplodeBall();
-        
+
         StartCoroutine(RespawnRoutine(ball));
     }
 
@@ -795,6 +834,19 @@ public class PlayerController : NetworkBehaviour {
     private void CmdExplodeBall()
     {
         RpcExplodeBall();
+    }
+
+
+    [Command]
+    private void CmdGetSpectate()
+    {
+        lobbyManager.playerManager.GetSpectate(this.netId.Value);
+    }
+
+    [Command]
+    private void CmdChangeSpectate(GameObject currSpectate)
+    {
+        lobbyManager.playerManager.ChangeSpectate(this.netId.Value, currSpectate);
     }
 
     #endregion
@@ -837,11 +889,11 @@ public class PlayerController : NetworkBehaviour {
     {
         ParticleSystem.EmissionModule em = trail.emission;
         em.enabled = false;
-        
+
         serverPositions.Clear();
         transform.position = position;
         serverPos = position;
-        
+
         flagEnableTrail = true;
     }
 
@@ -918,7 +970,7 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     private void RpcResetPlayer()
     {
-        if(isLocalPlayer)
+        if (isLocalPlayer)
         {
             done = false;
             firstShotLayerActivated = false;
@@ -946,7 +998,7 @@ public class PlayerController : NetworkBehaviour {
     private void RpcChangeFailSignVisibility(bool visi)
     {
         failSign.SetActive(visi);
-        if(visi)
+        if (visi)
         {
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir.y = 0;
@@ -957,7 +1009,7 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     private void RpcChangeBallVisibility(bool visi)
     {
-            ballMesh.SetActive(visi);
+        ballMesh.SetActive(visi);
     }
 
 
@@ -971,14 +1023,14 @@ public class PlayerController : NetworkBehaviour {
     [ClientRpc]
     public void RpcPixelation(bool activated)
     {
-        if(isLocalPlayer)
+        if (isLocalPlayer)
             Camera.main.GetComponent<Pixelation>().enabled = activated;
     }
 
     [ClientRpc]
     public void RpcChangeSliderSpeed(int sliderSpeed)
     {
-        if(isLocalPlayer)
+        if (isLocalPlayer)
         {
             ui.ChangeSliderSpeed(sliderSpeed);
         }
@@ -989,6 +1041,28 @@ public class PlayerController : NetworkBehaviour {
     {
         lastStopPos = position;
     }
+
+    [ClientRpc]
+    public void RpcChangeSpectate(GameObject spectate)
+    {
+        ChangeCameraTarget(spectate.transform);
+    }
+
+    [ClientRpc]
+    public void RpcResetCameraTarget()
+    {
+        ResetCameraTarget();
+    }
+
+    [ClientRpc]
+    public void RpcCheckSpectate(GameObject spectate)
+    {
+        if (spectate.transform == tSpectate)
+        {
+            CmdGetSpectate();
+        }
+    }
+
 
     #endregion
 }

@@ -5,7 +5,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class PlayerManager : NetworkBehaviour {
+public class PlayerManager : NetworkBehaviour
+{
 
     public UIManager ui;
     private Dictionary<int, GameObject> players;
@@ -28,7 +29,7 @@ public class PlayerManager : NetworkBehaviour {
 
     void Awake()
     {
-        if(_instance == null)
+        if (_instance == null)
         {
             _instance = this;
         }
@@ -44,7 +45,7 @@ public class PlayerManager : NetworkBehaviour {
     {
         players = new Dictionary<int, GameObject>();
     }
-	
+
     void Update()
     {
         if (isStarted)
@@ -71,12 +72,12 @@ public class PlayerManager : NetworkBehaviour {
         Dictionary<int, int> scores = new Dictionary<int, int>();
 
         int i = 0;
-        foreach(KeyValuePair<int, GameObject> entry in players)
+        foreach (KeyValuePair<int, GameObject> entry in players)
         {
-            if(i == 0)
+            if (i == 0)
             {
                 int score = 0;
-                foreach(int s in scoreP1)
+                foreach (int s in scoreP1)
                 {
                     score += s;
                 }
@@ -120,7 +121,7 @@ public class PlayerManager : NetworkBehaviour {
 
         scores.OrderBy(x => x.Value);
 
-        foreach(int key in scores.Keys)
+        foreach (int key in scores.Keys)
         {
             podium.Add(players[key]);
         }
@@ -198,7 +199,7 @@ public class PlayerManager : NetworkBehaviour {
 
     public void TriggerTimeout(int maxShot)
     {
-        foreach(GameObject o in players.Values)
+        foreach (GameObject o in players.Values)
         {
             PlayerController pc = o.GetComponent<PlayerController>();
             if (pc.done != true)
@@ -217,9 +218,10 @@ public class PlayerManager : NetworkBehaviour {
 
     public void MovePlayersTo(Transform nextPosition)
     {
-        foreach(GameObject o in players.Values)
+        foreach (GameObject o in players.Values)
         {
             PlayerController pc = o.GetComponent<PlayerController>();
+            pc.RpcResetCameraTarget();
             pc.ForcedMoveTo(nextPosition.position);
             pc.EnablePlayer();
         }
@@ -243,7 +245,7 @@ public class PlayerManager : NetworkBehaviour {
 
     public void AddPlayer(GameObject o, int connId = -1)
     {
-        if(connId == -1)
+        if (connId == -1)
             connId = o.GetComponent<NetworkIdentity>().connectionToClient.connectionId;
 
         players[connId] = o;
@@ -267,7 +269,7 @@ public class PlayerManager : NetworkBehaviour {
     {
         bool allDone = true;
 
-        foreach(GameObject player in players.Values)
+        foreach (GameObject player in players.Values)
         {
             if (!player.GetComponent<PlayerController>().done)
                 allDone = false;
@@ -286,7 +288,7 @@ public class PlayerManager : NetworkBehaviour {
 
     public void ResetAllPlayersScore()
     {
-        foreach(GameObject p in players.Values)
+        foreach (GameObject p in players.Values)
         {
             p.GetComponent<PlayerController>().score.Clear();
         }
@@ -334,14 +336,14 @@ public class PlayerManager : NetworkBehaviour {
             targetPlayer = players[keys[target]];
         }
 
-        if(targetPlayer != null)
+        if (targetPlayer != null)
         {
-            for(int i = 0;  i < keys.Count; i++)
+            for (int i = 0; i < keys.Count; i++)
             {
                 GameObject playerOrigin = players[keys[i]];
                 NetworkIdentity networkIdentity = playerOrigin.GetComponent<NetworkIdentity>();
-                
-                if(networkIdentity.netId.Value == netid)
+
+                if (networkIdentity.netId.Value == netid)
                 {
                     Vector3 posOrigin = playerOrigin.transform.position;
                     Vector3 velocityOrigin = playerOrigin.GetComponent<Rigidbody>().velocity;
@@ -360,13 +362,106 @@ public class PlayerManager : NetworkBehaviour {
         }
     }
 
+    // Spectate another player
+    public void GetSpectate(uint netid)
+    {
+        GameObject ball = null;
+        GameObject spectate = null;
+
+        List<GameObject> checkSpectates = new List<GameObject>();
+
+        if (!AllPlayersDone())
+        {
+            foreach (GameObject go in players.Values)
+            {
+                NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+                if (networkIdentity.netId.Value == netid)
+                {
+                    ball = go;
+                }
+                else if (!go.GetComponent<PlayerController>().done)
+                {
+                    spectate = go;
+                }
+                else
+                {
+                    checkSpectates.Add(go);
+                }
+            }
+        }
+
+        if (ball == null)
+        {
+            Debug.LogError("Couldn't find the ball with netid : " + netid + ", so no spectating :(");
+            return;
+        }
+
+        // Check if the finished players need to spectate someone else now that netid has finished the hole
+        foreach (GameObject spec in checkSpectates)
+        {
+            spec.GetComponent<PlayerController>().RpcCheckSpectate(ball);
+        }
+
+        if (spectate != null)
+        {
+            ball.GetComponent<PlayerController>().RpcChangeSpectate(spectate);
+        }
+    }
+    // Change spectate to another player
+    public void ChangeSpectate(uint netid, GameObject currSpectate)
+    {
+        GameObject ball = null;
+        GameObject spectate = null;
+
+        List<GameObject> potentialSpectates = new List<GameObject>();
+
+        if (!AllPlayersDone())
+        {
+            foreach (GameObject go in players.Values)
+            {
+                NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
+
+                if (networkIdentity.netId.Value == netid)
+                {
+                    ball = go;
+                }
+                else if (!go.GetComponent<PlayerController>().done)
+                {
+                    potentialSpectates.Add(go);
+                }
+            }
+        }
+
+        int i = potentialSpectates.IndexOf(currSpectate);
+        if (i != -1)
+        {
+            spectate = potentialSpectates[i++ % potentialSpectates.Count];
+        }
+        else
+        {
+            Debug.LogError("The player is currently spectating a player that does not exist");
+        }
+
+        if (spectate != null)
+        {
+            if (ball != null)
+            {
+                ball.GetComponent<PlayerController>().RpcChangeSpectate(spectate);
+            }
+            else
+                Debug.LogError("Couldn't find the ball with netid : " + netid + ", so no spectating :(");
+        }
+    }
+
+
     public void ChangeGravity(GravityType type, float time, uint netid)
     {
-        foreach(GameObject go in players.Values)
+        foreach (GameObject go in players.Values)
         {
             NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
 
-            if(networkIdentity.netId.Value != netid)
+            if (networkIdentity.netId.Value != netid)
             {
                 go.GetComponent<BallPhysicsNetwork>().ChangeGravity(type);
             }
@@ -385,7 +480,7 @@ public class PlayerManager : NetworkBehaviour {
 
     public void ResetInvertedCamera()
     {
-        foreach(GameObject go in players.Values)
+        foreach (GameObject go in players.Values)
         {
             go.GetComponent<PlayerController>().RpcInvertCamera(false);
         }
@@ -408,7 +503,7 @@ public class PlayerManager : NetworkBehaviour {
 
     public void ResetPixelation()
     {
-        foreach(GameObject go in players.Values)
+        foreach (GameObject go in players.Values)
         {
             go.GetComponent<PlayerController>().RpcPixelation(false);
         }
@@ -420,7 +515,7 @@ public class PlayerManager : NetworkBehaviour {
         {
             NetworkIdentity networkIdentity = go.GetComponent<NetworkIdentity>();
 
-            if(networkIdentity.netId.Value != netid)
+            if (networkIdentity.netId.Value != netid)
             {
                 go.GetComponent<PlayerController>().RpcPixelation(true);
             }
