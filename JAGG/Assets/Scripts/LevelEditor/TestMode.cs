@@ -42,6 +42,8 @@ public class TestMode : MonoBehaviour {
     private Vector3 saveCameraPos = Vector3.zero;
     private OfflineBallController ballController;
 
+    public string tagsText = "";
+
     [HideInInspector]
     public int[] validationShots = new int[18];
     [HideInInspector]
@@ -175,6 +177,11 @@ public class TestMode : MonoBehaviour {
                 // Well job, good done
                 if (nextValidationHole == -1)
                 {
+#if UNITY_EDITOR
+#else
+                    Cursor.lockState = CursorLockMode.Confined;
+                    Cursor.visible = true;
+#endif
                     validationEndPanel.SetActive(true);
                 }
                 else
@@ -282,6 +289,7 @@ public class TestMode : MonoBehaviour {
         isValidationMode = false;
         TestHole(false);
 
+        EditorManager.isModified = false;
         editorManager.escapeMenu.gameObject.SetActive(true);
         editorManager.panelExport.gameObject.SetActive(true);
         editorManager.panelExport.ValidationBeforeUpload();

@@ -436,7 +436,7 @@ public class PlayerManager : NetworkBehaviour
         int i = potentialSpectates.IndexOf(currSpectate);
         if (i != -1)
         {
-            spectate = potentialSpectates[i++ % potentialSpectates.Count];
+            spectate = potentialSpectates[(i+1) % potentialSpectates.Count];
         }
         else
         {
