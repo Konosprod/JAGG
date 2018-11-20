@@ -3,32 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
-// Replaces PlayerController / CustomPhysics / PreviewLine
-// Works offline and removes all parts related to networking
-public class OfflineBallController : MonoBehaviour {
+public class SimpleBallController : MonoBehaviour
+{
 
     public LineRenderer line;
     public Rigidbody rb;
     public ParticleSystem trail;
     public Slider slider;
     public Transform sphere;
-    public TestMode testMode;
 
     public float lineLength = 0.85f;
 
     [Header("UI")]
     public Text shotsText;
     public Text timeText;
-    public GameObject validationQuitPanel;
 
 
     private bool isMoving = false;
     private bool isShooting = false;
     private bool slideUp = true;
     private Vector3 lastPos = Vector3.zero;
-    private int minSliderVal = 10;
-    private int maxSliderVal = 150;
+    private const int minSliderVal = 10;
+    private const int maxSliderVal = 150;
 
     private int shots = 0;
     private float timer = 0f;
@@ -37,17 +33,20 @@ public class OfflineBallController : MonoBehaviour {
 
 
     // Handling reset of position when out-of-bounds
-    private float oobInitialResetTimer = 2.0f;
+    private const float oobInitialResetTimer = 2.0f;
     private float oobActualResetTimer;
     private bool isOOB = false;
 
+    private Vector3 initialPos;
+
 
     // Use this for initialization
-    void Start () {
-
+    void Start()
+    {
+        initialPos = transform.position;
     }
 
-    void OnEnable()
+    /*void OnEnable()
     {
         shotsText.gameObject.SetActive(true);
         timeText.gameObject.SetActive(true);
@@ -57,15 +56,13 @@ public class OfflineBallController : MonoBehaviour {
     {
         shotsText.gameObject.SetActive(false);
         timeText.gameObject.SetActive(false);
-    }
+    }*/
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         shotsText.text = shotsText.text.Split(':')[0] + ": " + shots;
         timeText.text = timeText.text.Split(':')[0] + ": " + timer.ToString("0.##") + "s";
-
-        if (testMode.IsInValidation())
-            testMode.CheckTime(timer, shots);
 
         if (flagEnableTrail)
         {
@@ -80,9 +77,6 @@ public class OfflineBallController : MonoBehaviour {
         {
             lastPos = transform.position;
 
-            if(testMode.IsInValidation())
-                testMode.CheckShots(shots, timer);
-
             if (!line.enabled)
                 line.enabled = true;
 
@@ -92,12 +86,12 @@ public class OfflineBallController : MonoBehaviour {
             line.SetPosition(0, transform.position);
             line.SetPosition(1, dir * lineLength + transform.position);
 
-            if (Input.GetMouseButtonDown(0) && !validationQuitPanel.activeSelf)
+            if (Input.GetMouseButtonDown(0))
             {
                 if (isShooting)
                 {
                     shots++;
-                    rb.AddForce(dir * Mathf.Pow(slider.value,1.4f) * 2f);
+                    rb.AddForce(dir * Mathf.Pow(slider.value, 1.4f) * 2f);
                     isShooting = false;
                     isMoving = true;
                     ResetSlider();
@@ -105,7 +99,7 @@ public class OfflineBallController : MonoBehaviour {
                 else
                     isShooting = true;
             }
-            
+
             if (Input.GetMouseButtonDown(1) && isShooting)
             {
                 isShooting = false;
@@ -161,17 +155,15 @@ public class OfflineBallController : MonoBehaviour {
         }
     }
 
-    
+
     void OnTriggerEnter(Collider other)
     {
         GameObject otherGO = other.gameObject;
         if (otherGO.CompareTag("Hole"))
         {
-            testMode.TestHole(false);
-            int saveShots = shots;
-            float saveTimer = timer;
+            /*int saveShots = shots;
+            float saveTimer = timer;*/
             ResetTest();
-            testMode.EndOfTest(saveShots, saveTimer);
         }
     }
 
@@ -193,8 +185,9 @@ public class OfflineBallController : MonoBehaviour {
         timer = 0f;
         rb.velocity = Vector3.zero;
 
+        transform.position = initialPos;
+
         ResetSlider();
-        gameObject.SetActive(false);
     }
 
     private void UpdateSlider()
@@ -214,8 +207,8 @@ public class OfflineBallController : MonoBehaviour {
         slideUp = true;
         slider.value = minSliderVal;
     }
-    
-    
+
+
     void FixedUpdate()
     {
         if (isShooting)

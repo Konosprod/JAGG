@@ -33,6 +33,7 @@ public class TestMode : MonoBehaviour {
     public GameObject validationBetweenHolePanel;
     public GameObject validationFailHolePanel;
     public GameObject validationEndPanel;
+    public GameObject validationQuitPanel;
 
     private bool isTestMode = false;
     private bool isValidationMode = false;
@@ -68,10 +69,17 @@ public class TestMode : MonoBehaviour {
                 TestHole(true);
             }
 
-            if (Input.GetKeyDown(KeyCode.Escape) && isTestMode && !isValidationMode)
+            if (Input.GetKeyDown(KeyCode.Escape) && isTestMode && !validationQuitPanel.activeSelf)
             {
-                TestHole(false, false, true);
-                ball.GetComponent<OfflineBallController>().ResetTest();
+                if (!isValidationMode)
+                {
+                    TestHole(false, false, true);
+                    ball.GetComponent<OfflineBallController>().ResetTest();
+                }
+                else
+                {
+                    validationQuitPanel.SetActive(true);
+                }
             }
 
             if (endOfTestPanel != null && endOfTestPanel.activeSelf)
@@ -156,6 +164,14 @@ public class TestMode : MonoBehaviour {
 
             LevelEditorMovingPieceManager._instance.ResetAllRTPs();
             LevelEditorMovingPieceManager._instance.ResetAllMVPs();
+
+
+            if(forceExit)
+            {
+                validationBetweenHolePanel.SetActive(false);
+                validationFailHolePanel.SetActive(false);
+                validationEndPanel.SetActive(false);
+            }
         }
     }
 
