@@ -2877,6 +2877,8 @@ public class EditorManager : MonoBehaviour
             }
         }
 
+        isModified = true;
+
         panelExport.steamid = loader.steamid;
         panelExport.mapid = loader.mapid;
         panelExport.mapName = System.IO.Path.GetFileNameWithoutExtension(path);
