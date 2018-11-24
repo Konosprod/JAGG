@@ -7,6 +7,9 @@ using System.IO;
 using SimpleJSON;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using Ionic.Zip;
+using System;
+using Newtonsoft.Json.Linq;
 
 public class LobbyPlayer : NetworkLobbyPlayer {
 
@@ -128,24 +131,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         if (levelName.IndexOf("_") > 0)
             levelId = levelName.Substring(0, levelName.IndexOf("_"));
 
-        bool hasLevel = CheckLevel(levelId);
-
-        if (hasLevel)
-        {
-            if (newValue == true)
-            {
-                SendReadyToBeginMessage();
-            }
-            else
-            {
-                SendNotReadyToBeginMessage();
-            }
-        }
-        else
-        {
-            toggleReady.interactable = false;
-            StartCoroutine(DownloadMap(levelId));
-        }
+        CheckLevel(levelId, newValue);
     }
 
     public override void OnClientReady(bool readyState)
@@ -162,18 +148,81 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         }
     }
 
-    private bool CheckLevel(string levelId)
+    private void CheckLevel(string levelId, bool isReady)
     {
         //Scene name doesn't contain "_" it's a local level
         if (levelId == "")
-            return true;
+        {
+            if (isReady)
+                SendReadyToBeginMessage();
+            else
+                SendNotReadyToBeginMessage();
+        }
         else
         {
             string path = Application.persistentDataPath + "/Levels/";
             string searchPattern = levelId + "_*";
             string[] fileInfos = Directory.GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly);
 
-            return (fileInfos.Length > 0);
+
+            if (fileInfos.Length > 0)
+            {
+                ZipFile mapFile = new ZipFile(fileInfos[0]);
+
+                //Don't forget to create the directory maybe
+                string tmpPath = Path.Combine(Application.temporaryCachePath, Path.GetFileName(path));
+                //string tmpPath = Path.Combine(Application.temporaryCachePath, "test");
+
+                mapFile.ExtractAll(tmpPath, ExtractExistingFileAction.OverwriteSilently);
+
+                long timestamp = UnixTime(mapFile["level.json"].CreationTime);
+
+                mapFile.Dispose();
+
+                StartCoroutine(CheckTimestamp(levelId, timestamp, isReady));
+
+            }
+            else
+            {
+                toggleReady.interactable = false;
+                StartCoroutine(DownloadMap(levelId));
+            }
+        }
+    }
+
+    IEnumerator CheckTimestamp(string levelId, long localTime, bool isReady)
+    {
+        string url = "https://jagg-api.konosprod.fr/api/maps/" + levelId;
+        UnityWebRequest uwr = UnityWebRequest.Get(url);
+
+        yield return uwr.SendWebRequest();
+
+        if(uwr.isNetworkError || uwr.isHttpError)
+        {
+            Debug.Log(uwr.error);
+        }
+        else
+        {
+            JObject mapInfo = JObject.Parse(uwr.downloadHandler.text);
+            DateTime dt = DateTime.Parse(mapInfo["last_update"].Value<string>());
+            Debug.Log("Local time : " + localTime.ToString() + " Last update : " + UnixTime(dt));
+
+            //If there is a difference of 10s between localtime and server time, we consider that we should download
+            //the map, it must be a new one
+            if(UnixTime(dt) - localTime > 10)
+            {
+                Debug.Log(UnixTime(dt) - localTime);
+                toggleReady.interactable = false;
+                StartCoroutine(DownloadMap(levelId));
+            }
+            else
+            {
+                if (isReady)
+                    SendReadyToBeginMessage();
+                else
+                    SendNotReadyToBeginMessage();
+            }
+
         }
     }
 
@@ -293,6 +342,12 @@ public class LobbyPlayer : NetworkLobbyPlayer {
     {
         LobbyManager._instance.playerManager.RemovePlayer(connectionToClient.connectionId);
         connectionToClient.Disconnect();
+    }
+
+    public long UnixTime(DateTime time)
+    {
+        var timeSpan = (time - new DateTime(1970, 1, 1, 0, 0, 0));
+        return (long)timeSpan.TotalSeconds;
     }
 
     #region Command
