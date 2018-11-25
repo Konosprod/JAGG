@@ -425,9 +425,12 @@ public class OBJLoader
             m.RecalculateBounds();
 
 
-            if (obj.StartsWith("COL_", true, CultureInfo.InvariantCulture))
+            if (obj.StartsWith("UCX_", true, CultureInfo.InvariantCulture))
             {
-                subObject.AddComponent<MeshCollider>();
+                MeshCollider collider = subObject.AddComponent<MeshCollider>();
+
+                collider.sharedMesh = m;
+
             }
             else
             {
