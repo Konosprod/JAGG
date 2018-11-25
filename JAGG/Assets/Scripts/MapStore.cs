@@ -113,7 +113,7 @@ public class MapStore : MonoBehaviour
         loadingOverlay.PlayAnimation();
         loadingOverlay.messageText.text = "Loading maps...";
 
-        string url = "https://jagg-api.konosprod.fr/api/maps";
+        string url = ConfigHandler.ApiUrl + "/maps";
 
         url += "?offset=" + offset.ToString();
         url += "&orderby=" + orderbyTerms[orderbyDropdown.value];
@@ -142,7 +142,7 @@ public class MapStore : MonoBehaviour
                 storeEntry.mapName = n["name"];
                 storeEntry.author = n["author"]["name"];
                 storeEntry.downloadUrl = n["path"];
-                storeEntry.thumbUrl = "https://jagg-api.konosprod.fr/thumbs/" + n["id"] + ".png";
+                storeEntry.thumbUrl = ConfigHandler.BaseUrl + "/thumbs/" + n["id"] + ".png";
                 JSONArray tags = n["tags"].AsArray;
 
                 foreach(JSONNode tag in tags.Values)
@@ -210,7 +210,7 @@ public class MapStore : MonoBehaviour
 
     IEnumerator DownloadFile(string url)
     {
-        string path = Application.persistentDataPath + "/levels/" + url.Replace("https://jagg-api.konosprod.fr/maps/", "");
+        string path = Application.persistentDataPath + "/levels/" + url.Replace(ConfigHandler.BaseUrl + "/maps/", "");
         using (UnityWebRequest uwr = UnityWebRequest.Get(url))
         {
             uwr.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
@@ -299,15 +299,15 @@ public class MapStore : MonoBehaviour
 
         if (searchTypeDropdown.value == 0)
         {
-            url = "https://jagg-api.konosprod.fr/api/maps/search/";
+            url = ConfigHandler.ApiUrl + "/maps/search/";
         }
         else if(searchTypeDropdown.value == 1)
         {
-            url = "https://jagg-api.konosprod.fr/api/tags/";
+            url = ConfigHandler.ApiUrl + "/api/tags/";
         }
         else if(searchTypeDropdown.value == 2)
         {
-            url = "https://jagg-api.konosprod.fr/api/authors/";
+            url = ConfigHandler.ApiUrl + "/api/authors/";
         }
 
         url += terms;
@@ -339,7 +339,7 @@ public class MapStore : MonoBehaviour
                 storeEntry.mapName = n["name"];
                 storeEntry.author = n["author"]["name"];
                 storeEntry.downloadUrl = n["path"];
-                storeEntry.thumbUrl = "https://jagg-api.konosprod.fr/thumbs/" + n["id"] + ".png";
+                storeEntry.thumbUrl = ConfigHandler.BaseUrl + "/thumbs/" + n["id"] + ".png";
                 JSONArray tags = n["tags"].AsArray;
 
                 foreach (JSONNode tag in tags.Values)

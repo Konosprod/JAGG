@@ -192,7 +192,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     IEnumerator CheckTimestamp(string levelId, long localTime, bool isReady)
     {
-        string url = "https://jagg-api.konosprod.fr/api/maps/" + levelId;
+        string url = ConfigHandler.ApiUrl + "/maps/" + levelId;
         UnityWebRequest uwr = UnityWebRequest.Get(url);
 
         yield return uwr.SendWebRequest();
@@ -228,7 +228,7 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     IEnumerator DownloadMap(string levelId)
     {
-        string url = "https://jagg-api.konosprod.fr/api/maps/" + levelId + "/download";
+        string url = ConfigHandler.ApiUrl + "/maps/" + levelId + "/download";
         lobbyControls.mapDownloading.gameObject.SetActive(true);
         lobbyControls.mapDownloading.PlayAnimation();
 

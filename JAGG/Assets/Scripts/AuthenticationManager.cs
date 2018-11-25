@@ -58,7 +58,7 @@ public class AuthenticationManager : MonoBehaviour {
         loadingOverlay.PlayAnimation();
         loadingOverlay.messageText.text = "Authentification...";
 
-        UnityWebRequest request = UnityWebRequest.Get("https://jagg-api.konosprod.fr/api/auth");
+        UnityWebRequest request = UnityWebRequest.Get(ConfigHandler.ApiUrl + "/auth");
         request.SetRequestHeader("Cookie", sessionCookie);
         request.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
 
@@ -105,7 +105,7 @@ public class AuthenticationManager : MonoBehaviour {
             form.AddField("ticket", ByteArrayToString(ticket));
             form.AddField("steamid", (SteamUser.GetSteamID().m_SteamID).ToString());
 
-            UnityWebRequest www = UnityWebRequest.Post("https://jagg-api.konosprod.fr/api/auth", form);
+            UnityWebRequest www = UnityWebRequest.Post(ConfigHandler.ApiUrl + "/auth", form);
             www.SetRequestHeader("Cookie", sessionCookie);
             www.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");
 

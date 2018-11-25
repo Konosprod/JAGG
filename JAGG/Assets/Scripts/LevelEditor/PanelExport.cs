@@ -161,15 +161,15 @@ public class PanelExport : MonoBehaviour {
             data.AddField("tags", editorManager.testMode.tagsText);
         else if(tagsInput.text != "")
             data.AddField("tags", tagsInput.text);
-        data.AddField("steamid", Steamworks.SteamUser.GetSteamID().m_SteamID.ToString());
+        data.AddField("steamid", SteamUser.GetSteamID().m_SteamID.ToString());
         data.AddField("name", SteamFriends.GetPersonaName());
 
         UnityWebRequest uwr = null;
 
         if (mapid == 0)
-            uwr = UnityWebRequest.Post("https://jagg-api.konosprod.fr/api/maps", data);
+            uwr = UnityWebRequest.Post(ConfigHandler.ApiUrl + "/maps", data);
         else
-            uwr = UnityWebRequest.Post("https://jagg-api.konosprod.fr/api/maps/" + mapid.ToString(), data);
+            uwr = UnityWebRequest.Post(ConfigHandler.ApiUrl + "/maps/" + mapid.ToString(), data);
 
         uwr.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
         uwr.SetRequestHeader("User-Agent", @"Mozilla / 5.0(Android 4.4; Mobile; rv: 41.0) Gecko / 41.0 Firefox / 41.0");

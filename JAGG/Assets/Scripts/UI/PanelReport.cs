@@ -19,10 +19,10 @@ public class PanelReport : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        smtpClient = new SmtpClient("mail.konosprod.fr")
+        smtpClient = new SmtpClient(ConfigHandler.SmtpAdress)
         {
             Port = 587,
-            Credentials = new System.Net.NetworkCredential("jagg@konosprod.fr", "testpass35") as ICredentialsByHost,
+            Credentials = new System.Net.NetworkCredential(ConfigHandler.SmtpUsername, ConfigHandler.SmtpPassword) as ICredentialsByHost,
             EnableSsl = true
         };
 
@@ -55,7 +55,7 @@ public class PanelReport : MonoBehaviour {
     public void SendMail()
     {
         string mailContent = inputMail.text;
-        MailMessage message = new MailMessage("bug_report@konosprod.fr", "jagg@konosprod.fr");
+        MailMessage message = new MailMessage(ConfigHandler.AddressFrom, ConfigHandler.AdressTo);
 
         byte[] imageData = imagePreview.sprite.texture.EncodeToJPG();
 
