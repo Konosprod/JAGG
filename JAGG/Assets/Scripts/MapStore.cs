@@ -65,7 +65,10 @@ public class MapStore : MonoBehaviour
     void Start()
     {
         authenticationManager = AuthenticationManager._instance;
-        GetMaps();
+
+        authenticationManager.CheckAuth(GetMaps);
+
+        //GetMaps();
     }
 
     // Update is called once per frame
