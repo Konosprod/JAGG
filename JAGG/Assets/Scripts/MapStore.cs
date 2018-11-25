@@ -56,7 +56,7 @@ public class MapStore : MonoBehaviour
     public bool isDownloading = false;
 
     private static string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-    private static string[] orderbyTerms = { "id", "updated_at", "monthly_download_count", "download_count" };
+    private static string[] orderbyTerms = { "id", "last_update", "monthly_download_count", "download_count" };
     private static string[] sortTerms = { "ASC", "DESC" };
 
     private AuthenticationManager authenticationManager;
