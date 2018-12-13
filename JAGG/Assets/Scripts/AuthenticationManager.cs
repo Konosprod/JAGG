@@ -47,9 +47,16 @@ public class AuthenticationManager : MonoBehaviour {
     public void CheckAuth(UnityAction callback = null)
     {
         if (isAuthenticated)
-            return;
-
-        StartCoroutine(GetAuthentication(callback));
+        {
+            if(callback != null)
+            {
+                callback.Invoke();
+            }
+        }
+        else
+        {
+            StartCoroutine(GetAuthentication(callback));
+        }
     }
 
     IEnumerator GetAuthentication(UnityAction callback = null)
