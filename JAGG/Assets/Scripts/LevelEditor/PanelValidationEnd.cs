@@ -7,10 +7,10 @@ public class PanelValidationEnd : MonoBehaviour {
 
     public EditorManager editorManager;
     public TestMode testMode;
-    public PlayerScoreEntry scoreEntryPar;
-    public PlayerScoreEntry scoreEntryPlayerShots;
-    public PlayerScoreEntry scoreEntryPlayerTimes;
 
+    public Text[] parList;
+    public Text[] shotList;
+    public Text[] timeList;
 
     void OnEnable()
     {
@@ -25,17 +25,15 @@ public class PanelValidationEnd : MonoBehaviour {
             int par = lvlProps[i].GetComponent<LevelProperties>().par;
             int shots = testMode.validationShots[i];
             float time = testMode.validationTimes[i];
-            scoreEntryPar.AddScore(par);
-            scoreEntryPlayerShots.AddScore(shots);
-            scoreEntryPlayerTimes.AddScore(time);
+
+            parList[i].text = par.ToString();
+            shotList[i].text = shots.ToString();
+            timeList[i].text = time.ToString("0.##") + "s";
+
             //parTotal += par;
             shotsTotal += shots;
             timeTotal += time;
         }
-
-        //scoreEntryPar.SetTotal(parTotal);
-        scoreEntryPlayerShots.SetTotal(shotsTotal);
-        scoreEntryPlayerTimes.SetTotal(timeTotal);
     }
 
     
