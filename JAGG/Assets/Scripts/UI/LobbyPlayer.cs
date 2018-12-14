@@ -81,8 +81,11 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         toggleReady.onValueChanged.RemoveAllListeners();
         toggleReady.onValueChanged.AddListener(OnReadyClicked);
 
-        if (playerName == "")CmdUpdateAvatar(SteamUser.GetSteamID().m_SteamID);
+        if (playerName == "")
+        {
+            CmdUpdateAvatar(SteamUser.GetSteamID().m_SteamID);
             CmdNameChanged(SteamFriends.GetPersonaName());
+        }
 
         if (isServer)
         {
@@ -271,20 +274,23 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     private void OnAvatarLoaded(AvatarImageLoaded_t callback)
     {
-        ulong steamId = callback.m_steamID.m_SteamID;
-        Texture2D texture = null;
-
-        if (avatarCache.ContainsKey(steamId))
+        if (isLocalPlayer)
         {
-            texture = avatarCache[steamId];
-        }
-        else
-        {
-            texture = GetSteamImageAsTexture2D(callback.m_iImage);
-            avatarCache.Add(steamId, texture);
-        }
+            ulong steamId = callback.m_steamID.m_SteamID;
+            Texture2D texture = null;
 
-        avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+            if (avatarCache.ContainsKey(steamId))
+            {
+                texture = avatarCache[steamId];
+            }
+            else
+            {
+                texture = GetSteamImageAsTexture2D(callback.m_iImage);
+                avatarCache.Add(steamId, texture);
+            }
+
+            avatar.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+        }
     }
 
     public string ByteArrayToString(byte[] ba)
