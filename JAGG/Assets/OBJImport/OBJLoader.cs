@@ -432,6 +432,7 @@ public class OBJLoader
                 collider.sharedMesh = m;
 
             }
+
             else
             {
                 MeshFilter mf = subObject.AddComponent<MeshFilter>();

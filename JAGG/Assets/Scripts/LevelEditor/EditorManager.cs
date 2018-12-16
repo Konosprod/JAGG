@@ -2834,7 +2834,6 @@ public class EditorManager : MonoBehaviour
     public void LoadLevel(string path)
     {
         CleanHoles();
-
         loader.LoadLevel(path);
 
         for (int i = 0; i < maxHoles; i++)
@@ -3008,6 +3007,13 @@ public class EditorManager : MonoBehaviour
 
         foreach (SnappingPoint sp in points)
             sp.gameObject.SetActive(true);
+    }
+
+    public void LoadCustomObject(string path)
+    {
+        GameObject toInstantiate = ObjImporter.LoadGameObject(path);
+
+        Instantiate(toInstantiate, holesObject.transform.Find("Hole " + (currentHole + 1).ToString()).transform).SetActive(true);
     }
 
     public void DisableGizmos()

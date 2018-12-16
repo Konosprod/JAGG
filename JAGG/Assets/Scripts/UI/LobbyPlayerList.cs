@@ -64,7 +64,7 @@ public class LobbyPlayerList : MonoBehaviour
     {
         foreach(LobbyPlayer lp in _players)
         {
-            if(lp.isLocalPlayer)
+            //if(lp.isLocalPlayer)
                 lp.CmdUpdateAvatar(steamid);
         }
     }

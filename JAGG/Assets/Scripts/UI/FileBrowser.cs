@@ -19,16 +19,17 @@ public class FileBrowser : MonoBehaviour {
     public GameObject content;
     public Button returnButton;
     public GameObject fileEntryPrefab;
-    public LoadingEvent loadingCallback;
+    public LoadingEvent mapLoadingCallback;
+    public LoadingEvent objLoadingCallback;
 
     [HideInInspector]
     public string currentDirectory;
 
+    private bool mapContext = true;
+
     void Awake()
     {
-        currentDirectory = Path.Combine(Application.persistentDataPath, "Levels/local") + Path.DirectorySeparatorChar;
 
-        directoryText.text = "Local levels";
     }
 
 	// Use this for initialization
@@ -55,22 +56,52 @@ public class FileBrowser : MonoBehaviour {
         this.gameObject.SetActive(false);
     }
 
-    public void Show()
+    public void BrowseMap()
     {
+        currentDirectory = Path.Combine(Application.persistentDataPath, "Levels/local") + Path.DirectorySeparatorChar;
+        directoryText.text = "Local levels";
+
+        mapContext = true;
+
+        this.gameObject.SetActive(true);
+    }
+
+    public void BrowseObjects()
+    {
+        currentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + Path.DirectorySeparatorChar;
+        directoryText.text = "My Documents";
+
+        mapContext = false;
+
         this.gameObject.SetActive(true);
     }
 
     public void LoadObject(string path)
     {
-        if (loadingCallback != null)
+        if (mapContext)
         {
-            loadingCallback.Invoke(currentDirectory + path);
-            this.gameObject.SetActive(false);
+            if (mapLoadingCallback != null)
+            {
+                mapLoadingCallback.Invoke(currentDirectory + path);
+                this.gameObject.SetActive(false);
 
+            }
+            else
+            {
+                Debug.Log("You must set a callback for map loading function");
+            }
         }
         else
         {
-            Debug.Log("You must set a callback for loading function");
+            if(objLoadingCallback != null)
+            {
+                objLoadingCallback.Invoke(currentDirectory + path);
+                this.gameObject.SetActive(false);
+            }
+            else
+            {
+                Debug.Log("You must set a callback for obj loading function");
+            }
         }
     }
 
@@ -82,16 +113,19 @@ public class FileBrowser : MonoBehaviour {
     }
 
     public void ParentDirectory()
-    {/*
-        currentDirectory = currentDirectory.Remove(currentDirectory.Length - 1);
-        DirectoryInfo info = Directory.GetParent(currentDirectory);
-
-        if (info != null)
+    {
+        if (!mapContext)
         {
-            currentDirectory = info.FullName + Path.DirectorySeparatorChar;
-            directoryText.text = currentDirectory;
-            BrowseDirectory();
-        }*/
+            currentDirectory = currentDirectory.Remove(currentDirectory.Length - 1);
+            DirectoryInfo info = Directory.GetParent(currentDirectory);
+
+            if (info != null)
+            {
+                currentDirectory = info.FullName + Path.DirectorySeparatorChar;
+                directoryText.text = currentDirectory;
+                BrowseDirectory();
+            }
+        }
     }
 
     public void BrowseDirectory()
@@ -151,5 +185,10 @@ public class FileBrowser : MonoBehaviour {
                 fileEntry.GetComponent<Text>().text = Path.GetFileName(s);
             }
         }
+
+        //Reset scrollview position
+        Vector3 pos = content.transform.position;
+        pos.y = 0;
+        content.transform.position = pos;
     }
 }
