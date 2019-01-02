@@ -80,10 +80,18 @@ public class ExportLevel : MonoBehaviour {
                         {
                             //Copy .obj, .mtl, .png to obj/
                             string path = Path.GetDirectoryName(ObjImporter.GetObjPath(piece.id)) + Path.DirectorySeparatorChar;
-
-                            mapFile.AddFile(path + piece.id + ".obj", "obj");
-                            mapFile.AddFile(path + piece.id + ".mtl", "obj");
-                            mapFile.AddFile(path + piece.id + ".png", "obj");
+                            if (!mapFile.EntryFileNames.Contains("obj/" + piece.id + ".obj"))
+                            {
+                                mapFile.AddFile(path + piece.id + ".obj", "obj");
+                                if (File.Exists(path + piece.id + ".mtl"))
+                                {
+                                    mapFile.AddFile(path + piece.id + ".mtl", "obj");
+                                }
+                                if (File.Exists(path + piece.id + ".png"))
+                                {
+                                    mapFile.AddFile(path + piece.id + ".png", "obj");
+                                }
+                            }
                         }
                     }
                     /*
@@ -156,9 +164,19 @@ public class ExportLevel : MonoBehaviour {
                         //Copy .obj, .mtl, .png to obj/
                         string path = Path.GetDirectoryName(ObjImporter.GetObjPath(piece.id)) + Path.DirectorySeparatorChar;
 
-                        mapFile.AddFile(path + piece.id + ".obj", "obj");
-                        mapFile.AddFile(path + piece.id + ".mtl", "obj");
-                        mapFile.AddFile(path + piece.id + ".png", "obj");
+                        if (!mapFile.EntryFileNames.Contains("obj/"+piece.id + ".obj"))
+                        {
+                            mapFile.AddFile(path + piece.id + ".obj", "obj");
+
+                            if (File.Exists(path + piece.id + ".mtl"))
+                            {
+                                mapFile.AddFile(path + piece.id + ".mtl", "obj");
+                            }
+                            if (File.Exists(path + piece.id + ".png"))
+                            {
+                                mapFile.AddFile(path + piece.id + ".png", "obj");
+                            }
+                        }
                     }
                 }
 

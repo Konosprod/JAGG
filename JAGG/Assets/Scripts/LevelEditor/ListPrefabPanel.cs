@@ -13,6 +13,7 @@ public class ListPrefabPanel : MonoBehaviour {
     public Button OtherButton;
     public Button HoleButton;
     public Button SpecialsButton;
+    public Button ImportButton;
 
     [Header("Contents")]
     public GameObject listStraight;
@@ -20,6 +21,7 @@ public class ListPrefabPanel : MonoBehaviour {
     public GameObject listOther;
     public GameObject listHole;
     public GameObject listSpecials;
+    public GameObject listImport;
 
     [Header("Scroll Views")]
     public GameObject scrollViewStraight;
@@ -27,6 +29,7 @@ public class ListPrefabPanel : MonoBehaviour {
     public GameObject scrollViewOther;
     public GameObject scrollViewHole;
     public GameObject scrollViewSpecials;
+    public GameObject scrollViewImport;
 
 	// Use this for initialization
 	void Start () {
@@ -35,12 +38,14 @@ public class ListPrefabPanel : MonoBehaviour {
         OtherButton.onClick.RemoveAllListeners();
         HoleButton.onClick.RemoveAllListeners();
         SpecialsButton.onClick.RemoveAllListeners();
+        ImportButton.onClick.RemoveAllListeners();
 
         StraightButton.onClick.AddListener(ShowStraight);
         CornerButton.onClick.AddListener(ShowCorner);
         OtherButton.onClick.AddListener(ShowOther);
         HoleButton.onClick.AddListener(ShowHole);
         SpecialsButton.onClick.AddListener(ShowSpecials);
+        ImportButton.onClick.AddListener(ShowImport);
 	}
 	
 	// Update is called once per frame
@@ -54,6 +59,7 @@ public class ListPrefabPanel : MonoBehaviour {
         scrollViewCorner.SetActive(false);
         scrollViewOther.SetActive(false);
         scrollViewHole.SetActive(false);
+        scrollViewImport.SetActive(false);
         scrollViewSpecials.SetActive(false);
     }
 
@@ -63,6 +69,7 @@ public class ListPrefabPanel : MonoBehaviour {
         scrollViewCorner.SetActive(true);
         scrollViewOther.SetActive(false);
         scrollViewHole.SetActive(false);
+        scrollViewImport.SetActive(false);
         scrollViewSpecials.SetActive(false);
     }
 
@@ -72,6 +79,7 @@ public class ListPrefabPanel : MonoBehaviour {
         scrollViewCorner.SetActive(false);
         scrollViewOther.SetActive(true);
         scrollViewHole.SetActive(false);
+        scrollViewImport.SetActive(false);
         scrollViewSpecials.SetActive(false);
     }
 
@@ -81,6 +89,7 @@ public class ListPrefabPanel : MonoBehaviour {
         scrollViewCorner.SetActive(false);
         scrollViewOther.SetActive(false);
         scrollViewHole.SetActive(true);
+        scrollViewImport.SetActive(false);
         scrollViewSpecials.SetActive(false);
     }
 
@@ -90,7 +99,35 @@ public class ListPrefabPanel : MonoBehaviour {
         scrollViewCorner.SetActive(false);
         scrollViewOther.SetActive(false);
         scrollViewHole.SetActive(false);
+        scrollViewImport.SetActive(false);
         scrollViewSpecials.SetActive(true);
+    }
+
+    private void ShowImport()
+    {
+        scrollViewStraight.SetActive(false);
+        scrollViewCorner.SetActive(false);
+        scrollViewOther.SetActive(false);
+        scrollViewHole.SetActive(false);
+        scrollViewSpecials.SetActive(false);
+        scrollViewImport.SetActive(true);
+    }
+    
+    public void AddImportedPiece(GameObject piece)
+    {
+        GameObject previewImage = new GameObject(piece.name);
+
+        previewImage.AddComponent<RectTransform>();
+        previewImage.AddComponent<LayoutElement>();
+
+        Image pi_im = previewImage.AddComponent<Image>();
+        Texture2D texture = RuntimePreviewGenerator.GenerateModelPreview(piece.transform, 128, 128, true);
+
+        pi_im.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+        UIPieceHandler uiph = previewImage.AddComponent<UIPieceHandler>();
+        uiph.editorMan = editorManager;
+
+        previewImage.transform.SetParent(listImport.transform);
     }
 
     public void AddPiece(GameObject pref)

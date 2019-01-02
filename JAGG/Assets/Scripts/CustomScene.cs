@@ -16,7 +16,7 @@ public class CustomScene : MonoBehaviour {
             Directory.CreateDirectory(levelDirectory);
         }
 
-        levelLoader.LoadLevel(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile + ".map"));
+        levelLoader.LoadLevel(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile + ".map"), null);
     }
 
 	// Use this for initialization

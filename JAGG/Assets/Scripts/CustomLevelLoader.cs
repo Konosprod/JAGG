@@ -18,6 +18,7 @@ public class CustomLevelLoader : MonoBehaviour {
     public int mapid = 0;
 
     private List<GameObject> loadedPieces;
+    private EditorManager editorManager;
 
     private Dictionary<string, GameObject> cachePiece = new Dictionary<string, GameObject>();
 
@@ -27,10 +28,12 @@ public class CustomLevelLoader : MonoBehaviour {
  
     }
 
-    public void LoadLevel(string path)
+    public void LoadLevel(string path, EditorManager manager)
     {
         if (loadedPieces == null)
             loadedPieces = new List<GameObject>();
+
+        editorManager = manager;
 
         //ZipFile mapFile = new ZipFile(Path.Combine(levelDirectory, LobbyManager._instance.customMapFile + ".map"));
         ZipFile mapFile = new ZipFile(path);
@@ -135,8 +138,13 @@ public class CustomLevelLoader : MonoBehaviour {
 
                 if (objectToLoad == null)
                 {
-                    Debug.Log("Unable to load : " + jPiece["id"]);
-                    //objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
+                    //Debug.Log("Unable to load : " + jPiece["id"]);
+                    objectToLoad = ObjImporter.LoadGameObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
+
+                    if(manager != null)
+                    {
+                        editorManager.LoadCustomObject(Path.Combine(tmpPath, "obj" + Path.DirectorySeparatorChar + jPiece["id"] + ".obj"));
+                    }
                 }
 
                 GameObject o = Instantiate(objectToLoad, hole.transform);

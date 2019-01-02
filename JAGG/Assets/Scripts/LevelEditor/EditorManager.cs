@@ -2834,7 +2834,7 @@ public class EditorManager : MonoBehaviour
     public void LoadLevel(string path)
     {
         CleanHoles();
-        loader.LoadLevel(path);
+        loader.LoadLevel(path, this);
 
         for (int i = 0; i < maxHoles; i++)
         {
@@ -3012,8 +3012,15 @@ public class EditorManager : MonoBehaviour
     public void LoadCustomObject(string path)
     {
         GameObject toInstantiate = ObjImporter.LoadGameObject(path);
+        toInstantiate.SetActive(true);
 
-        Instantiate(toInstantiate, holesObject.transform.Find("Hole " + (currentHole + 1).ToString()).transform).SetActive(true);
+        if (!prefabs.ContainsKey(toInstantiate.name))
+        {
+            prefabs.Add(toInstantiate.name, toInstantiate);
+            listPrefabPanel.AddImportedPiece(toInstantiate);
+        }
+        //toInstantiate.SetActive(false);
+        //Instantiate(toInstantiate, holesObject.transform.Find("Hole " + (currentHole + 1).ToString()).transform).SetActive(true);
     }
 
     public void DisableGizmos()
