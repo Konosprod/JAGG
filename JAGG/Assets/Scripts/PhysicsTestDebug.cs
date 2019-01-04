@@ -13,7 +13,14 @@ public class PhysicsTestDebug : MonoBehaviour {
     public float forceOfShot;
     public float timerRestart; // In seconds
 
-    private float currentTimer;
+
+    [Header("Displays")]
+    public float currentTimer;
+    public float velocityMagnitude;
+    public Vector3 velocity;
+
+
+
     private Vector3 startPos;
     private bool flagEnableTrail = false;
 
@@ -39,6 +46,9 @@ public class PhysicsTestDebug : MonoBehaviour {
             flagEnableTrail = false;
         }
 
+        velocity = rb.velocity;
+        velocityMagnitude = rb.velocity.magnitude;
+
         if (currentTimer == timerRestart)
         {
             rb.AddForce(shootDirection.normalized * forceOfShot);
@@ -51,6 +61,7 @@ public class PhysicsTestDebug : MonoBehaviour {
             em.enabled = false;
             rb.velocity = Vector3.zero;
             transform.position = startPos;
+            //Debug.Log("Startpos : " + startPos + ", transform.position : " + transform.position);
             currentTimer = timerRestart;
             flagEnableTrail = true;
         }
@@ -74,8 +85,8 @@ public class PhysicsTestDebug : MonoBehaviour {
             }
             else
             {
-                Debug.Log(collision.gameObject.name);
-                Debug.DrawRay(point, normal, Color.cyan, 1f);
+                //Debug.Log(collision.gameObject.name);
+                //Debug.DrawRay(point, normal, Color.cyan, 1f);
             }
         }
     }
