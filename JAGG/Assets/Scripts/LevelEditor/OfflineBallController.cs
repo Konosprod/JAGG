@@ -55,8 +55,10 @@ public class OfflineBallController : MonoBehaviour {
 
     void OnDisable()
     {
-        shotsText.gameObject.SetActive(false);
-        timeText.gameObject.SetActive(false);
+        if(shotsText.gameObject != null)
+            shotsText.gameObject.SetActive(false);
+        if (timeText.gameObject != null)
+            timeText.gameObject.SetActive(false);
     }
 
     // Update is called once per frame

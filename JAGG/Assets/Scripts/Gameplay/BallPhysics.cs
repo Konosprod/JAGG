@@ -14,10 +14,16 @@ public class BallPhysics : MonoBehaviour
 
     private bool stable = false; // The ball is on the floor, not on a slope / mid-air
     private Vector3 currentFloorNormal = Vector3.up;
-    
+    // Stop the ball at low speeds
+    private const float stopSpeedThreshold = 0.1f;
+    private const float unevenGroundstopSpeedThreshold = 0.01f;
+
     // Hack for the trail on high-speed wall collisions
     private bool flagFixPos = false;
     private Vector3 fixedPos;
+
+
+    private bool isBouncingOnFloor = false;
 
 
     // Use this for initialization
@@ -30,9 +36,7 @@ public class BallPhysics : MonoBehaviour
 
     void Update()
     {
-
-
-        if(flagFixPos)
+        if (flagFixPos)
         {
             transform.position = fixedPos;
             flagFixPos = false;
@@ -54,14 +58,21 @@ public class BallPhysics : MonoBehaviour
 
             // New velocity direction
             Vector3 res = dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir);
+            if (rayWallHit.collider.gameObject.layer == layerFloor)
+            {
+                res = Vector3.Lerp(dir, res, 0.55f); // Random as fuck but works
+            }
 
             // We also have to adjust the position of ball
             // At low speeds the position adjustment looks really weird/clunky so we don't do it
             if (rb.velocity.magnitude > 2f)
+            {
+                flagFixPos = true;
                 fixedPos = rayWallHit.point + wallDir * 0.055f;
+            }
             else
                 fixedPos = transform.position;
-            
+
 
             // We must check if we aren't in a corner and risk going into a wall
             Collider otherWallCol;
@@ -71,9 +82,16 @@ public class BallPhysics : MonoBehaviour
             while (otherWallCol != null && _pasDeBoucleInfiniPourAlex < Random.Range(3, 6))
             {
                 res = res - 2f * (Vector3.Dot(res, otherWallHit.normal) * otherWallHit.normal);
+                if (otherWallCol.gameObject.layer == layerFloor)
+                {
+                    res = Vector3.ProjectOnPlane(res, otherWallHit.normal);
+                }
+
                 //transform.position = otherWallHit.point + otherWallHit.normal * 0.055f;
                 if (rb.velocity.magnitude > 2f)
+                {
                     fixedPos = otherWallHit.point + otherWallHit.normal * 0.055f;
+                }
 
                 otherWallHit = CheckMovementWallCollision(fixedPos, res);
                 otherWallCol = otherWallHit.collider;
@@ -81,97 +99,133 @@ public class BallPhysics : MonoBehaviour
                 _pasDeBoucleInfiniPourAlex++;
             }
 
-            flagFixPos = true;
-
             rb.velocity = res;
-        }
-        else
-        {
-            // Check on the left and right of the ball
-
-            // Right first because why not
-            Vector3 start = transform.position + rb.velocity * Time.fixedDeltaTime;
-            Vector3 end = start + transform.right * 0.055f;
-
-            //Debug.DrawRay(start, end - start);
-
-            Physics.Linecast(start, end, out rayWallHit, (1 << layerWall));
-            if (rayWallHit.collider != null)
-            {
-                //Debug.Log("A wall : " + rayWallHit.collider.gameObject.name);
-
-                // We calculate the perfect bounce angle with the wall
-                Vector3 dir = rb.velocity;
-                Vector3 wallDir = rayWallHit.normal;
-
-                // New velocity direction
-                Vector3 res = dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir);
-                rb.velocity = res;
-            }
-            else
-            {
-                // Left check
-                start = transform.position + rb.velocity * Time.fixedDeltaTime;
-                end = start - transform.right * 0.055f;
-
-                //Debug.DrawRay(start, end - start);
-
-                Physics.Linecast(start, end, out rayWallHit, (1 << layerWall));
-                if (rayWallHit.collider != null)
-                {
-                    //Debug.Log("A wall : " + rayWallHit.collider.gameObject.name);
-
-                    // We calculate the perfect bounce angle with the wall
-                    Vector3 dir = rb.velocity;
-                    Vector3 wallDir = rayWallHit.normal;
-
-                    // New velocity direction
-                    Vector3 res = dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir);
-                    rb.velocity = res;
-                }
-            }
-
         }
 
 
         // Stay on the floor
         // Apply gravity when needed
         Vector3 position = transform.position;
-        float length = 0.051f; // 0.05f is the ball radius + 0.001f because I'm an engineer
-        //Debug.DrawRay(position, -currentFloorNormal * length, Color.cyan, 2f);
-        RaycastHit test;
-        bool grounded = Physics.Linecast(position, position + (-currentFloorNormal * length), out test, 1 << layerFloor);
-        //Debug.DrawRay(position, -currentFloorNormal * length, Color.cyan);
+        position += new Vector3(0f, 0.001f, 0f);
 
+        //Debug.DrawRay(position, -currentFloorNormal * length, Color.cyan, 2f);
+
+        bool grounded = false;
         stable = false;
 
-        // Stop the ball at low speeds
-        float stopSpeedThreshold = 0.1f;
-        float unevenGroundstopSpeedThreshold = 0.01f;
+        RaycastHit[] rayHits = Physics.SphereCastAll(position, 0.05f, -currentFloorNormal, 0.002f, 1 << layerFloor | 1 << layerWall);
 
-        if (grounded)
+        Vector3 meanNormal = Vector3.zero;
+        Vector3 meanPoint = Vector3.zero;
+
+        if (rayHits.Length >= 1) // Ball is in contact with something
         {
-            stable = test.normal == Vector3.up;
-            currentFloorNormal = test.normal;
-            float distToGround = (0.05f - Vector3.Distance(transform.position, test.point));
-            if (distToGround > 0.001f)
+            //Debug.Log("Number of objects hit with SphereCastAll : " + rayHits.Length);
+
+            List<Vector3> normals = new List<Vector3>();
+            List<Vector3> points = new List<Vector3>();
+
+            bool isValidCast = false;
+
+            //Debug.Log("Current position : " + position);
+            foreach (RaycastHit hit in rayHits) // Check if the collision are obstructed or not
             {
-                //Debug.Log("Distance to the ground : " + distToGround + ", pos.y=" + transform.position.y + ", point.y=" + test.point.y);
-                //rb.AddForce(test.normal * rb.velocity.sqrMagnitude); // Find better solution
-                transform.position += test.normal * distToGround; // better solution
+                if (hit.point != Vector3.zero)
+                {
+                    //Debug.Log("Object : " + hit.collider.name + ", point : x=" + hit.point.x + ", y=" + hit.point.y + ", z=" + hit.point.z);
+                    RaycastHit check;
+                    //Debug.DrawRay(position, (hit.point - position), Color.red, 1f);
+                    if (Physics.Raycast(position, hit.point - position, out check, Mathf.Infinity, 1 << layerFloor | 1 << layerWall))
+                    {
+                        //Debug.Log("TOAST : " + check.collider.name);
+                        if (hit.collider == check.collider)
+                        {
+                            normals.Add(hit.normal);
+                            points.Add(hit.point);
+                        }
+                    }
+                }
             }
 
-            // Check if we should stop when grounded
-            if (rb.velocity.magnitude < (stable ? stopSpeedThreshold : unevenGroundstopSpeedThreshold))
-                rb.velocity = Vector3.zero;
+
+
+            if (normals.Count > 1)
+            {
+                // We are sitting on multiple colliders at once, we want to find the average normal in order to know if we are on even ground or not
+                foreach (Vector3 norm in normals)
+                    meanNormal += norm;
+                meanNormal /= normals.Count;
+
+                foreach (Vector3 p in points)
+                    meanPoint += p;
+                meanPoint /= points.Count;
+
+                isValidCast = true;
+            }
+            else if (normals.Count == 1)
+            {
+                // Only one collider is really in the path of the ball, the others are obstructed by this one
+                meanNormal = normals[0];
+                meanPoint = points[0];
+
+                isValidCast = true;
+            }
+            else
+            {
+                // Bon le sphereCastAll à trouver des trucs mais ils sont apparemment tous obstrués, unlucky (on est posé pile entre 2 colliders en gros)
+                // On fait le test legacy classique qui ne peut pas échouer normalement, ce qui donnera néanmoins pas la même précision pour la collision à cette frame de la physique
+
+                RaycastHit test;
+                bool lineTest = Physics.Linecast(position, position + (-currentFloorNormal * 0.052f), out test, 1 << layerFloor | 1 << layerWall);
+                if (lineTest)
+                {
+                    meanNormal = test.normal;
+                    meanPoint = test.point;
+                    isValidCast = true;
+                }
+                else
+                    Debug.Log("Annoying"); // En vrai c'est pas si grave
+
+                //Debug.Break();
+            }
+
+
+            if (isValidCast)
+            {
+                grounded = true;
+                stable = 1f - Vector3.Dot(meanNormal, Vector3.up) < 0.01f; // TEST VALUE
+
+                /*if (!stable)
+                {
+                    Debug.Log("MeanNormal : x= " + meanNormal.x + ", y= " + meanNormal.y + ", z= " + meanNormal.z);
+                    Debug.DrawRay(position, meanNormal, Color.cyan, 1f);
+                    Debug.Log("Distance between MeanNormal and Vector3.up : " + Vector3.Distance(meanNormal, Vector3.up));
+                    Debug.Log("Dot product between MeanNormal and Vector3.up : " + Vector3.Dot(meanNormal, Vector3.up));
+                    Debug.Break();
+                }*/
+
+                currentFloorNormal = meanNormal;
+                float distToGround = 0.05f - Vector3.Distance(transform.position, meanPoint);
+                if (distToGround > 0.001f)
+                {
+                    //Debug.Log("Distance to the ground : " + distToGround + ", pos.y=" + transform.position.y + ", point.y=" + test.point.y);
+                    //rb.AddForce(test.normal * rb.velocity.sqrMagnitude); // Find better solution
+                    transform.position += meanNormal * distToGround; // better solution
+                }
+
+                // Check if we should stop when grounded
+                if (rb.velocity.magnitude < (stable ? stopSpeedThreshold : unevenGroundstopSpeedThreshold))
+                    rb.velocity = Vector3.zero;
+            }
         }
-        else
+
+        if (!grounded)
         {
             // We are falling, we must check if we are not going inside a floor
             currentFloorNormal = Vector3.up;
 
             RaycastHit floorHit;
-            bool floorCheck = Physics.SphereCast(position, 0.05f, rb.velocity, out floorHit, 0.01f * Mathf.Max(1f,rb.velocity.magnitude), (1 << layerFloor));
+            bool floorCheck = Physics.SphereCast(position, 0.05f, rb.velocity, out floorHit, 0.02f * Mathf.Max(1f, rb.velocity.magnitude), 1 << layerFloor);
             //Debug.DrawRay(position, rb.velocity * 0.01f * Mathf.Max(1f, rb.velocity.magnitude), Color.red);
 
             if (floorCheck)
@@ -186,18 +240,23 @@ public class BallPhysics : MonoBehaviour
                 Vector3 res = dir - 2f * (Vector3.Dot(dir, currentFloorNormal) * currentFloorNormal);
                 res = Vector3.Lerp(dir, res, 0.7f); // Random as fuck but works
 
+                flagFixPos = true;
+                fixedPos = floorHit.point + currentFloorNormal * 0.05f;
+
+                isBouncingOnFloor = true;
+
                 rb.velocity = res;
             }
             else
             {
                 // Double-check with overlapsphere
                 Collider[] cols = Physics.OverlapSphere(position, 0.05f, (1 << layerFloor));
-                if(cols.Length > 0)
+                if (cols.Length > 0)
                 {
                     //Debug.Log("We are overlapped with " + cols.Length + " colliders, the first is " + cols[0].gameObject.name);
                     RaycastHit lineHit;
-                    bool line = Physics.Linecast(transform.position, cols[0].transform.position, out lineHit, (1<<layerFloor));
-                    if(line)
+                    bool line = Physics.Linecast(transform.position, cols[0].transform.position, out lineHit, (1 << layerFloor));
+                    if (line)
                     {
                         float distToOverlap = (0.05f - Vector3.Distance(transform.position, lineHit.point));
                         //Debug.Log("distToOverLap = " + distToOverlap);
@@ -210,7 +269,7 @@ public class BallPhysics : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError("Fuck this : " + cols[0].gameObject.name); // Very unlikely to be overlapping an object but unable to find it with a raycast
+                        Debug.LogError("Fuck this : " + cols[0].gameObject.name); // Very unlikely (or not lul) to be overlapping an object but unable to find it with a raycast
                         Debug.DrawRay(transform.position, Vector3.up * 5f, Color.yellow, 5f);
                         //Debug.Break();
                     }
@@ -227,12 +286,12 @@ public class BallPhysics : MonoBehaviour
             {
                 rb.AddForce(grav);
             }
-            else
+            else if (!isBouncingOnFloor)
             {
                 // Worst case scenario, we are on a slope
                 // But everything will be daijobu desu
                 Vector3 vel = rb.velocity;
-                Vector3 normal = test.normal;
+                Vector3 normal = meanNormal;
                 Vector3 project = Vector3.ProjectOnPlane(vel, normal).normalized;
                 //Debug.DrawRay(transform.position, project * 10f, Color.red, 10f);
                 //Debug.Log("Velocity : " + vel + ", normal : " + normal + ", cross : " + project);
@@ -245,22 +304,25 @@ public class BallPhysics : MonoBehaviour
                 // Apply gravity 
                 // We project the gravity along the slope
                 // Using the dot product we get a value that is bigger the higher the angle of the slope is
-                if(normal.y >= 0f)
+                if (normal.y >= 0f)
                 {
                     Vector3 projectGrav = Vector3.ProjectOnPlane(grav, normal).normalized;
                     float dotGrav = Vector3.Dot(grav.normalized, projectGrav);
                     //Debug.Log("Dot grav : " + dotGrav + ", normal : " + normal + ", projectGrav : " + projectGrav);
                     rb.AddForce(projectGrav * grav.magnitude * dotGrav);
                 }
-                else
+                else // We are upside-down so just gravity
                 {
                     rb.AddForce(grav);
                 }
             }
+            else
+                isBouncingOnFloor = false;
         }
         else
         {
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            if (rb.velocity.y < 0.2f)
+                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         }
 
 
@@ -285,13 +347,13 @@ public class BallPhysics : MonoBehaviour
 
         Vector3 start = pos;
         Vector3 end = start + vel * Time.fixedDeltaTime;
-        
-        Physics.SphereCast(start, 0.05f, end - start, out rayHit, (end - start).magnitude, (1 << layerWall));
+
+        Physics.SphereCast(start, 0.05f, end - start, out rayHit, (end - start).magnitude, (1 << layerWall | 1 << layerFloor));
 
         //Debug.Log("Hit : " + rayHit.collider.gameObject.name + " in : " + transform.parent.gameObject.name);
         //Debug.DrawRay(start, end - start, Color.red, 0.5f);
         //Debug.Break();
-        
+
         return rayHit;
     }
 }
