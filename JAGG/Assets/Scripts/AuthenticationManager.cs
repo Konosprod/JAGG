@@ -88,7 +88,11 @@ public class AuthenticationManager : MonoBehaviour {
             }
             else
             {
+                loadingOverlay.StopAnimation();
+                loadingOverlay.gameObject.SetActive(false);
 
+                if (callback != null)
+                    callback.Invoke();
             }
         }
     }
