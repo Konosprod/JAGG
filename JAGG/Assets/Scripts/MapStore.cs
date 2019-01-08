@@ -31,6 +31,7 @@ public class MapStore : MonoBehaviour
     public InterractableScrollRect tagScrollRect;
     public GameObject listTag;
     public GameObject tagPrefab;
+    public InputField inputTag;
 
     [Header("Search")]
     public InputField searchInput;
@@ -51,6 +52,10 @@ public class MapStore : MonoBehaviour
     private string lastSearch = "";
     private bool loading = false;
     private bool searching = false;
+    private bool myMaps = false;
+
+    [HideInInspector]
+    public StoreEntry selectedMapEntry;
 
     [HideInInspector]
     public bool isDownloading = false;
@@ -77,12 +82,37 @@ public class MapStore : MonoBehaviour
 
     }
 
+    public void FilterMyMaps()
+    {
+        if (!myMaps)
+        {
+            myMaps = true;
+            searching = true;
+            CleanList();
+            offsetSearching = 0;
+            StartCoroutine(SearchMaps());
+        }
+        else
+        {
+            myMaps = false;
+            searching = false;
+            CleanList();
+            offsetSearching = 0;
+            StartCoroutine(GetNextMaps());
+        }
+    }
+
     void FixedUpdate()
     {
         if (scrollRect.verticalNormalizedPosition <= 0.1  && scrollRect.verticalNormalizedPosition != 0 && !loading && lastResultCount != 0)
         {
             loading = true;
-            if (searching)
+
+            if(myMaps)
+            {
+                StartCoroutine(SearchMaps());
+            }
+            else if (searching)
             {
                 Search(searchInput.text);
             }
@@ -143,6 +173,7 @@ public class MapStore : MonoBehaviour
                 storeEntry.author = n["author"]["name"];
                 storeEntry.downloadUrl = n["path"];
                 storeEntry.thumbUrl = ConfigHandler.BaseUrl + "/thumbs/" + n["id"] + ".png";
+                storeEntry.mapId = n["id"];
                 JSONArray tags = n["tags"].AsArray;
 
                 foreach(JSONNode tag in tags.Values)
@@ -169,17 +200,38 @@ public class MapStore : MonoBehaviour
         offset += pageLength;
     }
 
-    public void LoadInfo(List<string> tags, string thumbUrl)
+    public void AddTag()
+    {
+        if (inputTag.text != "")
+        {
+            selectedMapEntry.tags.Add(inputTag.text);
+
+            StartCoroutine(AddTagServer());
+
+            CleanTagList();
+
+            UpdateTagList();
+        }
+    }
+
+    public void LoadInfo(string thumbUrl)
     {
         StartCoroutine(LoadMapPreview(thumbUrl));
         CleanTagList();
-        foreach(string tag in tags)
+        UpdateTagList();
+    }
+
+    public void UpdateTagList()
+    {
+        foreach (string tag in selectedMapEntry.tags)
         {
             GameObject tagEntry = Instantiate(tagPrefab.gameObject, listTag.transform);
             TagEntry tagEntryScript = tagEntry.GetComponent<TagEntry>();
 
             tagEntryScript.mapStore = this;
             tagEntryScript.tagName = tag;
+            if (myMaps)
+                tagEntryScript.mine = true;
         }
     }
 
@@ -258,6 +310,7 @@ public class MapStore : MonoBehaviour
 
             offset = 0;
 
+            myMaps = false;
             searching = true;
 
             StartCoroutine(SearchMaps());
@@ -297,24 +350,35 @@ public class MapStore : MonoBehaviour
         string terms = searchInput.text;
         string url = "";
 
-        if (searchTypeDropdown.value == 0)
+        if (!myMaps)
+        {
+            if (searchTypeDropdown.value == 0)
+            {
+                url = ConfigHandler.ApiUrl + "/maps/search/";
+            }
+            else if (searchTypeDropdown.value == 1)
+            {
+                url = ConfigHandler.ApiUrl + "/tags/";
+            }
+            else if (searchTypeDropdown.value == 2)
+            {
+                url = ConfigHandler.ApiUrl + "/authors/";
+            }
+
+            url += terms;
+
+            url += "?orderby=" + orderbyTerms[orderbyDropdown.value];
+            url += "&sort=" + sortTerms[sortDropdown.value];
+        }
+        else
         {
             url = ConfigHandler.ApiUrl + "/maps/search/";
-        }
-        else if(searchTypeDropdown.value == 1)
-        {
-            url = ConfigHandler.ApiUrl + "/api/tags/";
-        }
-        else if(searchTypeDropdown.value == 2)
-        {
-            url = ConfigHandler.ApiUrl + "/api/authors/";
+            url += "bysid?steamid=" + SteamUser.GetSteamID().m_SteamID.ToString();
         }
 
-        url += terms;
+        url += "&offset=" + offsetSearching.ToString();
 
-        url += "?offset=" + offsetSearching.ToString();
-        url += "&orderby=" + orderbyTerms[orderbyDropdown.value];
-        url += "&sort=" + sortTerms[sortDropdown.value];
+        Debug.Log(url);
 
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
@@ -340,6 +404,7 @@ public class MapStore : MonoBehaviour
                 storeEntry.author = n["author"]["name"];
                 storeEntry.downloadUrl = n["path"];
                 storeEntry.thumbUrl = ConfigHandler.BaseUrl + "/thumbs/" + n["id"] + ".png";
+                storeEntry.mapId = n["id"];
                 JSONArray tags = n["tags"].AsArray;
 
                 foreach (JSONNode tag in tags.Values)
@@ -365,6 +430,52 @@ public class MapStore : MonoBehaviour
         scrollRect.canInterract = true;
         loading = false;
         offsetSearching += pageLength;
+    }
+
+    public void DeleteTag(string tagName)
+    {
+        selectedMapEntry.tags.Remove(tagName);
+        CleanTagList();
+        UpdateTagList();
+        StartCoroutine(DeleteTagServer(tagName));
+    }
+
+    IEnumerator DeleteTagServer(string tagName)
+    {
+        string url = ConfigHandler.ApiUrl + "/tags/" + tagName + "/" + selectedMapEntry.mapId;
+
+        Debug.Log(url);
+
+        UnityWebRequest www = UnityWebRequest.Delete(url);
+        www.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            Debug.Log(www.responseCode);
+            Debug.Log(www.downloadHandler.text);
+        }
+    }
+
+    IEnumerator AddTagServer()
+    {
+        string url = ConfigHandler.ApiUrl + "/tags/" + inputTag.text + "/" + selectedMapEntry.mapId;
+
+        Debug.Log(url);
+
+        UnityWebRequest www = UnityWebRequest.Post(url, "");
+        www.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            Debug.Log(www.responseCode);
+            Debug.Log(www.downloadHandler.text);
+        }
     }
 
     private void CleanList()

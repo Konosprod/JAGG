@@ -22,6 +22,8 @@ public class StoreEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
     [HideInInspector]
     public string thumbUrl;
     [HideInInspector]
+    public int mapId;
+    [HideInInspector]
     public MapStore mapStore;
 
     public EventTrigger eventTrigger;
@@ -40,10 +42,12 @@ public class StoreEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
     {
         if(eventData.clickCount == 1)
         {
-            mapStore.LoadInfo(tags, thumbUrl);
+            mapStore.selectedMapEntry = this;
+            mapStore.LoadInfo(thumbUrl);
         }
         if (eventData.clickCount == 2)
         {
+            mapStore.selectedMapEntry = this;
             mapStore.StartDownload(downloadUrl);
         }
     }

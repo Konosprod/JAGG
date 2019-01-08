@@ -9,6 +9,7 @@ public class TagEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
 
     public Image backgroundImage;
     public Text tagEntry;
+    public Button buttonDelete;
 
     [HideInInspector]
     public string tagName;
@@ -20,10 +21,19 @@ public class TagEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     public Color highlighted;
     public Color nonHighlighted;
 
+    //Is the tag set by the author
+    public bool mine = false;
+
     // Use this for initialization
     void Start()
     {
         tagEntry.text = tagName;
+
+        if (mine)
+            buttonDelete.gameObject.SetActive(true);
+
+        buttonDelete.onClick.RemoveAllListeners();
+        buttonDelete.onClick.AddListener(DeleteTag);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -50,5 +60,10 @@ public class TagEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     public void OnPointerEnter(PointerEventData eventData)
     {
         backgroundImage.color = highlighted;
+    }
+
+    public void DeleteTag()
+    {
+        mapStore.DeleteTag(tagName);
     }
 }
