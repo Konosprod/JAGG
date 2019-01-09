@@ -16,7 +16,6 @@ public class PanelExport : MonoBehaviour {
     [Header("UI")]
     public Canvas canvasUi;
     public Image imagePreview;
-    public InputField tagsInput;
     public InputField nameInput;
     public Button saveLocalButton;
     public Button uploadButton;
@@ -90,8 +89,6 @@ public class PanelExport : MonoBehaviour {
         if(EditorManager.isModified)
         {
             // If the level was modified you need to validate it before it can be uploaded
-            Debug.Log("Input tags : " + tagsInput.text);
-            editorManager.testMode.tagsText = tagsInput.text;
             panelValidationStart.SetActive(true);
             this.gameObject.SetActive(false);
             editorManager.escapeMenu.gameObject.SetActive(false);
@@ -111,7 +108,6 @@ public class PanelExport : MonoBehaviour {
         if (binary != null)
         {
             ms = new MemoryStream(binary);
-            Debug.Log("Tags text : " + editorManager.testMode.tagsText);
             StartCoroutine(Upload());
         }
         else
@@ -157,10 +153,7 @@ public class PanelExport : MonoBehaviour {
 
         data.AddBinaryData("map", ms.ToArray(), filename);
         data.AddBinaryData("thumb", imagePreview.sprite.texture.EncodeToJPG());
-        if(editorManager.testMode.tagsText != "")
-            data.AddField("tags", editorManager.testMode.tagsText);
-        else if(tagsInput.text != "")
-            data.AddField("tags", tagsInput.text);
+
         data.AddField("steamid", SteamUser.GetSteamID().m_SteamID.ToString());
         data.AddField("name", SteamFriends.GetPersonaName());
 

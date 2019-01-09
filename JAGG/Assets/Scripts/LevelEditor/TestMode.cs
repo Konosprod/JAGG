@@ -43,8 +43,6 @@ public class TestMode : MonoBehaviour {
     private Vector3 saveCameraPos = Vector3.zero;
     private OfflineBallController ballController;
 
-    public string tagsText = "";
-
     [HideInInspector]
     public int[] validationShots = new int[18];
     [HideInInspector]
