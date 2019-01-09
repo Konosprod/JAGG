@@ -10,6 +10,7 @@ public class StoreEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
     public Image backgroundImage;
     public Text mapNameEntry;
     public Text authorEntry;
+    public Button deleteButton;
 
     [HideInInspector]
     public string mapName;
@@ -31,11 +32,20 @@ public class StoreEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
     public Color highlighted;
     public Color nonHighlighted;
 
+    public bool mine = false;
+
     // Use this for initialization
     void Start()
     {
         mapNameEntry.text = mapName;
         authorEntry.text = author;
+
+        if(mine)
+        {
+            deleteButton.gameObject.SetActive(true);
+            deleteButton.onClick.RemoveAllListeners();
+            deleteButton.onClick.AddListener(DeleteMap);
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -66,5 +76,10 @@ public class StoreEntry : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
     public void OnPointerEnter(PointerEventData eventData)
     {
         backgroundImage.color = highlighted;
+    }
+
+    public void DeleteMap()
+    {
+        mapStore.DeleteMap(mapId);
     }
 }

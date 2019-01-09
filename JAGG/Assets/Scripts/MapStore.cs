@@ -182,6 +182,9 @@ public class MapStore : MonoBehaviour
                 }
 
                 storeEntry.mapStore = this;
+
+                if (Convert.ToUInt64(n["author"]["steamid"].Value) == SteamUser.GetSteamID().m_SteamID)
+                    storeEntry.mine = true;
             }
 
             lastResultCount = node.Count;
@@ -212,6 +215,21 @@ public class MapStore : MonoBehaviour
 
             UpdateTagList();
         }
+    }
+
+    public void DeleteMap(int mapId)
+    {
+        GameObject toDelete = null;
+        for(int i = 0; i < listMap.transform.childCount; i++)
+        {
+            GameObject go = listMap.transform.GetChild(i).gameObject;
+
+            if (go.GetComponent<StoreEntry>().mapId == mapId)
+                toDelete = go;
+        }
+
+        StartCoroutine(DeleteMapServer(mapId));
+        Destroy(toDelete);
     }
 
     public void LoadInfo(string thumbUrl)
@@ -414,6 +432,9 @@ public class MapStore : MonoBehaviour
 
 
                 storeEntry.mapStore = this;
+
+                if (Convert.ToUInt64(n["author"]["steamid"].Value) == SteamUser.GetSteamID().m_SteamID)
+                    storeEntry.mine = true;
             }
 
             lastResultCount = node.Count;
@@ -466,6 +487,25 @@ public class MapStore : MonoBehaviour
         Debug.Log(url);
 
         UnityWebRequest www = UnityWebRequest.Post(url, "");
+        www.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            Debug.Log(www.responseCode);
+            Debug.Log(www.downloadHandler.text);
+        }
+    }
+
+    IEnumerator DeleteMapServer(int mapid)
+    {
+        string url = ConfigHandler.ApiUrl + "/maps/" + mapid.ToString();
+
+        Debug.Log(url);
+
+        UnityWebRequest www = UnityWebRequest.Delete(url);
         www.SetRequestHeader("Cookie", authenticationManager.sessionCookie);
 
         yield return www.SendWebRequest();
