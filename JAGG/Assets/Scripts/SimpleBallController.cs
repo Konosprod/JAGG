@@ -40,10 +40,15 @@ public class SimpleBallController : MonoBehaviour
     private Vector3 initialPos;
 
 
+    private ReplayObject replay;
+    public bool canShoot = true;
+
+
     // Use this for initialization
     void Start()
     {
         initialPos = transform.position;
+        replay = gameObject.AddComponent<ReplayObject>();
     }
 
     /*void OnEnable()
@@ -73,7 +78,7 @@ public class SimpleBallController : MonoBehaviour
 
         isMoving = rb.velocity.magnitude >= 0.001f;
 
-        if (!isMoving)
+        if (!isMoving && canShoot)
         {
             lastPos = transform.position;
 
@@ -94,6 +99,9 @@ public class SimpleBallController : MonoBehaviour
                     rb.AddForce(dir * Mathf.Pow(slider.value, 1.4f) * 2f);
                     isShooting = false;
                     isMoving = true;
+
+                    replay.AddInput(dir, slider.value, transform.position);
+
                     ResetSlider();
                 }
                 else
@@ -116,6 +124,9 @@ public class SimpleBallController : MonoBehaviour
                 em.enabled = false;
                 rb.velocity = Vector3.zero;
                 transform.position = lastPos;
+
+                replay.AddInput(Vector3.zero, -2f, lastPos);
+
                 flagEnableTrail = true;
             }
         }
@@ -131,7 +142,7 @@ public class SimpleBallController : MonoBehaviour
         {
             if (isOOB)
             {
-                Debug.Log("OOB, time left before reset : " + oobActualResetTimer);
+                //Debug.Log("OOB, time left before reset : " + oobActualResetTimer);
                 oobActualResetTimer -= Time.deltaTime;
                 if (oobActualResetTimer < 0f)
                 {
@@ -140,6 +151,9 @@ public class SimpleBallController : MonoBehaviour
                     em.enabled = false;
                     rb.velocity = Vector3.zero;
                     transform.position = lastPos;
+
+                    replay.AddInput(Vector3.zero, -2f, lastPos);
+
                     flagEnableTrail = true;
                 }
             }
@@ -163,6 +177,9 @@ public class SimpleBallController : MonoBehaviour
         {
             /*int saveShots = shots;
             float saveTimer = timer;*/
+            canShoot = false;
+            replay.AddInput(Vector3.zero, -1f, transform.position);
+            ReplayManager._instance.StartReplay();
             ResetTest();
         }
     }

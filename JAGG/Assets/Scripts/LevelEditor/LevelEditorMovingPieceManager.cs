@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelEditorMovingPieceManager : MonoBehaviour
 {
@@ -23,6 +24,11 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
 
         rotatePieces = new List<RotatePiece>();
         movingPieces = new List<MovingPiece>();
+        if (SceneManager.GetSceneAt(0).name == "ReplayTest")
+        {
+            GrabAllRotatePieces();
+            GrabAllMovingPieces();
+        }
     }
 
     public void GrabAllRotatePieces()

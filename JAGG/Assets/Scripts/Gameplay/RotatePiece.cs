@@ -166,7 +166,7 @@ public class RotatePiece : CustomScript
         flagStopRotation = f;
         if (coroutine != null)
         {
-            if (SceneManager.GetSceneAt(0).name == "LevelEditor")
+            if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);
@@ -181,7 +181,7 @@ public class RotatePiece : CustomScript
     {
         if (coroutine != null)
         {
-            if (SceneManager.GetSceneAt(0).name == "LevelEditor")
+            if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);

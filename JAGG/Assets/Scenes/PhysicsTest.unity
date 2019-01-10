@@ -709,16 +709,6 @@ PrefabInstance:
       propertyPath: shootDirection.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 135971665953161958, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: m_IsTrigger
@@ -730,6 +720,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 78f0bfaa66a42b8478b019b99ebfa46b,
         type: 2}
+    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73c9977127226a44c8747094123c3b57, type: 3}
 --- !u!4 &310927025 stripped
@@ -3497,7 +3497,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &846611850
 Transform:
   m_ObjectHideFlags: 0
@@ -3671,16 +3671,6 @@ PrefabInstance:
       propertyPath: timerRestart
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 135971665953161958, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: m_IsTrigger
@@ -3692,6 +3682,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 78f0bfaa66a42b8478b019b99ebfa46b,
         type: 2}
+    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73c9977127226a44c8747094123c3b57, type: 3}
 --- !u!1001 &895246256
@@ -4537,7 +4537,7 @@ PrefabInstance:
     - target: {fileID: 114507224843637402, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: forceOfShot
-      value: 1000
+      value: 15000
       objectReference: {fileID: 0}
     - target: {fileID: 114507224843637402, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
@@ -4547,7 +4547,7 @@ PrefabInstance:
     - target: {fileID: 114507224843637402, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: shootDirection.x
-      value: 0.76
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 114507224843637402, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
@@ -4946,16 +4946,6 @@ PrefabInstance:
       propertyPath: timerRestart
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 135971665953161958, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: m_IsTrigger
@@ -4967,6 +4957,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 78f0bfaa66a42b8478b019b99ebfa46b,
         type: 2}
+    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73c9977127226a44c8747094123c3b57, type: 3}
 --- !u!4 &1099169175 stripped
@@ -6002,16 +6002,6 @@ PrefabInstance:
       propertyPath: timerRestart
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 135971665953161958, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: m_IsTrigger
@@ -6023,6 +6013,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 78f0bfaa66a42b8478b019b99ebfa46b,
         type: 2}
+    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73c9977127226a44c8747094123c3b57, type: 3}
 --- !u!4 &1359555172 stripped
@@ -6529,6 +6529,11 @@ PrefabInstance:
       propertyPath: timerRestart
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 114452003137103672, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: squareDrag
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: m_Enabled
@@ -6543,11 +6548,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Interpolate
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114452003137103672, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: squareDrag
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73c9977127226a44c8747094123c3b57, type: 3}
@@ -8069,16 +8069,6 @@ PrefabInstance:
       propertyPath: timerRestart
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
-        type: 3}
-      propertyPath: m_Interpolate
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 135971665953161958, guid: 73c9977127226a44c8747094123c3b57,
         type: 3}
       propertyPath: m_IsTrigger
@@ -8090,6 +8080,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 13400000, guid: 78f0bfaa66a42b8478b019b99ebfa46b,
         type: 2}
+    - target: {fileID: 23523503564977412, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 54610258701508554, guid: 73c9977127226a44c8747094123c3b57,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73c9977127226a44c8747094123c3b57, type: 3}
 --- !u!4 &1914406115 stripped

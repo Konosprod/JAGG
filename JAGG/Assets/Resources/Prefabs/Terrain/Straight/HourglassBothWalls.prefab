@@ -87,7 +87,8 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2703563369120834206, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
 --- !u!1001 &325312449765764729
 PrefabInstance:
@@ -171,7 +172,8 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2703563369120834206, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
 --- !u!1001 &389265739352510867
 PrefabInstance:
@@ -260,7 +262,8 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2703563369120834206, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
 --- !u!1001 &3590081517593205243
 PrefabInstance:
@@ -344,7 +347,8 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2703563369120834206, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 9f564fd5f80e588469f01e9b457ab7e7, type: 3}
 --- !u!1001 &8459337678964950006
 PrefabInstance:
@@ -356,7 +360,7 @@ PrefabInstance:
     - target: {fileID: 6904261020261610642, guid: 305f4f5d4ce7aa24288e04199e3f05d7,
         type: 3}
       propertyPath: m_Name
-      value: Hourglass
+      value: HourglassBothWalls
       objectReference: {fileID: 0}
     - target: {fileID: 2379615032027055224, guid: 305f4f5d4ce7aa24288e04199e3f05d7,
         type: 3}
@@ -412,6 +416,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4491212138010508677, guid: 305f4f5d4ce7aa24288e04199e3f05d7,
+        type: 3}
+      propertyPath: id
+      value: Straight/HourglassBothWalls
+      objectReference: {fileID: 0}
+    - target: {fileID: 4102482180898995171, guid: 305f4f5d4ce7aa24288e04199e3f05d7,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 305f4f5d4ce7aa24288e04199e3f05d7, type: 3}

@@ -188,14 +188,6 @@ public class EditorManager : MonoBehaviour
         foreach (GameObject pref in Resources.LoadAll<GameObject>("Prefabs/Terrain"))
         {
             prefabs.Add(pref.name, pref);
-            // /!\ CHANGES THE PREFAB ITSELF /!\
-            foreach (Renderer r in pref.GetComponentsInChildren<Renderer>())
-            {
-                if (LayerMask.NameToLayer("SnapPoint") != r.gameObject.layer)
-                    if (!(r is UnityEngine.ParticleSystemRenderer) && r.gameObject.GetComponent<MaterialSwaperoo>() == null)
-                        r.gameObject.AddComponent<MaterialSwaperoo>();
-            }
-
             listPrefabPanel.AddPiece(pref);
 
             /*//Debug.Log(pref.name);

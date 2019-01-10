@@ -159,7 +159,7 @@ public class MovingPiece : CustomScript {
     {
         if (coroutine != null)
         {
-            if (SceneManager.GetSceneAt(0).name == "LevelEditor")
+            if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);
@@ -176,7 +176,7 @@ public class MovingPiece : CustomScript {
     {
         if (coroutine != null)
         {
-            if (SceneManager.GetSceneAt(0).name == "LevelEditor")
+            if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);

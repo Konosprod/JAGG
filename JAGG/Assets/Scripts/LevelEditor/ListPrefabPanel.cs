@@ -132,6 +132,13 @@ public class ListPrefabPanel : MonoBehaviour {
 
     public void AddPiece(GameObject pref)
     {
+#if UNITY_EDITOR
+        if(pref.GetComponent<TerrainPiece>() == null)
+        {
+            Debug.LogError("No TerrainPiece on prefab : " + pref.name);
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
+#endif
         string id = pref.GetComponent<TerrainPiece>().id;
         string type = "";
 
