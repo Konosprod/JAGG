@@ -1,55 +1,56 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &100100000
-Prefab:
-  m_ObjectHideFlags: 1
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications: []
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1452951725053272}
-  m_IsPrefabParent: 1
---- !u!1 &1452951725053272
+--- !u!1 &5284291736515926387
 GameObject:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
+  m_CorrespondingSourceObject: {fileID: 4195434674433686221, guid: c852652c3a0e1eb4f8975d4cfc025475,
+    type: 3}
+  m_PrefabInstance: {fileID: 475580701884071269}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
   m_Component:
-  - component: {fileID: 4485091731092784}
-  - component: {fileID: 33510550371954344}
-  - component: {fileID: 23959028894438166}
-  - component: {fileID: 64050033216583530}
-  - component: {fileID: 114560246524068318}
-  - component: {fileID: 114502710247917132}
-  m_Layer: 27
-  m_Name: WallHourglass
+  - component: {fileID: 295661687410836289}
+  - component: {fileID: 5032453777004108571}
+  - component: {fileID: 158573488723467116}
+  m_Layer: 0
+  m_Name: WallHourglass 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4485091731092784
+--- !u!4 &295661687410836289
 Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1452951725053272}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 8608305718022988031, guid: c852652c3a0e1eb4f8975d4cfc025475,
+    type: 3}
+  m_PrefabInstance: {fileID: 475580701884071269}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284291736515926387}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 7214514941818959899}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23959028894438166
+--- !u!33 &5032453777004108571
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 3943570809746798757, guid: c852652c3a0e1eb4f8975d4cfc025475,
+    type: 3}
+  m_PrefabInstance: {fileID: 475580701884071269}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284291736515926387}
+  m_Mesh: {fileID: 4300000, guid: d2eb5c47a66f6cc4181d3ce91f520d44, type: 2}
+--- !u!23 &158573488723467116
 MeshRenderer:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1452951725053272}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 8169498330276149458, guid: c852652c3a0e1eb4f8975d4cfc025475,
+    type: 3}
+  m_PrefabInstance: {fileID: 475580701884071269}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284291736515926387}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -57,7 +58,8 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RenderingLayerMask: 4294967295
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: feb680471103a9b4fab0d18bba84bdb0, type: 2}
   m_StaticBatchInfo:
@@ -79,50 +81,105 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &33510550371954344
-MeshFilter:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1452951725053272}
-  m_Mesh: {fileID: 4300000, guid: 491f9f27dd32bca489cc766c44efc203, type: 2}
---- !u!64 &64050033216583530
-MeshCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1452951725053272}
-  m_Material: {fileID: 13400000, guid: 5b22dce178f1a2c4dbffb873ff8cde8e, type: 2}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 14
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 4300000, guid: 491f9f27dd32bca489cc766c44efc203, type: 2}
---- !u!114 &114502710247917132
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1452951725053272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3152b9d91db21d6478ecc6996ca21a58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114560246524068318
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1452951725053272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 535c3d22cc697964e969de852b193c5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: WallHourglass
-  prefab: 1
-  number: 0
-  parentNumber: -1
+--- !u!1 &7911647556261323524
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 2208856484398399674, guid: c852652c3a0e1eb4f8975d4cfc025475,
+    type: 3}
+  m_PrefabInstance: {fileID: 475580701884071269}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7214514941818959899}
+  m_Layer: 0
+  m_Name: WallHourglass
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7214514941818959899
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+    type: 3}
+  m_PrefabInstance: {fileID: 475580701884071269}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7911647556261323524}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 295661687410836289}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &475580701884071269
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2208856484398399674, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_Name
+      value: WallHourglass
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1689876599823162277, guid: c852652c3a0e1eb4f8975d4cfc025475,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c852652c3a0e1eb4f8975d4cfc025475, type: 3}
