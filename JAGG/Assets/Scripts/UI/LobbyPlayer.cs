@@ -62,22 +62,10 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         }
     }
 
-    public override void OnClientEnterLobby()
+    public override void OnStartLocalPlayer()
     {
-        if (lobbyControls == null)
-            lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
+        //toggleReady.isOn = false;
 
-        if (lobbyControls.selectedScene != "")
-            LobbyPlayerList._instance.UpdateSelectedMap(lobbyControls.selectedScene);
-
-        OnMyName(playerName);
-        OnClientReady(toggleReady.isOn);
-
-        LobbyPlayerList._instance.UpdateAvatar(SteamUser.GetSteamID().m_SteamID);
-    }
-
-    private void SetupLocalPlayer()
-    {
         toggleReady.onValueChanged.RemoveAllListeners();
         toggleReady.onValueChanged.AddListener(OnReadyClicked);
 
@@ -96,6 +84,29 @@ public class LobbyPlayer : NetworkLobbyPlayer {
         CmdUpdateAvatar(SteamUser.GetSteamID().m_SteamID);
 
         lobbyControls.lobbyPlayer = this;
+
+        base.OnStartLocalPlayer();
+    }
+
+    public override void OnClientEnterLobby()
+    {
+        if (lobbyControls == null)
+            lobbyControls = GameObject.FindObjectOfType<LobbyControls>();
+
+        if (lobbyControls.selectedScene != "")
+            LobbyPlayerList._instance.UpdateSelectedMap(lobbyControls.selectedScene);
+
+        OnMyName(playerName);
+        OnClientReady(toggleReady.isOn);
+
+        LobbyPlayerList._instance.UpdateAvatar(SteamUser.GetSteamID().m_SteamID);
+
+        base.OnClientEnterLobby();
+    }
+
+    private void SetupLocalPlayer()
+    {
+
     }
 
     public void UpdateSelectedScene(string value)
@@ -153,42 +164,45 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
     private void CheckLevel(string levelId, bool isReady)
     {
-        //Scene name doesn't contain "_" it's a local level
-        if (levelId == "")
+        if (isReady)
         {
-            if (isReady)
-                SendReadyToBeginMessage();
-            else
-                SendNotReadyToBeginMessage();
-        }
-        else
-        {
-            string path = Application.persistentDataPath + "/Levels/";
-            string searchPattern = levelId + "_*";
-            string[] fileInfos = Directory.GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly);
-
-
-            if (fileInfos.Length > 0)
+            //Scene name doesn't contain "_" it's a local level
+            if (levelId == "")
             {
-                ZipFile mapFile = new ZipFile(fileInfos[0]);
-
-                //Don't forget to create the directory maybe
-                string tmpPath = Path.Combine(Application.temporaryCachePath, Path.GetFileName(path));
-                //string tmpPath = Path.Combine(Application.temporaryCachePath, "test");
-
-                mapFile.ExtractAll(tmpPath, ExtractExistingFileAction.OverwriteSilently);
-
-                long timestamp = UnixTime(mapFile["level.json"].CreationTime);
-
-                mapFile.Dispose();
-
-                StartCoroutine(CheckTimestamp(levelId, timestamp, isReady));
-
+                if (isReady)
+                    SendReadyToBeginMessage();
+                else
+                    SendNotReadyToBeginMessage();
             }
             else
             {
-                toggleReady.interactable = false;
-                StartCoroutine(DownloadMap(levelId));
+                string path = Application.persistentDataPath + "/Levels/";
+                string searchPattern = levelId + "_*";
+                string[] fileInfos = Directory.GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly);
+
+
+                if (fileInfos.Length > 0)
+                {
+                    ZipFile mapFile = new ZipFile(fileInfos[0]);
+
+                    //Don't forget to create the directory maybe
+                    string tmpPath = Path.Combine(Application.temporaryCachePath, Path.GetFileName(path));
+                    //string tmpPath = Path.Combine(Application.temporaryCachePath, "test");
+
+                    mapFile.ExtractAll(tmpPath, ExtractExistingFileAction.OverwriteSilently);
+
+                    long timestamp = UnixTime(mapFile["level.json"].CreationTime);
+
+                    mapFile.Dispose();
+
+                    StartCoroutine(CheckTimestamp(levelId, timestamp, isReady));
+
+                }
+                else
+                {
+                    toggleReady.interactable = false;
+                    StartCoroutine(DownloadMap(levelId));
+                }
             }
         }
     }
@@ -214,7 +228,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
             //the map, it must be a new one
             if(UnixTime(dt) - localTime > 10)
             {
-                Debug.Log(UnixTime(dt) - localTime);
                 toggleReady.interactable = false;
                 StartCoroutine(DownloadMap(levelId));
             }
