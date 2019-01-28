@@ -46,6 +46,8 @@ public class BallCamera : MonoBehaviour
     //Control direction for X axis, used to invert camera
     public int directionControl = 1;
 
+    private GameSettings settings;
+
     // Use this for initialization
     void Start()
     {
@@ -56,20 +58,22 @@ public class BallCamera : MonoBehaviour
         originalShakingtime = shakingTime;
 
         lastWheelDistance = distance;
+
+        settings = SettingsManager._instance.gameSettings;
     }
 
     void Update()
     {
         if (SettingsManager._instance.gameSettings.AccurateMode == 0)
         {
-            if (Input.GetKeyDown(KeyCode.A))
+            if (Input.GetKeyDown(settings.Keys[KeyAction.AccurateShoot]))
             {
                 isAccurateMode = !isAccurateMode;
             }
         }
         else
         {
-            if(Input.GetKey(KeyCode.A))
+            if(Input.GetKey(settings.Keys[KeyAction.AccurateShoot]))
             {
                 isAccurateMode = true;
             }

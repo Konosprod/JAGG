@@ -77,9 +77,13 @@ public class PlayerController : NetworkBehaviour
     //Item to use
     private GameObject item;
 
+    private GameSettings settings;
+
     private void Awake()
     {
         ui = FindObjectOfType<UIManager>();
+
+        settings = SettingsManager._instance.gameSettings;
     }
 
     private void Start()
@@ -115,7 +119,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
+        if (Input.GetKeyUp(settings.Keys[KeyAction.Pause]))
         {
             if (!isPaused)
             {
@@ -201,7 +205,7 @@ public class PlayerController : NetworkBehaviour
         }
 
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(settings.Keys[KeyAction.ItemUse]))
         {
             if (item != null)
             {
@@ -299,7 +303,7 @@ public class PlayerController : NetworkBehaviour
             }
 
             // Handle the reset button
-            if (Input.GetKeyDown(KeyCode.R) && lastStopPos != Vector3.zero)
+            if (Input.GetKeyDown(settings.Keys[KeyAction.Reset]) && lastStopPos != Vector3.zero)
             {
                 CmdResetPosition(lastStopPos);
             }

@@ -3,6 +3,9 @@ using UnityEngine.Events;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 public class SettingsManager : MonoBehaviour {
 
@@ -25,6 +28,8 @@ public class SettingsManager : MonoBehaviour {
 
     private Resolution[] resolutions;
     public GameSettings gameSettings;
+
+    private string SettingsPath;
 
     public static SettingsManager _instance;
 
@@ -52,6 +57,8 @@ public class SettingsManager : MonoBehaviour {
     void Start()
     {
         resolutions = Screen.resolutions;
+
+        SettingsPath = Application.persistentDataPath + "/gamesettings.json";
 
         gameSettings = new GameSettings();
 
@@ -167,9 +174,11 @@ public class SettingsManager : MonoBehaviour {
 
     public void LoadSettings()
     {
+
         try
         {
-            gameSettings = JsonUtility.FromJson<GameSettings>(File.ReadAllText(Application.persistentDataPath + "/gamesettings.json"));
+            string[] jsons = File.ReadAllLines(SettingsPath);
+            gameSettings = JsonUtility.FromJson<GameSettings>(jsons[0]);
 
             fullscreenToggle.isOn = gameSettings.Fullscreen;
             resolutionsDropdown.value = gameSettings.Resolution;
@@ -181,8 +190,10 @@ public class SettingsManager : MonoBehaviour {
             SensibilitySlider.value = gameSettings.Sensibility;
             AccurateSensibilitySlider.value = gameSettings.AccurateSensibility;
             accurateModeDropdown.value = gameSettings.AccurateMode;
+
+            gameSettings.Keys = JsonConvert.DeserializeObject<Dictionary<KeyAction, KeyCode>>(jsons[1]);
         }
-        catch(Exception)
+        catch(Exception e)
         {
             fullscreenToggle.isOn = false;
             resolutionsDropdown.value = 0;
@@ -194,12 +205,15 @@ public class SettingsManager : MonoBehaviour {
             SensibilitySlider.value = 100f;
             AccurateSensibilitySlider.value = 100f;
             accurateModeDropdown.value = 0;
+
+            Debug.Log(e);
         }
     }
 
     public void SaveSettings()
     {
-        File.WriteAllText(Application.persistentDataPath + "/gamesettings.json", JsonUtility.ToJson(gameSettings, true));
+        File.WriteAllText(SettingsPath, JsonUtility.ToJson(gameSettings, false)+"\n");
+        File.AppendAllText(SettingsPath, JsonConvert.SerializeObject(gameSettings.Keys));
     }
 
     public void ShowOptionsMenu(bool show)
