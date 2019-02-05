@@ -54,11 +54,16 @@ public class RotatePiece : CustomScript
     private int layerMoveRotate;
 
     private List<ChildColliderMovingPiece> ccmvps;
-    
+
     // List of the balls that are currently on top on the piece
     public List<GameObject> ballsOnTop;
 
     public Quaternion goalAngle = Quaternion.identity;
+
+    public ReplayObject replay;
+
+    private PhysicsTestDebug ptd;
+    public void SetPTD(PhysicsTestDebug physicsTestDebug) { ptd = physicsTestDebug; }
 
     // Use this for initialization
     void Start()
@@ -74,8 +79,11 @@ public class RotatePiece : CustomScript
         timer = -timerOffset;
         rotationAngle = 360 / nbRotations;
 
+
+        replay = gameObject.AddComponent<ReplayObject>();
+
         Collider[] cols = GetComponentsInChildren<Collider>();
-        foreach(Collider col in cols)
+        foreach (Collider col in cols)
         {
             if (col.gameObject.layer == layerMoveRotate)
             {
@@ -136,13 +144,15 @@ public class RotatePiece : CustomScript
     {
         Quaternion fromAngle = transform.rotation;
         goalAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
-        for (float t = 0f; t < 1f; t += Time.deltaTime / inTime)
+        for (float t = 0f; t < 1f; t += Time.fixedDeltaTime / inTime)
         {
             transform.rotation = Quaternion.Slerp(fromAngle, goalAngle, t);
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
 
         transform.rotation = goalAngle;
+        isRotation = false;
+        timer = 0f;
     }
 
     public void UpdateRotations()
@@ -183,6 +193,8 @@ public class RotatePiece : CustomScript
         {
             if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
+            else if (SceneManager.GetSceneAt(0).name == "PhysicsTest")
+                ptd.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);
         }

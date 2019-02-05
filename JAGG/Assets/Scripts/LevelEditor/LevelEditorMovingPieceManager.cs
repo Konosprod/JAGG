@@ -85,7 +85,7 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         // Handle all RotatePiece
         foreach (RotatePiece rtp in rotatePieces)
@@ -94,15 +94,20 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
             {
                 if (!rtp.flagStopRotation)
                 {
-                    rtp.timer += Time.deltaTime;
-
-                    if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    if (!ReplayManager._instance.isReplayPlaying)
                     {
-                        rtp.isRotation = !rtp.isRotation;
-                        rtp.timer = 0f;
-                        if (rtp.isRotation)
+                        rtp.timer += Time.fixedDeltaTime;
+
+                        if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
                         {
-                            rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+                            if (!rtp.isRotation)
+                            {
+                                Debug.Log("Rotation at : " + ReplayManager._instance.fixedFrameCount);
+                                rtp.isRotation = true;
+                                rtp.timer = 0f;
+                                rtp.replay.AddInput(Vector3.zero, -3f, Vector3.zero);
+                                rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+                            }
                         }
                     }
 
@@ -118,7 +123,7 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
 
                                 Quaternion fromAngle = Quaternion.Euler(rtp.goalAngle.eulerAngles - new Vector3(0f, rtp.rotationAngle, 0f));
                                 Quaternion toAngle = rtp.goalAngle;
-                                Quaternion step = Quaternion.Inverse(fromAngle) * Quaternion.Slerp(fromAngle, toAngle, Time.deltaTime / rtp.spinTime);
+                                Quaternion step = Quaternion.Inverse(fromAngle) * Quaternion.Slerp(fromAngle, toAngle, Time.fixedDeltaTime / rtp.spinTime);
 
 
                                 Vector3 currentOffset = ballPos - piecePos;
@@ -143,7 +148,7 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
             {
                 if (!mvp.flagStopMove)
                 {
-                    mvp.timer += Time.deltaTime;
+                    mvp.timer += Time.fixedDeltaTime;
 
                     if ((mvp.isMoving && mvp.timer > mvp.travelTime) || (!mvp.isMoving && mvp.timer > mvp.pauseTime))
                     {
@@ -152,6 +157,7 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
                         if (mvp.isMoving)
                         {
                             mvp.forwardMove = !mvp.forwardMove;
+                            mvp.replay.AddInput(Vector3.zero, mvp.forwardMove ? -4f : -5f, Vector3.zero);
                             mvp.coroutine = StartCoroutine(mvp.MoveMe((mvp.forwardMove) ? mvp.initPos : mvp.destPos,
                                                                        (mvp.forwardMove) ? mvp.destPos : mvp.initPos,
                                                                        mvp.travelTime));
@@ -167,12 +173,12 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
                             {
                                 Vector3 start = (mvp.forwardMove) ? mvp.initPos : mvp.destPos;
                                 Vector3 end = (mvp.forwardMove) ? mvp.destPos : mvp.initPos;
-                                float lerpFactor = Time.deltaTime * (1.0f / mvp.travelTime);
+                                float lerpFactor = Time.fixedDeltaTime * (1.0f / mvp.travelTime);
                                 Vector3 movement = Vector3.Lerp(start, end, lerpFactor) - start;
 
 
                                 //Debug.Log("Start : " + start + ", end : " + end + ", movement.x : " + movement.x + ", movement.y : " + movement.y + ", movement.z : " + movement.z);
-                                movement = checkMovementBoundariesExceded(ball.transform.position, movement, end, mvp.transform.position);
+                                movement = CheckMovementBoundariesExceded(ball.transform.position, movement, end, mvp.transform.position);
                                 ball.transform.position += movement;
                             }
                         }
@@ -184,7 +190,7 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
 
     // Checks if the movement added to the ball will make it overshoot the endGoal postion
     // Should help avoiding some of the collision issues
-    private Vector3 checkMovementBoundariesExceded(Vector3 ballPos, Vector3 movement, Vector3 endGoal, Vector3 piecePos)
+    private Vector3 CheckMovementBoundariesExceded(Vector3 ballPos, Vector3 movement, Vector3 endGoal, Vector3 piecePos)
     {
         Vector3 res = movement;
 

@@ -9,14 +9,15 @@ using UnityEngine;
 public class ReplayObject : MonoBehaviour
 {
 
-    public struct InputInfo
+    [System.Serializable]
+    public class InputInfo : ISerializable
     {
-        public int frame;
+        public long frame;
         public Vector3 dir;
         public float sliderValue;
         public Vector3 pos;
 
-        public InputInfo(int f, Vector3 d, float sv, Vector3 t)
+        public InputInfo(long f, Vector3 d, float sv, Vector3 t)
         {
             frame = f;
             dir = d;
@@ -24,13 +25,34 @@ public class ReplayObject : MonoBehaviour
             pos = t;
         }
 
+        protected InputInfo(SerializationInfo info, StreamingContext context)
+        {
+            frame = info.GetInt64("frame");
+            dir = new Vector3(float.Parse(info.GetString("dirX")), float.Parse(info.GetString("dirY")), float.Parse(info.GetString("dirZ")));
+            sliderValue = float.Parse(info.GetString("sliderValue"));
+            pos = new Vector3(float.Parse(info.GetString("posX")), float.Parse(info.GetString("posY")), float.Parse(info.GetString("posZ")));
+        }
+
+        //[SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("frame", frame);
+            info.AddValue("dirX", dir.x);
+            info.AddValue("dirY", dir.y);
+            info.AddValue("dirZ", dir.z);
+            info.AddValue("sliderValue", sliderValue);
+            info.AddValue("posX", pos.x);
+            info.AddValue("posY", pos.y);
+            info.AddValue("posZ", pos.z);
+        }
+
         public override string ToString()
         {
-            return "Frame : " + frame + ", dir : " + dir + ", sliderValue : " + sliderValue + ", position : " + pos;
+            return "Frame : " + frame + ", dir : " + dir.ToString("F6") + ", sliderValue : " + sliderValue + ", position : " + pos.ToString("F6");
         }
     }
 
-    sealed class InputInfoSerializationSurrogate : ISerializationSurrogate // https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.surrogateselector?redirectedfrom=MSDN&view=netframework-4.7.2
+    /*sealed class InputInfoSerializationSurrogate : ISerializationSurrogate // https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.surrogateselector?redirectedfrom=MSDN&view=netframework-4.7.2
     {
         // Serialize the Employee object to save the object's name and address fields.
         public void GetObjectData(object obj,
@@ -59,21 +81,48 @@ public class ReplayObject : MonoBehaviour
             inp.pos = new Vector3(float.Parse(info.GetString("posX")), float.Parse(info.GetString("posY")), float.Parse(info.GetString("posZ")));
             return inp;
         }
+    }*/
+
+    public sealed class ReplayObjectSerializationSurrogate : ISerializationSurrogate
+    {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+            ReplayObject ro = (ReplayObject)obj;
+            info.AddValue("inputs", ro.inputs);
+            info.AddValue("goName", ro.goName);
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+            ReplayObject ro = (ReplayObject)obj;
+            ro.inputs = (List<InputInfo>)info.GetValue("inputs", typeof(List<InputInfo>));
+            ro.goName = info.GetString("goName");
+            return ro;
+        }
     }
 
-    public Dictionary<int, Transform> frames = new Dictionary<int, Transform>();
+    //public Dictionary<int, Transform> frames = new Dictionary<int, Transform>();
     public List<InputInfo> inputs = new List<InputInfo>();
     public Rigidbody rb;
+    public RotatePiece rtp;
+    public MovingPiece mvp;
+    public BallPhysicsTest physics;
 
+    private string goName;
 
     // Use this for initialization
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
+        rtp = gameObject.GetComponent<RotatePiece>();
+        mvp = gameObject.GetComponent<MovingPiece>();
+        physics = GetComponent<BallPhysicsTest>();
         if (ReplayManager._instance != null)
         {
             ReplayManager._instance.AddReplayObject(this);
         }
+        goName = gameObject.name;
+        //Debug.Log("ReplayObject start : " + gameObject.name);
     }
 
     // Update is called once per frame
@@ -91,16 +140,16 @@ public class ReplayObject : MonoBehaviour
         using (Stream stream = new MemoryStream())
         {
             SurrogateSelector ss = new SurrogateSelector();
-            ss.AddSurrogate(typeof(InputInfo),
+            ss.AddSurrogate(typeof(ReplayObject),
             new StreamingContext(StreamingContextStates.All),
-            new InputInfoSerializationSurrogate());
+            new ReplayObjectSerializationSurrogate());
             // Associate the SurrogateSelector with the BinaryFormatter.
             formatter.SurrogateSelector = ss;
 
             try
             {
                 // Serialize the InputInfos into the stream
-                formatter.Serialize(stream, inputs);
+                formatter.Serialize(stream, this);
             }
             catch (SerializationException e)
             {
@@ -114,10 +163,10 @@ public class ReplayObject : MonoBehaviour
             try
             {
                 // Deserialize the InputInfos from the stream
-                List<InputInfo> inp = (List<InputInfo>)formatter.Deserialize(stream);
+                ReplayObject ro = (ReplayObject)formatter.Deserialize(stream);
 
                 // Verify that it all worked.
-                foreach (InputInfo i in inp)
+                foreach (InputInfo i in ro.inputs)
                     Debug.Log(i);
             }
             catch (SerializationException e)
@@ -131,23 +180,35 @@ public class ReplayObject : MonoBehaviour
 
     public void Reset()
     {
-        frames.Clear();
+        //frames.Clear();
         inputs.Clear();
     }
 
-    public void AddFrame(Transform t)
+    /*public void AddFrame(Transform t)
     {
         frames.Add(Time.frameCount, t);
-    }
+    }*/
 
     public void AddInput(Vector3 dir, float sliderValue, Vector3 pos)
     {
-        Debug.Log("Add input : dir=" + dir + ", sliderValue=" + sliderValue + ", pos=" + pos);
-        inputs.Add(new InputInfo(Time.frameCount, dir, sliderValue, pos));
+        //Debug.Log("Add input : frame=" + Time.frameCount + ", dir=" + dir + ", sliderValue=" + sliderValue + ", pos=" + pos);
+        inputs.Add(new InputInfo(ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount, dir, sliderValue, pos));
+    }
+
+    public override string ToString()
+    {
+        string res = goName + " replay" + '\n';
+        int k = 1;
+        foreach(InputInfo i in inputs)
+        {
+            res += "Input n°" + k + " : " + i.ToString() + '\n';
+            k++;
+        }
+        return res;
     }
 
     // Gives a list with the frames included between the frameStart and frameEnd (start of the shot to the hole for instance)
-    public List<Transform> GetFramesInWindow(int frameStart, int frameEnd)
+    /*public List<Transform> GetFramesInWindow(int frameStart, int frameEnd)
     {
         if (frameEnd < frameStart)
         {
@@ -165,5 +226,5 @@ public class ReplayObject : MonoBehaviour
         }
 
         return framesRes;
-    }
+    }*/
 }

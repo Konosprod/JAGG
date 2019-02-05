@@ -43,12 +43,15 @@ public class SimpleBallController : MonoBehaviour
     private ReplayObject replay;
     public bool canShoot = true;
 
+    private BallPhysicsTest physics;
+
 
     // Use this for initialization
     void Start()
     {
         initialPos = transform.position;
         replay = gameObject.AddComponent<ReplayObject>();
+        physics = GetComponent<BallPhysicsTest>();
     }
 
     /*void OnEnable()
@@ -76,7 +79,7 @@ public class SimpleBallController : MonoBehaviour
             flagEnableTrail = false;
         }
 
-        isMoving = rb.velocity.magnitude >= 0.001f;
+        isMoving = physics.velocityCapped.magnitude >= 0.001f;
 
         if (!isMoving && canShoot)
         {
@@ -96,7 +99,7 @@ public class SimpleBallController : MonoBehaviour
                 if (isShooting)
                 {
                     shots++;
-                    rb.AddForce(dir * Mathf.Pow(slider.value, 1.4f) * 2f);
+                    physics.AddForce(dir * Mathf.Pow(slider.value, 1.4f) * 2f);
                     isShooting = false;
                     isMoving = true;
 
@@ -122,7 +125,7 @@ public class SimpleBallController : MonoBehaviour
             {
                 ParticleSystem.EmissionModule em = trail.emission;
                 em.enabled = false;
-                rb.velocity = Vector3.zero;
+                physics.velocityCapped = Vector3.zero;
                 transform.position = lastPos;
 
                 replay.AddInput(Vector3.zero, -2f, lastPos);
@@ -132,8 +135,8 @@ public class SimpleBallController : MonoBehaviour
         }
 
 
-        if (rb.velocity.magnitude > 0.005f)
-            sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
+        if (physics.velocityCapped.magnitude > 0.005f)
+            sphere.Rotate(new Vector3(physics.velocityCapped.z * 10f, 0f, -physics.velocityCapped.x * 10f), Space.World);
 
         timer += Time.deltaTime;
 
@@ -149,7 +152,7 @@ public class SimpleBallController : MonoBehaviour
                     isOOB = false;
                     ParticleSystem.EmissionModule em = trail.emission;
                     em.enabled = false;
-                    rb.velocity = Vector3.zero;
+                    physics.velocityCapped = Vector3.zero;
                     transform.position = lastPos;
 
                     replay.AddInput(Vector3.zero, -2f, lastPos);
@@ -186,21 +189,21 @@ public class SimpleBallController : MonoBehaviour
 
     public void OnBoosterPad(Vector3 dir, float multFactor, float addFactor)
     {
-        float angle = Vector3.Angle(rb.velocity, dir);
-        rb.velocity *= multFactor * (angle > 90f ? -0.1f : 1f);
-        rb.AddForce(dir * addFactor);
+        float angle = Vector3.Angle(physics.velocityCapped, dir);
+        physics.velocityCapped *= multFactor * (angle > 90f ? -0.1f : 1f);
+        physics.AddForce(dir * addFactor);
     }
 
     public void InWindArea(float strength, Vector3 direction)
     {
-        rb.AddForce(direction * strength);
+        physics.AddForce(direction * strength);
     }
 
     public void ResetTest()
     {
         shots = 0;
         timer = 0f;
-        rb.velocity = Vector3.zero;
+        physics.velocityCapped = Vector3.zero;
 
         transform.position = initialPos;
 

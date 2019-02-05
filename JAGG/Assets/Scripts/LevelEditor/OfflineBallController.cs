@@ -6,14 +6,16 @@ using UnityEngine.UI;
 
 // Replaces PlayerController / CustomPhysics / PreviewLine
 // Works offline and removes all parts related to networking
-public class OfflineBallController : MonoBehaviour {
+public class OfflineBallController : MonoBehaviour
+{
 
     public LineRenderer line;
-    public Rigidbody rb;
     public ParticleSystem trail;
     public Slider slider;
     public Transform sphere;
     public TestMode testMode;
+
+    private BallPhysics physics;
 
     public float lineLength = 0.85f;
 
@@ -43,8 +45,9 @@ public class OfflineBallController : MonoBehaviour {
 
 
     // Use this for initialization
-    void Start () {
-
+    void Start()
+    {
+        physics = GetComponent<BallPhysics>();
     }
 
     void OnEnable()
@@ -55,14 +58,15 @@ public class OfflineBallController : MonoBehaviour {
 
     void OnDisable()
     {
-        if(shotsText.gameObject != null)
+        if (shotsText.gameObject != null)
             shotsText.gameObject.SetActive(false);
         if (timeText.gameObject != null)
             timeText.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         shotsText.text = shotsText.text.Split(':')[0] + ": " + shots;
         timeText.text = timeText.text.Split(':')[0] + ": " + timer.ToString("0.##") + "s";
 
@@ -76,13 +80,13 @@ public class OfflineBallController : MonoBehaviour {
             flagEnableTrail = false;
         }
 
-        isMoving = rb.velocity.magnitude >= 0.001f;
+        isMoving = physics.velocityCapped.magnitude >= 0.001f;
 
         if (!isMoving)
         {
             lastPos = transform.position;
 
-            if(testMode.IsInValidation())
+            if (testMode.IsInValidation())
                 testMode.CheckShots(shots, timer);
 
             if (!line.enabled)
@@ -99,7 +103,7 @@ public class OfflineBallController : MonoBehaviour {
                 if (isShooting)
                 {
                     shots++;
-                    rb.AddForce(dir * Mathf.Pow(slider.value,1.4f) * 2f);
+                    physics.AddForce(dir * Mathf.Pow(slider.value, 1.4f) * 2f);
                     isShooting = false;
                     isMoving = true;
                     ResetSlider();
@@ -107,7 +111,7 @@ public class OfflineBallController : MonoBehaviour {
                 else
                     isShooting = true;
             }
-            
+
             if (Input.GetMouseButtonDown(1) && isShooting)
             {
                 isShooting = false;
@@ -122,15 +126,15 @@ public class OfflineBallController : MonoBehaviour {
             {
                 ParticleSystem.EmissionModule em = trail.emission;
                 em.enabled = false;
-                rb.velocity = Vector3.zero;
+                physics.StopBall();
                 transform.position = lastPos;
                 flagEnableTrail = true;
             }
         }
 
 
-        if (rb.velocity.magnitude > 0.005f)
-            sphere.Rotate(new Vector3(rb.velocity.z * 10f, 0f, -rb.velocity.x * 10f), Space.World);
+        if (physics.velocityCapped.magnitude > 0.005f)
+            sphere.Rotate(new Vector3(physics.velocityCapped.z * 10f, 0f, -physics.velocityCapped.x * 10f), Space.World);
 
         timer += Time.deltaTime;
 
@@ -146,7 +150,7 @@ public class OfflineBallController : MonoBehaviour {
                     isOOB = false;
                     ParticleSystem.EmissionModule em = trail.emission;
                     em.enabled = false;
-                    rb.velocity = Vector3.zero;
+                    physics.StopBall();
                     transform.position = lastPos;
                     flagEnableTrail = true;
                 }
@@ -163,7 +167,7 @@ public class OfflineBallController : MonoBehaviour {
         }
     }
 
-    
+
     void OnTriggerEnter(Collider other)
     {
         GameObject otherGO = other.gameObject;
@@ -179,21 +183,21 @@ public class OfflineBallController : MonoBehaviour {
 
     public void OnBoosterPad(Vector3 dir, float multFactor, float addFactor)
     {
-        float angle = Vector3.Angle(rb.velocity, dir);
-        rb.velocity *= multFactor * (angle > 90f ? -0.1f : 1f);
-        rb.AddForce(dir * addFactor);
+        float angle = Vector3.Angle(physics.velocityCapped, dir);
+        physics.MultiplySpeed(multFactor * (angle > 90f ? -0.1f : 1f));
+        physics.AddForce(dir * addFactor);
     }
 
     public void InWindArea(float strength, Vector3 direction)
     {
-        rb.AddForce(direction * strength);
+        physics.AddForce(direction * strength);
     }
 
     public void ResetTest()
     {
         shots = 0;
         timer = 0f;
-        rb.velocity = Vector3.zero;
+        physics.StopBall();
 
         ResetSlider();
         gameObject.SetActive(false);
@@ -216,8 +220,8 @@ public class OfflineBallController : MonoBehaviour {
         slideUp = true;
         slider.value = minSliderVal;
     }
-    
-    
+
+
     void FixedUpdate()
     {
         if (isShooting)

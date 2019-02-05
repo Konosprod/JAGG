@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class BallPhysics : MonoBehaviour
+public class BallPhysicsTest : MonoBehaviour
 {
     private int layerFloor;
     private int layerWall;

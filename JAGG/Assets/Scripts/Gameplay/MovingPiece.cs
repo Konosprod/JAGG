@@ -37,11 +37,11 @@ public class MovingPiece : CustomScript {
 
     [HideInInspector]
     public bool flagStopMove = false;
-    [HideInInspector]
+    //[HideInInspector]
     public bool isMoving = false;
     [HideInInspector]
     public bool forwardMove = false; // Forward false means going from initPos to destPos and vice versa (to be exact forwardMove will be true while the piece is moving forward, but has to be false at first because the manager reverses the bool before the movement starts)
-    [HideInInspector]
+    //[HideInInspector]
     public float timer;
 
 
@@ -59,6 +59,11 @@ public class MovingPiece : CustomScript {
 
     // List of the balls that are currently on top on the piece
     public List<GameObject> ballsOnTop;
+
+    public ReplayObject replay;
+
+    private PhysicsTestDebug ptd;
+    public void SetPTD(PhysicsTestDebug physicsTestDebug) { ptd = physicsTestDebug; }
 
     void Awake()
     {
@@ -83,6 +88,7 @@ public class MovingPiece : CustomScript {
         }
 
         //initPos = transform.position;
+        replay = gameObject.AddComponent<ReplayObject>();
 
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach (Collider col in cols)
@@ -121,14 +127,17 @@ public class MovingPiece : CustomScript {
     // Coroutine that moves the object
     public IEnumerator MoveMe(Vector3 startPos, Vector3 endPos, float time)
     {
-        var i = 0.0f;
-        var rate = 1.0f / time;
+        float i = 0.0f;
+        float rate = 1.0f / time;
         while (i < 1.0f)
         {
-            i += Time.deltaTime * rate;
-            transform.position = Vector3.Lerp(startPos, endPos, i);
-            yield return null;
+            i += Time.fixedDeltaTime * rate;
+            //Debug.Log("Timer : " + timer + ", i : " + i);
+            transform.position = Vector3.Lerp(startPos, endPos, timer * rate);
+            yield return new WaitForFixedUpdate();
         }
+
+        transform.position = endPos;
     }
 
     // Allows to set the destination in the levelEditor
@@ -161,6 +170,8 @@ public class MovingPiece : CustomScript {
         {
             if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
+            else if (SceneManager.GetSceneAt(0).name == "PhysicsTest")
+                ptd.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);
         }
@@ -178,6 +189,8 @@ public class MovingPiece : CustomScript {
         {
             if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
+            else if (SceneManager.GetSceneAt(0).name == "PhysicsTest")
+                ptd.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);
         }
