@@ -547,17 +547,7 @@ public class BallPhysics : MonoBehaviour
 
                 if (overlapped && mvp.isMoving)
                     StartCoroutine(HitByMVP(direction, distance, mvp));
-
-
-                Collider[] cols = Physics.OverlapSphere(transform.position + velocityCapped * Time.fixedDeltaTime, 0.049f, 1 << layerFloor | 1 << layerWall);
-                if (cols.Length > 0)
-                {
-                    //Debug.LogError("We are getting crushed by a moving piece"); // LogError because there are two solutions to the problem => Explode the ball / Move it away from those colliders
-                    //Debug.Break();
-                    AddForce(-velocityCapped * 60f);
-                    AddForce(Vector3.up * 360f);
-                    transform.position += Vector3.up * 0.2f;
-                }
+                
 
                 //Debug.DrawRay(transform.position + velocityCapped * Time.fixedDeltaTime, Vector3.up, Color.blue, 1f);
 
@@ -597,6 +587,16 @@ public class BallPhysics : MonoBehaviour
         {
             transform.position += direction * Mathf.Max(distance, 0.01f) * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos));
             AddForce(direction * 144f * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos)));
+
+            Collider[] cols = Physics.OverlapSphere(transform.position + velocityCapped * Time.fixedDeltaTime, 0.049f, 1 << layerFloor | 1 << layerWall);
+            if (cols.Length > 0)
+            {
+                //Debug.LogError("We are getting crushed by a moving piece"); // LogError because there are two solutions to the problem => Explode the ball / Move it away from those colliders
+                //Debug.Break();
+                AddForce(-velocityCapped * 60f);
+                AddForce(Vector3.up * 360f);
+                transform.position += Vector3.up * 0.2f;
+            }
         }
     }
 
