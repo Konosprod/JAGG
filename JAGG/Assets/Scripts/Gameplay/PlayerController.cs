@@ -32,7 +32,7 @@ public class PlayerController : NetworkBehaviour
 
     private GameObject guiCam;
 
-    private Rigidbody rb;
+
     private PreviewLine line;
     private BallPhysicsNetwork ballPhysN;
     private LobbyManager lobbyManager;
@@ -58,11 +58,6 @@ public class PlayerController : NetworkBehaviour
     private const int FirstLayer = 9;
 
     private bool flagEnableTrail = false;
-
-
-    private Vector3 save_velocity = Vector3.zero;
-    private bool hasDestroyedPlayer = false;
-    private Vector3 restore_velocity = Vector3.zero;
 
     private bool firstShotLayerActivated = false;
 
@@ -91,7 +86,6 @@ public class PlayerController : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        rb = GetComponent<Rigidbody>();
         line = GetComponent<PreviewLine>();
         ballPhysN = GetComponent<BallPhysicsNetwork>();
         lobbyManager = LobbyManager._instance;
@@ -101,8 +95,6 @@ public class PlayerController : NetworkBehaviour
 
         //layerDecor = LayerMask.NameToLayer("Decor");
 
-        if (!isServer)
-            rb.isKinematic = true;
 
         if (isLocalPlayer)
         {
@@ -159,7 +151,7 @@ public class PlayerController : NetworkBehaviour
 
         if (isServer)
         {
-            isMoving = rb.velocity.magnitude >= 0.001f;
+            isMoving = ballPhysN.velocityCapped.magnitude >= 0.001f;
             /*if(isMoving)
                 RpcUpdatePosition(transform.position);
             else*/
@@ -167,7 +159,7 @@ public class PlayerController : NetworkBehaviour
             if (!isMoving)
             {
                 // Update the last position where the ball stopped
-                if (ballPhysN.stable && !isOOB)
+                if (ballPhysN.stable && !isOOB) // TODO : Add MVP and RTP to the condition so that the ball doesn't stop on them
                     lastStopPos = transform.position;
 
                 int maxShot = lobbyManager.GetMaxShot();
@@ -176,8 +168,6 @@ public class PlayerController : NetworkBehaviour
                     CmdOutOfStrokes();
                 }
             }
-
-            save_velocity = rb.velocity;
         }
 
         // Enables the particles at the next frame (when resetting / moving to the next hole) to avoid weird trails effects
@@ -310,7 +300,7 @@ public class PlayerController : NetworkBehaviour
         }
 
         // Handle oob
-        if (!Physics.Raycast(/*new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z)*/transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
+        if (!Physics.Raycast(/*new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z)*/transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/))) // TODO : redo OOB system entirely
         {
             if (isOOB)
             {
@@ -414,7 +404,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other) // TODO : Maybe put it in BallphysicsNetwork instead
     {
         GameObject otherGO = other.gameObject;
         if (otherGO.CompareTag("Hole"))
@@ -427,7 +417,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    /*void OnCollisionEnter(Collision collision) // TODO : put it in BallPhysicsNetwork instead
     {
         if (isServer)
         {
@@ -465,7 +455,7 @@ public class PlayerController : NetworkBehaviour
             hasDestroyedPlayer = false;
             rb.velocity = restore_velocity;
         }
-    }
+    }*/
 
 
     void OnGUI()
@@ -580,7 +570,7 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdWindArea(float strength, Vector3 direction)
     {
-        rb.AddForce(direction * strength);
+        ballPhysN.AddForce(direction * strength);
     }
 
     [Command]
@@ -653,7 +643,7 @@ public class PlayerController : NetworkBehaviour
     void CmdShoot(Vector3 dir, float sliderVal)
     {
         //rb.AddForce(dir * sliderVal * 10f); // Linear scaling of the force
-        rb.AddForce(dir * Mathf.Pow(sliderVal, 1.4f) * 2f); // Quadratic scaling of the force
+        ballPhysN.AddForce(dir * Mathf.Pow(sliderVal, 1.4f) * 2f); // Quadratic scaling of the force
         shots++;
     }
 
@@ -666,7 +656,7 @@ public class PlayerController : NetworkBehaviour
     private void CmdDisablePlayer()
     {
         canShoot = false;
-        rb.velocity = Vector3.zero;
+        ballPhysN.StopBall();
         RpcDisablePlayer();
     }
 
@@ -675,7 +665,7 @@ public class PlayerController : NetworkBehaviour
     {
         int type = -1;
         canShoot = false;
-        rb.velocity = Vector3.zero;
+        ballPhysN.StopBall();
 
         int par = lobbyManager.GetPar();
 
@@ -728,7 +718,7 @@ public class PlayerController : NetworkBehaviour
     private void CmdOutOfStrokes()
     {
         canShoot = false;
-        rb.velocity = Vector3.zero;
+        ballPhysN.StopBall();
 
         // Disable collisions with other balls while in the hole
         for (int i = FirstLayer; i < FirstLayer + 4; i++)
@@ -755,7 +745,7 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdResetPosition(Vector3 lastPos)
     {
-        rb.velocity = Vector3.zero;
+        ballPhysN.StopBall();
         transform.position = lastPos;
         RpcForceUpdatePosition(lastPos);
     }
@@ -771,9 +761,9 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdBoost(Vector3 dir, float multFactor, float addFactor)
     {
-        float angle = Vector3.Angle(rb.velocity, dir);
-        rb.velocity *= multFactor * (angle > 90f ? -0.1f : 1f);
-        rb.AddForce(dir * addFactor);
+        float angle = Vector3.Angle(ballPhysN.velocityCapped, dir);
+        ballPhysN.MultiplySpeed(multFactor * (angle > 90f ? -0.1f : 1f));
+        ballPhysN.AddForce(dir * addFactor);
     }
 
 

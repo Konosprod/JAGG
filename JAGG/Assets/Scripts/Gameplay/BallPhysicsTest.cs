@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BallPhysicsTest : MonoBehaviour
@@ -25,6 +26,8 @@ public class BallPhysicsTest : MonoBehaviour
     public Vector3 velocityCapped = Vector3.zero;
 
     private const float maxVelocityMagnitude = 40f;
+
+    private int personalFrames = -1;
 
     // Use this for initialization
     void Start()
@@ -60,6 +63,8 @@ public class BallPhysicsTest : MonoBehaviour
 
     void FixedUpdate()
     {
+        personalFrames++;
+
         grounded = false;
 
         if (velocityTrue.magnitude > maxVelocityMagnitude) // Cap the velocity of the ball
@@ -473,7 +478,7 @@ public class BallPhysicsTest : MonoBehaviour
     public void OnTriggerEnter(Collider other)
     {
         GameObject collided = other.gameObject;
-        //Debug.Log("Collided with : " + collided.name);
+        //Debug.Log("Collided with : " + collided.name + ", at frame : " + personalFrames);
 
         // Other ball
         if (collided.CompareTag("Player"))
@@ -513,6 +518,7 @@ public class BallPhysicsTest : MonoBehaviour
         {
             RotatePiece rtp = collided.GetComponentInParent<RotatePiece>();
             MovingPiece mvp = collided.GetComponentInParent<MovingPiece>();
+
             if (rtp != null && !rtp.ballsOnTop.Contains(gameObject) && rtp.isRotation)
             {
                 //Debug.Log("RotatePiece attack : " + collided.name);
@@ -522,11 +528,10 @@ public class BallPhysicsTest : MonoBehaviour
                 bool overlapped = Physics.ComputePenetration(GetComponent<Collider>(), transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
                 //Debug.Log(overlapped + ", direction : " + direction.ToString("F6") + ", distance : " + distance);
                 //Debug.DrawRay(transform.position, direction, Color.red, 3f);
-
-                transform.position += direction * Mathf.Max(distance, 0.04f);
+                
 
                 if (overlapped)
-                    AddForce(direction * 120f * 2f * (1 / rtp.spinTime * rtp.rotationAngle / 90f));
+                    StartCoroutine(HitByRTP(direction, distance, rtp));
 
                 //Debug.Break();
             }
@@ -541,12 +546,10 @@ public class BallPhysicsTest : MonoBehaviour
                 //Debug.Log(overlapped + ", direction : " + direction.ToString("F6") + ", distance : " + distance);
                 //Debug.Log(Vector3.Dot(direction, (mvp.initPos - mvp.destPos).normalized).ToString("F6"));
                 //Debug.DrawRay(transform.position, direction, Color.red, 3f);
-
-
-                transform.position += direction * Mathf.Max(distance, 0.01f) * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos)); // Fix position to get out of the collider
+                
 
                 if (overlapped && mvp.isMoving)
-                    AddForce(direction * 144f * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos)));
+                    StartCoroutine(HitByMVP(direction, distance, mvp));
 
 
                 Collider[] cols = Physics.OverlapSphere(transform.position + velocityCapped * Time.fixedDeltaTime, 0.049f, 1 << layerFloor | 1 << layerWall);
@@ -563,6 +566,28 @@ public class BallPhysicsTest : MonoBehaviour
 
                 //Debug.Break();
             }
+        }
+    }
+
+    public IEnumerator HitByRTP(Vector3 direction, float distance, RotatePiece rtp)
+    {
+        yield return new WaitForFixedUpdate();
+        //Debug.Log("Solve rtp hit : " + personalFrames);
+        if (!rtp.ballsOnTop.Contains(gameObject))
+        {
+            //Debug.Log("Apply rtp hit at : " + personalFrames);
+            transform.position += direction * Mathf.Max(distance, 0.04f);
+            AddForce(direction * 120f * 2f * (1 / rtp.spinTime * rtp.rotationAngle / 90f));
+        }
+    }
+
+    public IEnumerator HitByMVP(Vector3 direction, float distance, MovingPiece mvp)
+    {
+        yield return new WaitForFixedUpdate();
+        if(!mvp.ballsOnTop.Contains(gameObject))
+        {
+            transform.position += direction * Mathf.Max(distance, 0.01f) * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos));
+            AddForce(direction * 144f * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos)));
         }
     }
 

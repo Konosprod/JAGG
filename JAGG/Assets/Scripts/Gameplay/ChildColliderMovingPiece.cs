@@ -36,6 +36,7 @@ public class ChildColliderMovingPiece : MonoBehaviour
     void OnTriggerEnter(Collider col)
     {
         GameObject ball = col.gameObject;
+        //Debug.Log("CCMVP : " + ball);
         if (ball.layer >= layerBall && ball.layer <= layerBall4)
         {
             if (rtpParent != null)

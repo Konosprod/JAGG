@@ -46,8 +46,7 @@ public class ReplayManager : MonoBehaviour
                 PlayReplay();
                 LevelEditorMovingPieceManager._instance.ResetAllMVPs();
                 LevelEditorMovingPieceManager._instance.ResetAllRTPs();
-
-                replayObjects[0].TestSerialize();
+                
                 Debug.Log("Replay start at frame : " + fixedFrameCount);
             }
         }
@@ -55,6 +54,17 @@ public class ReplayManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.S))
         {
             TestSerialization();
+            SaveInFile(@"C:\Users\Public\TestFolder\TestReplay.rpl");
+        }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadFromFile(@"C:\Users\Public\TestFolder\TestReplay.rpl");
+            PlayReplay();
+            LevelEditorMovingPieceManager._instance.ResetAllMVPs();
+            LevelEditorMovingPieceManager._instance.ResetAllRTPs();
+
+            Debug.Log("Replay start at frame : " + fixedFrameCount);
         }
     }
 
@@ -89,10 +99,10 @@ public class ReplayManager : MonoBehaviour
                     else if (inp.sliderValue == -2f)
                     {
                         // -2f is when the ball is reset to its former position
-                        ro.transform.position = ro.inputs[0].pos;
+                        ro.transform.position = inp.pos;
                         ro.physics.velocityCapped = Vector3.zero;
                     }
-                    else if (inp.sliderValue == -3f)
+                    /*else if (inp.sliderValue == -3f)
                     {
                         // -3f is RotatePiece must start coroutine
                         Debug.Log("Replay rotation at : " + fixedFrameCount);
@@ -112,7 +122,7 @@ public class ReplayManager : MonoBehaviour
                         Debug.Log("Replay moving backward at : " + fixedFrameCount);
                         ro.mvp.isMoving = true;
                         ro.mvp.coroutine = StartCoroutine(ro.mvp.MoveMe(ro.mvp.destPos, ro.mvp.initPos, ro.mvp.travelTime));
-                    }
+                    }*/
 
                     ro.inputs.RemoveAt(0);
                 }
@@ -155,6 +165,48 @@ public class ReplayManager : MonoBehaviour
     }
 
 
+    public void SaveInFile(string filePath)
+    {
+        using (Stream stream = File.Open(filePath, FileMode.Create))
+        {
+            IFormatter formatter = new BinaryFormatter();
+            try
+            {
+                // Serialize the InputInfos into the stream
+                formatter.Serialize(stream, replayObjects);
+            }
+            catch (SerializationException e)
+            {
+                Debug.Log("Serialization failed : " + e.Message);
+                throw;
+            }
+        }
+    }
+
+    public void LoadFromFile(string filePath)
+    {
+        using (Stream stream = File.Open(filePath, FileMode.Open))
+        {
+            IFormatter formatter = new BinaryFormatter();
+            try
+            {
+                // Deserialize the InputInfos from the stream
+                List<ReplayObject> replayObjs = (List<ReplayObject>)formatter.Deserialize(stream);
+
+                replayObjects = replayObjs;
+
+                // Verify that it all worked.
+                foreach (ReplayObject ro in replayObjs)
+                    Debug.Log(ro);
+            }
+            catch (SerializationException e)
+            {
+                Debug.Log("Deserialization failed : " + e.Message);
+                throw;
+            }
+        }
+    }
+
     // Serialization test placeholder for future file saving
     public void TestSerialization()
     {
@@ -163,12 +215,12 @@ public class ReplayManager : MonoBehaviour
         // Create a MemoryStream that the object will be serialized into and deserialized from.
         using (Stream stream = new MemoryStream())
         {
-            SurrogateSelector ss = new SurrogateSelector();
+            /*SurrogateSelector ss = new SurrogateSelector();
             ss.AddSurrogate(typeof(ReplayObject),
             new StreamingContext(StreamingContextStates.All),
             new ReplayObject.ReplayObjectSerializationSurrogate());
             // Associate the SurrogateSelector with the BinaryFormatter.
-            formatter.SurrogateSelector = ss;
+            formatter.SurrogateSelector = ss;*/
 
             try
             {
