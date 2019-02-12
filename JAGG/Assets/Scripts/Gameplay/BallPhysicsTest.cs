@@ -118,46 +118,52 @@ public class BallPhysicsTest : MonoBehaviour
                 Collider otherWallCol;
                 RaycastHit otherWallHit = CheckMovementWallCollision(transform.position, res);
                 otherWallCol = otherWallHit.collider;
+                wallDir = otherWallHit.normal;
                 int _pasDeBoucleInfiniPourAlex = 0;
                 while (otherWallCol != null && _pasDeBoucleInfiniPourAlex < 200)
                 {
-                    res = res - 2f * (Vector3.Dot(res, otherWallHit.normal) * otherWallHit.normal);
+                    Vector3 newRes = res - 2f * (Vector3.Dot(res, otherWallHit.normal) * otherWallHit.normal);
                     if (otherWallCol.gameObject.layer == layerFloor)
                     {
-                        res = Vector3.Lerp(dir, res, 0.7f);
-                        Vector3 project = Vector3.ProjectOnPlane(dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir), wallDir);
+                        newRes = Vector3.Lerp(res, newRes, 0.7f);
+                        Vector3 project = Vector3.ProjectOnPlane(res - 2f * (Vector3.Dot(res, wallDir) * wallDir), wallDir);
+
+                        //Debug.Log("oi");
+                        //Debug.Log("Dir : " + res.ToString("F6") + ", wallDir : " + wallDir.ToString("F6") + ", res : " + newRes.ToString("F6") + ", project : " + project.ToString("F6") + ", dot : " + Vector3.Dot(newRes.normalized, project.normalized));
+                        //Debug.DrawRay(rayWallHit.point, wallDir, Color.black, 2f);
+                        //Debug.Break();
 
                         // If the bounce is very close to the direction of the projection (which is to move along the floor) we use the projection
-                        if (Vector3.Dot(res.normalized, project.normalized) > 0.985f)
+                        if (Vector3.Dot(newRes.normalized, project.normalized) > 0.985f)
                         {
-                            res = project;
+                            newRes = project;
                         }
 
                         isBouncingOnFloor = true;
                         grounded = true;
-                        //Debug.Log("oi");
                     }
 
                     // Reduce the velocity if we find the same normal again
                     if (normals.Contains(otherWallHit.normal))
                     {
-                        res *= 0.9f;
+                        newRes *= 0.9f;
                         velocityTrue *= 0.9f;
                         if (velocityTrue.magnitude > maxVelocityMagnitude)
                         {
-                            res = res.normalized * maxVelocityMagnitude;
+                            newRes = newRes.normalized * maxVelocityMagnitude;
                         }
                         else
                         {
-                            res = res.normalized * velocityTrue.magnitude;
+                            newRes = newRes.normalized * velocityTrue.magnitude;
                         }
                     }
                     else
                         normals.Add(otherWallHit.normal);
 
-
+                    res = newRes;
                     otherWallHit = CheckMovementWallCollision(transform.position, res);
                     otherWallCol = otherWallHit.collider;
+                    wallDir = otherWallHit.normal;
 
                     _pasDeBoucleInfiniPourAlex++;
                     //Debug.Log("Nb consecutive obstacles : " + _pasDeBoucleInfiniPourAlex);
@@ -494,14 +500,9 @@ public class BallPhysicsTest : MonoBehaviour
             else if (velocityCapped.magnitude > velOther.magnitude)
             {
                 // Simple collision
-                //Debug.Log("Collision : " + collided.name);                
+                //Debug.Log("Collision : " + collided.name);
 
-                Vector3 v1 = velocityCapped;
-                Vector3 v2 = physicsOther.velocityCapped;
-                Vector3 x1 = transform.position;
-                Vector3 x2 = other.transform.position;
-                velocityCapped = v1 - (Vector3.Dot(v1 - v2, x1 - x2) / (x1 - x2).sqrMagnitude * (x1 - x2));
-                physicsOther.velocityCapped = v2 - (Vector3.Dot(v2 - v1, x2 - x1) / (x2 - x1).sqrMagnitude * (x2 - x1));
+                StartCoroutine(HitABall(physicsOther, other.transform.position));
                 //Debug.Break();
             }
         }
@@ -567,6 +568,18 @@ public class BallPhysicsTest : MonoBehaviour
                 //Debug.Break();
             }
         }
+    }
+
+    public IEnumerator HitABall(BallPhysicsTest physicsOther, Vector3 otherPos)
+    {
+        yield return new WaitForFixedUpdate();
+        //Debug.Log(name + " solving collision with : " + physicsOther.name + " at frame : " + personalFrames);
+        Vector3 v1 = velocityCapped;
+        Vector3 v2 = physicsOther.velocityCapped;
+        Vector3 x1 = transform.position;
+        Vector3 x2 = otherPos;
+        velocityCapped = v1 - (Vector3.Dot(v1 - v2, x1 - x2) / (x1 - x2).sqrMagnitude * (x1 - x2));
+        physicsOther.velocityCapped = v2 - (Vector3.Dot(v2 - v1, x2 - x1) / (x2 - x1).sqrMagnitude * (x2 - x1));
     }
 
     public IEnumerator HitByRTP(Vector3 direction, float distance, RotatePiece rtp)
