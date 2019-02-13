@@ -135,7 +135,6 @@ public class PhysicsTestDebug : MonoBehaviour
                             //Debug.Log("Rotation at : " + Time.frameCount);
                             rtp.isRotation = true;
                             rtp.timer = 0f;
-                            rtp.replay.AddInput(Vector3.zero, -3f, Vector3.zero);
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
                         }
                     }

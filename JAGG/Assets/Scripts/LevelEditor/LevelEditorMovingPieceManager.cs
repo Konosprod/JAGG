@@ -94,22 +94,19 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
             {
                 if (!rtp.flagStopRotation)
                 {
-                    if (!ReplayManager._instance.isReplayPlaying)
-                    {
-                        rtp.timer += Time.fixedDeltaTime;
+                    rtp.timer += Time.fixedDeltaTime;
 
-                        if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    {
+                        if (!rtp.isRotation)
                         {
-                            if (!rtp.isRotation)
-                            {
-                                Debug.Log("Rotation at : " + ReplayManager._instance.fixedFrameCount);
-                                rtp.isRotation = true;
-                                rtp.timer = 0f;
-                                rtp.replay.AddInput(Vector3.zero, -3f, Vector3.zero);
-                                rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
-                            }
+                            //Debug.Log("Rotation at : " + ReplayManager._instance.fixedFrameCount);
+                            rtp.isRotation = true;
+                            rtp.timer = 0f;
+                            rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
                         }
                     }
+
 
                     // Apply the rotation the balls on top of the piece
                     if (rtp.isRotation)
@@ -157,7 +154,6 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
                         if (mvp.isMoving)
                         {
                             mvp.forwardMove = !mvp.forwardMove;
-                            mvp.replay.AddInput(Vector3.zero, mvp.forwardMove ? -4f : -5f, Vector3.zero);
                             mvp.coroutine = StartCoroutine(mvp.MoveMe((mvp.forwardMove) ? mvp.initPos : mvp.destPos,
                                                                        (mvp.forwardMove) ? mvp.destPos : mvp.initPos,
                                                                        mvp.travelTime));

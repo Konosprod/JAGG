@@ -60,8 +60,6 @@ public class MovingPiece : CustomScript {
     // List of the balls that are currently on top on the piece
     public List<GameObject> ballsOnTop;
 
-    public ReplayObject replay;
-
     private PhysicsTestDebug ptd;
     public void SetPTD(PhysicsTestDebug physicsTestDebug) { ptd = physicsTestDebug; }
 
@@ -88,7 +86,6 @@ public class MovingPiece : CustomScript {
         }
 
         //initPos = transform.position;
-        replay = gameObject.AddComponent<ReplayObject>();
 
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach (Collider col in cols)

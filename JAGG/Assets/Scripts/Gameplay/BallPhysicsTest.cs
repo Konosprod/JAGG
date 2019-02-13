@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BallPhysicsTest : MonoBehaviour
@@ -25,6 +26,8 @@ public class BallPhysicsTest : MonoBehaviour
     public Vector3 velocityCapped = Vector3.zero;
 
     private const float maxVelocityMagnitude = 40f;
+
+    private int personalFrames = -1;
 
     // Use this for initialization
     void Start()
@@ -60,6 +63,8 @@ public class BallPhysicsTest : MonoBehaviour
 
     void FixedUpdate()
     {
+        personalFrames++;
+
         grounded = false;
 
         if (velocityTrue.magnitude > maxVelocityMagnitude) // Cap the velocity of the ball
@@ -113,46 +118,52 @@ public class BallPhysicsTest : MonoBehaviour
                 Collider otherWallCol;
                 RaycastHit otherWallHit = CheckMovementWallCollision(transform.position, res);
                 otherWallCol = otherWallHit.collider;
+                wallDir = otherWallHit.normal;
                 int _pasDeBoucleInfiniPourAlex = 0;
                 while (otherWallCol != null && _pasDeBoucleInfiniPourAlex < 200)
                 {
-                    res = res - 2f * (Vector3.Dot(res, otherWallHit.normal) * otherWallHit.normal);
+                    Vector3 newRes = res - 2f * (Vector3.Dot(res, otherWallHit.normal) * otherWallHit.normal);
                     if (otherWallCol.gameObject.layer == layerFloor)
                     {
-                        res = Vector3.Lerp(dir, res, 0.7f);
-                        Vector3 project = Vector3.ProjectOnPlane(dir - 2f * (Vector3.Dot(dir, wallDir) * wallDir), wallDir);
+                        newRes = Vector3.Lerp(res, newRes, 0.7f);
+                        Vector3 project = Vector3.ProjectOnPlane(res - 2f * (Vector3.Dot(res, wallDir) * wallDir), wallDir);
+
+                        //Debug.Log("oi");
+                        //Debug.Log("Dir : " + res.ToString("F6") + ", wallDir : " + wallDir.ToString("F6") + ", res : " + newRes.ToString("F6") + ", project : " + project.ToString("F6") + ", dot : " + Vector3.Dot(newRes.normalized, project.normalized));
+                        //Debug.DrawRay(rayWallHit.point, wallDir, Color.black, 2f);
+                        //Debug.Break();
 
                         // If the bounce is very close to the direction of the projection (which is to move along the floor) we use the projection
-                        if (Vector3.Dot(res.normalized, project.normalized) > 0.985f)
+                        if (Vector3.Dot(newRes.normalized, project.normalized) > 0.985f)
                         {
-                            res = project;
+                            newRes = project;
                         }
 
                         isBouncingOnFloor = true;
                         grounded = true;
-                        //Debug.Log("oi");
                     }
 
                     // Reduce the velocity if we find the same normal again
                     if (normals.Contains(otherWallHit.normal))
                     {
-                        res *= 0.9f;
+                        newRes *= 0.9f;
                         velocityTrue *= 0.9f;
                         if (velocityTrue.magnitude > maxVelocityMagnitude)
                         {
-                            res = res.normalized * maxVelocityMagnitude;
+                            newRes = newRes.normalized * maxVelocityMagnitude;
                         }
                         else
                         {
-                            res = res.normalized * velocityTrue.magnitude;
+                            newRes = newRes.normalized * velocityTrue.magnitude;
                         }
                     }
                     else
                         normals.Add(otherWallHit.normal);
 
-
+                    res = newRes;
                     otherWallHit = CheckMovementWallCollision(transform.position, res);
                     otherWallCol = otherWallHit.collider;
+                    wallDir = otherWallHit.normal;
 
                     _pasDeBoucleInfiniPourAlex++;
                     //Debug.Log("Nb consecutive obstacles : " + _pasDeBoucleInfiniPourAlex);
@@ -473,7 +484,7 @@ public class BallPhysicsTest : MonoBehaviour
     public void OnTriggerEnter(Collider other)
     {
         GameObject collided = other.gameObject;
-        //Debug.Log("Collided with : " + collided.name);
+        //Debug.Log("Collided with : " + collided.name + ", at frame : " + personalFrames);
 
         // Other ball
         if (collided.CompareTag("Player"))
@@ -489,14 +500,9 @@ public class BallPhysicsTest : MonoBehaviour
             else if (velocityCapped.magnitude > velOther.magnitude)
             {
                 // Simple collision
-                //Debug.Log("Collision : " + collided.name);                
+                //Debug.Log("Collision : " + collided.name);
 
-                Vector3 v1 = velocityCapped;
-                Vector3 v2 = physicsOther.velocityCapped;
-                Vector3 x1 = transform.position;
-                Vector3 x2 = other.transform.position;
-                velocityCapped = v1 - (Vector3.Dot(v1 - v2, x1 - x2) / (x1 - x2).sqrMagnitude * (x1 - x2));
-                physicsOther.velocityCapped = v2 - (Vector3.Dot(v2 - v1, x2 - x1) / (x2 - x1).sqrMagnitude * (x2 - x1));
+                StartCoroutine(HitABall(physicsOther, other.transform.position));
                 //Debug.Break();
             }
         }
@@ -513,6 +519,7 @@ public class BallPhysicsTest : MonoBehaviour
         {
             RotatePiece rtp = collided.GetComponentInParent<RotatePiece>();
             MovingPiece mvp = collided.GetComponentInParent<MovingPiece>();
+
             if (rtp != null && !rtp.ballsOnTop.Contains(gameObject) && rtp.isRotation)
             {
                 //Debug.Log("RotatePiece attack : " + collided.name);
@@ -522,11 +529,10 @@ public class BallPhysicsTest : MonoBehaviour
                 bool overlapped = Physics.ComputePenetration(GetComponent<Collider>(), transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
                 //Debug.Log(overlapped + ", direction : " + direction.ToString("F6") + ", distance : " + distance);
                 //Debug.DrawRay(transform.position, direction, Color.red, 3f);
-
-                transform.position += direction * Mathf.Max(distance, 0.04f);
+                
 
                 if (overlapped)
-                    AddForce(direction * 120f * 2f * (1 / rtp.spinTime * rtp.rotationAngle / 90f));
+                    StartCoroutine(HitByRTP(direction, distance, rtp));
 
                 //Debug.Break();
             }
@@ -541,27 +547,59 @@ public class BallPhysicsTest : MonoBehaviour
                 //Debug.Log(overlapped + ", direction : " + direction.ToString("F6") + ", distance : " + distance);
                 //Debug.Log(Vector3.Dot(direction, (mvp.initPos - mvp.destPos).normalized).ToString("F6"));
                 //Debug.DrawRay(transform.position, direction, Color.red, 3f);
-
-
-                transform.position += direction * Mathf.Max(distance, 0.01f) * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos)); // Fix position to get out of the collider
+                
 
                 if (overlapped && mvp.isMoving)
-                    AddForce(direction * 144f * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos)));
+                    StartCoroutine(HitByMVP(direction, distance, mvp));
 
-
-                Collider[] cols = Physics.OverlapSphere(transform.position + velocityCapped * Time.fixedDeltaTime, 0.049f, 1 << layerFloor | 1 << layerWall);
-                if (cols.Length > 0)
-                {
-                    //Debug.LogError("We are getting crushed by a moving piece"); // LogError because there are two solutions to the problem => Explode the ball / Move it away from those colliders
-                    //Debug.Break();
-                    AddForce(-velocityCapped * 60f);
-                    AddForce(Vector3.up * 360f);
-                    transform.position += Vector3.up * 0.2f;
-                }
-
+                
                 //Debug.DrawRay(transform.position + velocityCapped * Time.fixedDeltaTime, Vector3.up, Color.blue, 1f);
 
                 //Debug.Break();
+            }
+        }
+    }
+
+    public IEnumerator HitABall(BallPhysicsTest physicsOther, Vector3 otherPos)
+    {
+        yield return new WaitForFixedUpdate();
+        //Debug.Log(name + " solving collision with : " + physicsOther.name + " at frame : " + personalFrames);
+        Vector3 v1 = velocityCapped;
+        Vector3 v2 = physicsOther.velocityCapped;
+        Vector3 x1 = transform.position;
+        Vector3 x2 = otherPos;
+        velocityCapped = v1 - (Vector3.Dot(v1 - v2, x1 - x2) / (x1 - x2).sqrMagnitude * (x1 - x2));
+        physicsOther.velocityCapped = v2 - (Vector3.Dot(v2 - v1, x2 - x1) / (x2 - x1).sqrMagnitude * (x2 - x1));
+    }
+
+    public IEnumerator HitByRTP(Vector3 direction, float distance, RotatePiece rtp)
+    {
+        yield return new WaitForFixedUpdate();
+        //Debug.Log("Solve rtp hit : " + personalFrames);
+        if (!rtp.ballsOnTop.Contains(gameObject))
+        {
+            //Debug.Log("Apply rtp hit at : " + personalFrames);
+            transform.position += direction * Mathf.Max(distance, 0.04f);
+            AddForce(direction * 120f * 2f * (1 / rtp.spinTime * rtp.rotationAngle / 90f));
+        }
+    }
+
+    public IEnumerator HitByMVP(Vector3 direction, float distance, MovingPiece mvp)
+    {
+        yield return new WaitForFixedUpdate();
+        if(!mvp.ballsOnTop.Contains(gameObject))
+        {
+            transform.position += direction * Mathf.Max(distance, 0.01f) * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos));
+            AddForce(direction * 144f * (1 / mvp.travelTime * Vector3.Distance(mvp.initPos, mvp.destPos)));
+
+            Collider[] cols = Physics.OverlapSphere(transform.position + velocityCapped * Time.fixedDeltaTime, 0.049f, 1 << layerFloor | 1 << layerWall);
+            if (cols.Length > 0)
+            {
+                //Debug.LogError("We are getting crushed by a moving piece"); // LogError because there are two solutions to the problem => Explode the ball / Move it away from those colliders
+                //Debug.Break();
+                AddForce(-velocityCapped * 60f);
+                AddForce(Vector3.up * 360f);
+                transform.position += Vector3.up * 0.2f;
             }
         }
     }

@@ -60,7 +60,7 @@ public class RotatePiece : CustomScript
 
     public Quaternion goalAngle = Quaternion.identity;
 
-    public ReplayObject replay;
+    //public ReplayObject replay;
 
     private PhysicsTestDebug ptd;
     public void SetPTD(PhysicsTestDebug physicsTestDebug) { ptd = physicsTestDebug; }
@@ -78,9 +78,6 @@ public class RotatePiece : CustomScript
 
         timer = -timerOffset;
         rotationAngle = 360 / nbRotations;
-
-
-        replay = gameObject.AddComponent<ReplayObject>();
 
         Collider[] cols = GetComponentsInChildren<Collider>();
         foreach (Collider col in cols)

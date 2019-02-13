@@ -52,10 +52,10 @@ public class LobbyManager : NetworkLobbyManager
         _instance = this;
 
         if (playerManager == null)
-            Debug.Log("need playermanager");
+            Debug.LogError("need playermanager");
 
         if (EndOfGamePos == null)
-            Debug.Log("NEED ENDOFGAMEPREFAB");
+            Debug.LogError("NEED ENDOFGAMEPREFAB");
 
         mainPanel.GetComponent<Fader>().FadeIn(0.2f, delegate() { mainPanel.GetComponent<CanvasGroup>().blocksRaycasts = true; });
     }
