@@ -90,6 +90,7 @@ public class MapStore : MonoBehaviour
             searching = true;
             CleanList();
             offsetSearching = 0;
+            offset = 0;
             StartCoroutine(SearchMaps());
         }
         else
@@ -98,6 +99,7 @@ public class MapStore : MonoBehaviour
             searching = false;
             CleanList();
             offsetSearching = 0;
+            offset = 0;
             StartCoroutine(GetNextMaps());
         }
     }
@@ -163,6 +165,8 @@ public class MapStore : MonoBehaviour
         else
         {
             JSONNode node = JSON.Parse(www.downloadHandler.text);
+
+            Debug.Log(www.downloadHandler.text);
 
             foreach(JSONNode n in node.Children)
             {
