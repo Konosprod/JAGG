@@ -44,11 +44,17 @@ public class BallPhysicsNetwork : NetworkBehaviour {
 
     private const float maxVelocityMagnitude = 40f;
 
+    private PlayerController playerController;
+    private Collider ballCollider;
+
     // Use this for initialization
     void Start()
     {
         layerFloor = LayerMask.NameToLayer("Floor");
         layerWall = LayerMask.NameToLayer("Wall");
+
+        playerController = GetComponent<PlayerController>();
+        ballCollider = GetComponent<Collider>();
     }
 
     void Update()
@@ -260,7 +266,7 @@ public class BallPhysicsNetwork : NetworkBehaviour {
                     Collider other = hit.collider;
                     Vector3 direction;
                     float distance;
-                    bool overlapped = Physics.ComputePenetration(GetComponent<Collider>(), transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
+                    bool overlapped = Physics.ComputePenetration(ballCollider, transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
                     if (overlapped)
                     {
                         RaycastHit check;
@@ -401,7 +407,7 @@ public class BallPhysicsNetwork : NetworkBehaviour {
                 Collider other = cols[0];
                 Vector3 direction;
                 float distance;
-                bool overlapped = Physics.ComputePenetration(GetComponent<Collider>(), transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
+                bool overlapped = Physics.ComputePenetration(ballCollider, transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
                 if (overlapped)
                 {
                     transform.position += direction * distance;
@@ -529,6 +535,8 @@ public class BallPhysicsNetwork : NetworkBehaviour {
     }
 
 
+    // We do most things in coroutines so that it happens after all OnTriggerEnter events are called
+    // It avoids any order related issues
     public void OnTriggerEnter(Collider other)
     {
         if(!isServer) // Filthy clients have nothing to do here !
@@ -549,6 +557,13 @@ public class BallPhysicsNetwork : NetworkBehaviour {
             {
                 // Destroy other player
                 Debug.Log("Destroy : " + collided.name);
+                // Disable collisions with other balls while destroyed
+                for (int i = PlayerController.FirstLayer; i < PlayerController.FirstLayer + 4; i++)
+                {
+                    if (i != collided.layer)
+                        Physics.IgnoreLayerCollision(collided.layer, i, true);
+                }
+                playerController.DestroyBall(collided);
             }
             else if (velocityCapped.magnitude > velOther.magnitude)
             {
@@ -579,7 +594,7 @@ public class BallPhysicsNetwork : NetworkBehaviour {
                 Vector3 direction;
                 float distance;
 
-                bool overlapped = Physics.ComputePenetration(GetComponent<Collider>(), transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
+                bool overlapped = Physics.ComputePenetration(ballCollider, transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
                 //Debug.Log(overlapped + ", direction : " + direction.ToString("F6") + ", distance : " + distance);
                 //Debug.DrawRay(transform.position, direction, Color.red, 3f);
 
@@ -595,7 +610,7 @@ public class BallPhysicsNetwork : NetworkBehaviour {
                 Vector3 direction;
                 float distance;
 
-                bool overlapped = Physics.ComputePenetration(GetComponent<Collider>(), transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
+                bool overlapped = Physics.ComputePenetration(ballCollider, transform.position, transform.rotation, other, other.transform.position, other.transform.rotation, out direction, out distance);
 
                 //Debug.Log(overlapped + ", direction : " + direction.ToString("F6") + ", distance : " + distance);
                 //Debug.Log(Vector3.Dot(direction, (mvp.initPos - mvp.destPos).normalized).ToString("F6"));

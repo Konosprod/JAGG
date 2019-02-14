@@ -20,7 +20,7 @@ public class PhysicsTestDebug : MonoBehaviour
     public float currentTimer;
     public float velocityMagnitude;
     public Vector3 velocity;
-
+    public bool logToConsole = false;
 
 
     private Vector3 startPos;
@@ -278,10 +278,10 @@ public class PhysicsTestDebug : MonoBehaviour
 
         framesFromStart++;
 
-        if (physics.velocityCapped.magnitude > 0f)
+        if (logToConsole && physics.velocityCapped.magnitude > 0f)
         {
-            //if (framesFromStart % 1 == 0 /*&& framesFromStart <= 75*/)
-            //Debug.Log("Frame : " + framesFromStart + ", position : " + transform.position.ToString("F8") + ", velocity : " + physics.velocityCapped.ToString("F8"));
+            if (framesFromStart % 1 == 0 /*&& framesFromStart <= 75*/)
+                Debug.Log("Frame : " + framesFromStart + ", position : " + transform.position.ToString("F8") + ", velocity : " + physics.velocityCapped.ToString("F8"));
 
             /*if (framesFromStart == 74)
                 Debug.Break();*/

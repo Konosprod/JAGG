@@ -55,7 +55,7 @@ public class PlayerController : NetworkBehaviour
 
     private Vector3 lastStopPos = Vector3.zero;
 
-    private const int FirstLayer = 9;
+    public static int FirstLayer = 9;
 
     private bool flagEnableTrail = false;
 
@@ -479,6 +479,11 @@ public class PlayerController : NetworkBehaviour
         RpcShowScores();
     }
 
+    public void DestroyBall(GameObject ball)
+    {
+        CmdDestroyBall(ball);
+    }
+
     public void AddItem(GameObject item)
     {
         if (isLocalPlayer)
@@ -519,8 +524,10 @@ public class PlayerController : NetworkBehaviour
 
     public void InWindArea(float strength, Vector3 direction)
     {
+        //Debug.Log("InWindArea1");
         if (isLocalPlayer)
         {
+            //Debug.Log("InWindArea2");
             CmdWindArea(strength, direction);
         }
     }
@@ -570,7 +577,9 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdWindArea(float strength, Vector3 direction)
     {
+        //Debug.Log("CmdWindArea");
         ballPhysN.AddForce(direction * strength);
+        ballPhysN.isBouncingOnFloor = true;
     }
 
     [Command]
