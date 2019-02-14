@@ -5,6 +5,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public class PlayerManager : NetworkBehaviour
 {
 

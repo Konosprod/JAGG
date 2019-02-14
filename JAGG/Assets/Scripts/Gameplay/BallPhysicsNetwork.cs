@@ -4,6 +4,8 @@ using UnityEngine.Networking;
 using UnityEngine;
 
 
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public enum GravityType
 {
     Normal = 0,
@@ -550,9 +552,9 @@ public class BallPhysicsNetwork : NetworkBehaviour {
         // Other ball
         if (collided.CompareTag("Player"))
         {
-            BallPhysicsTest physicsOther = collided.GetComponent<BallPhysicsTest>();
+            BallPhysicsNetwork physicsOther = collided.GetComponent<BallPhysicsNetwork>();
             Vector3 velOther = physicsOther.velocityCapped;
-            //Debug.Log("My velocity magnitude : " + velocityCapped.magnitude + ", otherVel magnitude : " + velOther.magnitude);
+            Debug.Log("My velocity magnitude : " + velocityCapped.magnitude + ", otherVel magnitude : " + velOther.magnitude);
             if (velocityCapped.magnitude > velOther.magnitude + 3f)
             {
                 // Destroy other player
@@ -628,7 +630,7 @@ public class BallPhysicsNetwork : NetworkBehaviour {
         }
     }
 
-    public IEnumerator HitABall(BallPhysicsTest physicsOther, Vector3 otherPos)
+    public IEnumerator HitABall(BallPhysicsNetwork physicsOther, Vector3 otherPos)
     {
         yield return new WaitForFixedUpdate();
         //Debug.Log(name + " solving collision with : " + physicsOther.name + " at frame : " + personalFrames);

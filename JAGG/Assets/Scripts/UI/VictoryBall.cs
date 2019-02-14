@@ -2,6 +2,9 @@
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public class VictoryBall : NetworkBehaviour {
 
     [SyncVar]

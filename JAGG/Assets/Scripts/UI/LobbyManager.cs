@@ -6,6 +6,9 @@ using System;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public class LobbyManager : NetworkLobbyManager
 {
     static public LobbyManager _instance;

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
 
+
+// This whole class is useless now => BallPhysicsNetwork is the right one
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 /*public enum GravityType
 {
     Normal = 0,

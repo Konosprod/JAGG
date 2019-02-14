@@ -6,6 +6,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Assets.Pixelation.Scripts;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 [NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour
 {

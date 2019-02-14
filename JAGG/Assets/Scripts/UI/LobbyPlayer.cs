@@ -11,6 +11,9 @@ using Ionic.Zip;
 using System;
 using Newtonsoft.Json.Linq;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public class LobbyPlayer : NetworkLobbyPlayer {
 
     public Text playerNameLabel;

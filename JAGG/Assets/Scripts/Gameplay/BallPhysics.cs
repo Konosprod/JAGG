@@ -485,7 +485,7 @@ public class BallPhysics : MonoBehaviour
         // Other ball
         if (collided.CompareTag("Player"))
         {
-            BallPhysicsTest physicsOther = collided.GetComponent<BallPhysicsTest>();
+            BallPhysics physicsOther = collided.GetComponent<BallPhysics>();
             Vector3 velOther = physicsOther.velocityCapped;
             //Debug.Log("My velocity magnitude : " + velocityCapped.magnitude + ", otherVel magnitude : " + velOther.magnitude);
             if (velocityCapped.magnitude > velOther.magnitude + 3f)
@@ -556,7 +556,7 @@ public class BallPhysics : MonoBehaviour
         }
     }
 
-    public IEnumerator HitABall(BallPhysicsTest physicsOther, Vector3 otherPos)
+    public IEnumerator HitABall(BallPhysics physicsOther, Vector3 otherPos)
     {
         yield return new WaitForFixedUpdate();
         //Debug.Log(name + " solving collision with : " + physicsOther.name + " at frame : " + personalFrames);
