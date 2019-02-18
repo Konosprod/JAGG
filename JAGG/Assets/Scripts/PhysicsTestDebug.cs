@@ -103,6 +103,21 @@ public class PhysicsTestDebug : MonoBehaviour
                 mvp.SetPTD(this);
             }
         }
+
+        SetTagsForOOB(transform.parent);
+    }
+
+    void SetTagsForOOB(Transform t)
+    {
+        if (t.CompareTag("Player"))
+            return;
+
+        t.tag = "Hole 1";
+        foreach (Transform child in t)
+        {
+            //Debug.Log("SetTag on : " + child.name);
+            SetTagsForOOB(child);
+        }
     }
 
     void LateUpdate()

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 [RequireComponent(typeof(Collider))]
@@ -42,12 +43,20 @@ public class ChildColliderMovingPiece : MonoBehaviour
             if (rtpParent != null)
             {
                 if (!rtpParent.ballsOnTop.Contains(ball))
+                {
                     rtpParent.ballsOnTop.Add(ball);
+                    if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor") // TODO : Ajouter la scène de Replay finale (quand elle existera)
+                        ball.GetComponent<PlayerController>().isOnRtpMvp++;
+                }
             }
             if (mvpParent != null)
             {
                 if (!mvpParent.ballsOnTop.Contains(ball))
+                {
                     mvpParent.ballsOnTop.Add(ball);
+                    if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor")
+                        ball.GetComponent<PlayerController>().isOnRtpMvp++;
+                }
             }
             
 
@@ -64,10 +73,14 @@ public class ChildColliderMovingPiece : MonoBehaviour
             if (rtpParent != null)
             {
                 rtpParent.ballsOnTop.Remove(ball);
+                if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor")
+                    ball.GetComponent<PlayerController>().isOnRtpMvp--;
             }
             if (mvpParent != null)
             {
                 mvpParent.ballsOnTop.Remove(ball);
+                if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor")
+                    ball.GetComponent<PlayerController>().isOnRtpMvp--;
             }
 
 

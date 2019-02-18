@@ -31,8 +31,9 @@ public class LobbyManager : NetworkLobbyManager
 
     [HideInInspector]
     public GameObject hole;
+    
 
-    private int currentHole = 1;
+    public int currentHole = 1;
 
     private GameTimer gameTimer;
 

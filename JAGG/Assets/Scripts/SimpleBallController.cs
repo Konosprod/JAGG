@@ -141,34 +141,43 @@ public class SimpleBallController : MonoBehaviour
         timer += Time.deltaTime;
 
 
-        if (!Physics.Raycast(transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
+        RaycastHit oobHit;
+        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall)) // TODO : redo OOB system entirely
         {
-            if (isOOB)
+            if (oobHit.collider.gameObject.CompareTag("Hole 1"))
             {
-                //Debug.Log("OOB, time left before reset : " + oobActualResetTimer);
-                oobActualResetTimer -= Time.deltaTime;
-                if (oobActualResetTimer < 0f)
-                {
-                    isOOB = false;
-                    ParticleSystem.EmissionModule em = trail.emission;
-                    em.enabled = false;
-                    physics.velocityCapped = Vector3.zero;
-                    transform.position = lastPos;
-
-                    replay.AddInput(Vector3.zero, -2f, lastPos);
-
-                    flagEnableTrail = true;
-                }
+                isOOB = false;
             }
             else
             {
-                isOOB = true;
-                oobActualResetTimer = oobInitialResetTimer;
+                if (isOOB)
+                {
+                    //Debug.Log("OOB, time left before reset : " + oobActualResetTimer);
+                    oobActualResetTimer -= Time.deltaTime;
+                    if (oobActualResetTimer < 0f)
+                    {
+                        isOOB = false;
+                        ParticleSystem.EmissionModule em = trail.emission;
+                        em.enabled = false;
+                        physics.velocityCapped = Vector3.zero;
+                        transform.position = lastPos;
+
+                        replay.AddInput(Vector3.zero, -2f, lastPos);
+
+                        flagEnableTrail = true;
+                    }
+                }
+                else
+                {
+                    isOOB = true;
+                    oobActualResetTimer = oobInitialResetTimer;
+                }
             }
         }
         else
         {
-            isOOB = false;
+            isOOB = true;
+            Debug.LogError("Void below us, is it ok ?");
         }
     }
 

@@ -15,8 +15,8 @@ public enum GravityType
 
 public class BallPhysicsNetwork : NetworkBehaviour {
 
-    private int layerFloor;
-    private int layerWall;
+    public static int layerFloor;
+    public static int layerWall;
 
     private const float epsilon = 0.00001f;
 
