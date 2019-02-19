@@ -163,6 +163,8 @@ public class CustomLevelLoader : MonoBehaviour {
                 o.SetActive(true);
                 loadedPieces.Add(o);
             }
+
+            EditorManager.RecursiveSetTags(hole.transform, "Hole " + (i + 1));
             /*
             foreach (JObject jPiece in jHole["pieces"])
             {

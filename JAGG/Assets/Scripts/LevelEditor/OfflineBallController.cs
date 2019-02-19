@@ -141,7 +141,7 @@ public class OfflineBallController : MonoBehaviour
 
         RaycastHit oobHit;
         Debug.DrawRay(transform.position, Vector3.down * 100, Color.red, 1f);
-        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << EditorManager.layerFloor | 1 << EditorManager.layerWall)) // TODO : redo OOB system entirely
+        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << EditorManager.layerFloor | 1 << EditorManager.layerWall))
         {
             if (oobHit.collider.gameObject.CompareTag("Hole " + (EditorManager._instance.GetCurrentHoleNumber() + 1)))
             {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+// For testing purposes only
 public class SimpleBallController : MonoBehaviour
 {
 
@@ -142,7 +144,7 @@ public class SimpleBallController : MonoBehaviour
 
 
         RaycastHit oobHit;
-        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall)) // TODO : redo OOB system entirely
+        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall))
         {
             if (oobHit.collider.gameObject.CompareTag("Hole 1"))
             {

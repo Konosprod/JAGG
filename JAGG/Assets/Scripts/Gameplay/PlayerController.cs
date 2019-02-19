@@ -306,7 +306,7 @@ public class PlayerController : NetworkBehaviour
 
         // Handle oob
         RaycastHit oobHit;
-        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall)) // TODO : redo OOB system entirely
+        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall))
         {
             if (oobHit.collider.gameObject.CompareTag("Hole " + lobbyManager.currentHole))
             {
@@ -418,7 +418,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other) // TODO : Maybe put it in BallphysicsNetwork instead
+    void OnTriggerEnter(Collider other)
     {
         GameObject otherGO = other.gameObject;
         if (otherGO.layer == LayerMask.NameToLayer("Hole"))
