@@ -2342,10 +2342,10 @@ RectTransform:
   m_Father: {fileID: 1742893961}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -80, y: -50}
-  m_SizeDelta: {x: 160, y: 100}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 80, y: -30}
+  m_SizeDelta: {x: 160, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &723434109
 MonoBehaviour:
@@ -2760,7 +2760,7 @@ PrefabInstance:
         type: 3}
       propertyPath: timerText
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1712208826}
     - target: {fileID: 114082755385505168, guid: 69d8550edd9fe6f44802574a298addc6,
         type: 3}
       propertyPath: m_AssetId.i0
@@ -5033,6 +5033,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1712208824}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1712208826 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114945764497940746, guid: 3513685b54e871147a7b3c810277c1dd,
+    type: 3}
+  m_PrefabInstance: {fileID: 1712208824}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1742893956
 GameObject:
   m_ObjectHideFlags: 0
@@ -5079,7 +5091,7 @@ MonoBehaviour:
   - {fileID: 81298486}
   - {fileID: 1125122836}
   - {fileID: 428105813}
-  holes: {fileID: 0}
+  holes: {fileID: 1468594265}
   panelPause: {fileID: 1764828241}
   buttonQuit: {fileID: 490403984}
   buttonReturn: {fileID: 611254248}
