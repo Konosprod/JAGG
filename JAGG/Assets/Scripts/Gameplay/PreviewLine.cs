@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public class PreviewLine : NetworkBehaviour
 {
     public PlayerController pc;

@@ -8,6 +8,9 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Bson;
 using System;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public class CustomLevelLoader : MonoBehaviour {
 
     public GameObject holes;
@@ -160,6 +163,8 @@ public class CustomLevelLoader : MonoBehaviour {
                 o.SetActive(true);
                 loadedPieces.Add(o);
             }
+
+            EditorManager.RecursiveSetTags(hole.transform, "Hole " + (i + 1));
             /*
             foreach (JObject jPiece in jHole["pieces"])
             {

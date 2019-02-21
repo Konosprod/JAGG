@@ -10,8 +10,8 @@ using UnityEngine.UI;
 public class EditorManager : MonoBehaviour
 {
     private static int layerPlane;
-    private static int layerFloor;
-    private static int layerWall;
+    public static int layerFloor;
+    public static int layerWall;
     private static int layerDecor;
     private static int layerGizmo;
     private static int layerSnap;
@@ -176,6 +176,20 @@ public class EditorManager : MonoBehaviour
 
     private List<GameObject> selectedSnapPoints = new List<GameObject>();
 
+    public static EditorManager _instance;
+
+    void Awake()
+    {
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 
     // Use this for initialization
     void Start()
@@ -666,7 +680,7 @@ public class EditorManager : MonoBehaviour
                         spawnP.transform.position = new Vector3(piece.transform.position.x, piece.transform.position.y + 0.2f, piece.transform.position.z);
 
                         GameObject currLinkedPiece = spawnPointsLinkedPiece[currentHole];
-                        if(currLinkedPiece != null)
+                        if (currLinkedPiece != null)
                         {
                             Destroy(currLinkedPiece.GetComponent<SaveLinkedPiece>());
                         }
@@ -738,7 +752,7 @@ public class EditorManager : MonoBehaviour
 
                                             // Utiliser ApproximatelyEquals serait peut-être mieux mais ne semble pas nécessaire
                                             bool checkZeroOrOneEighty = selectedSnapPoints[0].transform.rotation.eulerAngles.y == 0f || selectedSnapPoints[0].transform.rotation.eulerAngles.y == 180f;
-                                            
+
                                             //Debug.Log(selectedSnapPoints[0].transform.rotation.eulerAngles.y + ", b=" + checkZeroOrOneEighty);
 
                                             Quaternion deltaRot = piece.transform.rotation * selectedSnapPoints[0].transform.rotation * ((checkZeroOrOneEighty) ? Quaternion.Euler(0, 180f, 0) : Quaternion.identity);
@@ -959,7 +973,7 @@ public class EditorManager : MonoBehaviour
         {
             RaycastHit rayHitPiece;
             Ray rayPiece = Camera.main.ScreenPointToRay(pos);
-            if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection))
+            if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection) && rayHitPiece.transform.gameObject.name != "Plane_Decor")
             {
                 res = false;
                 Debug.Log("Cannot put the piece because of : " + rayHitPiece.transform.gameObject.name + ", parent : " + rayHitPiece.transform.parent.gameObject.name);
@@ -1445,7 +1459,7 @@ public class EditorManager : MonoBehaviour
     }
 
 
-#region PieceInformationEdit
+    #region PieceInformationEdit
 
     /*****************************
      *  Piece position
@@ -1957,9 +1971,9 @@ public class EditorManager : MonoBehaviour
             Debug.LogError("No or 2+ pieces selected whenre trying to update wind area");
     }
 
-#endregion
+    #endregion
 
-#region Undo/Redo Stack
+    #region Undo/Redo Stack
     public interface ICommand<T>
     {
         T Do(T input);
@@ -2032,6 +2046,7 @@ public class EditorManager : MonoBehaviour
                 _CP.result = Instantiate(_CP.prefab, _CP.position, _CP.rotation);
                 // Enable all colliders so that Raycasts do hit the piece
                 _CP.result.transform.parent = currentHoleObject.transform;
+                RecursiveSetTags(_CP.result.transform, "Hole " + (currentHole + 1));
                 SetAllCollidersStatus(true, _CP.result);
                 EnableSnappingPoints(_CP.result);
                 piecesInPlace[currentHole].Add(_CP.result);
@@ -2044,6 +2059,7 @@ public class EditorManager : MonoBehaviour
                     foreach (GameObject piece in _CP.selectedPieces)
                     {
                         GameObject newGO = Instantiate(prefabs[piece.name.Split('(')[0]], piece.transform.position, piece.transform.rotation);
+                        newGO.tag = "Hole " + (currentHole + 1);
                         newPieces.Add(newGO);
                         SetAllCollidersStatus(true, newGO);
                         EnableSnappingPoints(newGO);
@@ -2730,7 +2746,7 @@ public class EditorManager : MonoBehaviour
 
 
 
-#endregion
+    #endregion
 
     public Vector3 GetSpawnPosition()
     {
@@ -2851,7 +2867,7 @@ public class EditorManager : MonoBehaviour
 
                     // Recreate the link between the spawnpoint and piece
                     SaveLinkedPiece slp = p.gameObject.GetComponent<SaveLinkedPiece>();
-                    if(slp != null)
+                    if (slp != null)
                     {
                         slp.spawnPoint = spawnPoint;
                         spawnPointsLinkedPiece[i] = p.gameObject;
@@ -2982,7 +2998,7 @@ public class EditorManager : MonoBehaviour
 
     public void UpdateLevelProperties(int par, int maxshot, int time, int hole = -1)
     {
-        GameObject currentLevelProperties = levelsProperties[(hole == -1)?currentHole:hole];
+        GameObject currentLevelProperties = levelsProperties[(hole == -1) ? currentHole : hole];
 
         LevelProperties levelProp = currentLevelProperties.GetComponent<LevelProperties>();
 
@@ -3020,5 +3036,15 @@ public class EditorManager : MonoBehaviour
         gizmoTranslate.gameObject.SetActive(false);
         gizmoScale.gameObject.SetActive(false);
         gizmoTranslate.gameObject.SetActive(false);
+    }
+
+    public static void RecursiveSetTags(Transform t, string tag)
+    {
+        t.tag = tag;
+        foreach (Transform child in t)
+        {
+            //Debug.Log("SetTag on : " + child.name);
+            RecursiveSetTags(child, tag);
+        }
     }
 }

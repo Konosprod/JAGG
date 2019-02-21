@@ -10,7 +10,7 @@ public class WindArea : CustomScript {
     public void OnTriggerEnter(Collider other)
     {
         GameObject go = other.gameObject;
-
+        //Debug.Log("Wind area trigger : " + go.name);
         if(go.CompareTag("Player"))
         {
             PlayerController controller = go.GetComponent<PlayerController>();

@@ -6,6 +6,9 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 public class UIManager : MonoBehaviour {
 
     public Text textShots;

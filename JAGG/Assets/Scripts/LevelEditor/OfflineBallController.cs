@@ -139,31 +139,47 @@ public class OfflineBallController : MonoBehaviour
         timer += Time.deltaTime;
 
 
-        if (!Physics.Raycast(transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/)))
+        RaycastHit oobHit;
+        Debug.DrawRay(transform.position, Vector3.down * 100, Color.red, 1f);
+        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << EditorManager.layerFloor | 1 << EditorManager.layerWall))
         {
-            if (isOOB)
+            if (oobHit.collider.gameObject.CompareTag("Hole " + (EditorManager._instance.GetCurrentHoleNumber() + 1)))
             {
-                Debug.Log("OOB, time left before reset : " + oobActualResetTimer);
-                oobActualResetTimer -= Time.deltaTime;
-                if (oobActualResetTimer < 0f)
-                {
-                    isOOB = false;
-                    ParticleSystem.EmissionModule em = trail.emission;
-                    em.enabled = false;
-                    physics.StopBall();
-                    transform.position = lastPos;
-                    flagEnableTrail = true;
-                }
+                isOOB = false;
             }
             else
             {
-                isOOB = true;
-                oobActualResetTimer = oobInitialResetTimer;
+                if (isOOB)
+                {
+                    //Debug.Log("OOB, time left before reset : " + oobActualResetTimer);
+                    oobActualResetTimer -= Time.deltaTime;
+                    if (oobActualResetTimer < 0f)
+                    {
+                        isOOB = false;
+                        ParticleSystem.EmissionModule em = trail.emission;
+                        em.enabled = false;
+                        physics.StopBall();
+                        transform.position = lastPos;
+                        flagEnableTrail = true;
+                    }
+                }
+                else
+                {
+                    isOOB = true;
+                    oobActualResetTimer = oobInitialResetTimer;
+                }
             }
         }
         else
         {
+            // Instant reset, we should always have something below us (the plane at least)
             isOOB = false;
+            ParticleSystem.EmissionModule em = trail.emission;
+            em.enabled = false;
+            physics.StopBall();
+            transform.position = lastPos;
+            flagEnableTrail = true;
+            Debug.LogError("Void below us, is it ok ?");
         }
     }
 
@@ -171,7 +187,7 @@ public class OfflineBallController : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         GameObject otherGO = other.gameObject;
-        if (otherGO.CompareTag("Hole"))
+        if (otherGO.layer == LayerMask.NameToLayer("Hole"))
         {
             testMode.TestHole(false);
             int saveShots = shots;

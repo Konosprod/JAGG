@@ -6,6 +6,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Assets.Pixelation.Scripts;
 
+
+#pragma warning disable CS0618 // Le type ou le membre est obsolète
+
 [NetworkSettings(sendInterval = 0f)]
 public class PlayerController : NetworkBehaviour
 {
@@ -54,8 +57,9 @@ public class PlayerController : NetworkBehaviour
 
 
     private Vector3 lastStopPos = Vector3.zero;
+    public int isOnRtpMvp = 0;
 
-    private const int FirstLayer = 9;
+    public static int FirstLayer = 9;
 
     private bool flagEnableTrail = false;
 
@@ -159,7 +163,7 @@ public class PlayerController : NetworkBehaviour
             if (!isMoving)
             {
                 // Update the last position where the ball stopped
-                if (ballPhysN.stable && !isOOB) // TODO : Add MVP and RTP to the condition so that the ball doesn't stop on them
+                if (ballPhysN.stable && !isOOB && isOnRtpMvp == 0)
                     lastStopPos = transform.position;
 
                 int maxShot = lobbyManager.GetMaxShot();
@@ -255,7 +259,8 @@ public class PlayerController : NetworkBehaviour
             }
 
             // Update the last position where the ball stopped
-            lastStopPos = transform.position;
+            if(!isOOB)
+                lastStopPos = transform.position;
 
             Vector3 dir = transform.position - Camera.main.transform.position;
             dir = new Vector3(dir.x, 0f, dir.z).normalized;
@@ -300,27 +305,36 @@ public class PlayerController : NetworkBehaviour
         }
 
         // Handle oob
-        if (!Physics.Raycast(/*new Vector3(transform.position.x,transform.position.y - 0.05f, transform.position.z)*/transform.position, Vector3.down, Mathf.Infinity, ~(1 << 0/*layerDecor*/))) // TODO : redo OOB system entirely
+        RaycastHit oobHit;
+        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall))
         {
-            if (isOOB)
+            if (oobHit.collider.gameObject.CompareTag("Hole " + lobbyManager.currentHole))
             {
-                //Debug.Log(oobActualResetTimer);
-                oobActualResetTimer -= Time.deltaTime;
-                if (oobActualResetTimer < 0f)
-                {
-                    isOOB = false;
-                    CmdResetPosition(lastStopPos);
-                }
+                isOOB = false;
             }
             else
             {
-                isOOB = true;
-                oobActualResetTimer = oobInitialResetTimer;
+                if (isOOB)
+                {
+                    //Debug.Log(oobActualResetTimer);
+                    oobActualResetTimer -= Time.deltaTime;
+                    if (oobActualResetTimer < 0f)
+                    {
+                        isOOB = false;
+                        CmdResetPosition(lastStopPos);
+                    }
+                }
+                else
+                {
+                    isOOB = true;
+                    oobActualResetTimer = oobInitialResetTimer;
+                }
             }
         }
         else
         {
-            isOOB = false;
+            isOOB = true;
+            Debug.LogError("Void below us, is it ok ?");
         }
     }
 
@@ -404,10 +418,10 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other) // TODO : Maybe put it in BallphysicsNetwork instead
+    void OnTriggerEnter(Collider other)
     {
         GameObject otherGO = other.gameObject;
-        if (otherGO.CompareTag("Hole"))
+        if (otherGO.layer == LayerMask.NameToLayer("Hole"))
         {
             if (isLocalPlayer)
             {
@@ -416,46 +430,6 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
-
-    /*void OnCollisionEnter(Collision collision) // TODO : put it in BallPhysicsNetwork instead
-    {
-        if (isServer)
-        {
-            GameObject collided = collision.gameObject;
-            if (collided.CompareTag("Player"))
-            {
-                PlayerController pc_col = collided.GetComponent<PlayerController>();
-                Vector3 other_vel = pc_col.save_velocity;
-
-                //Debug.Log(Time.frameCount + "fr, BALLZ : " + LayerMask.LayerToName(collided.layer) + " , my vel : " + save_velocity + ", his vel : " + other_vel);
-
-
-                if ((save_velocity.magnitude > other_vel.magnitude + 3f) && !hasDestroyedPlayer)
-                {
-                    // Disable collisions with other balls while destroyed
-                    for (int i = FirstLayer; i < FirstLayer + 4; i++)
-                    {
-                        if (i != collided.layer)
-                            Physics.IgnoreLayerCollision(collided.layer, i, true);
-                    }
-
-                    CmdDestroyBall(collided);
-                    hasDestroyedPlayer = true;
-                    restore_velocity = save_velocity;
-                }
-            }
-        }
-    }
-
-
-    void OnCollisionExit(Collision collisionInfo)
-    {
-        if (collisionInfo.gameObject.CompareTag("Player") && hasDestroyedPlayer)
-        {
-            hasDestroyedPlayer = false;
-            rb.velocity = restore_velocity;
-        }
-    }*/
 
 
     void OnGUI()
@@ -477,6 +451,11 @@ public class PlayerController : NetworkBehaviour
     public void ShowScores()
     {
         RpcShowScores();
+    }
+
+    public void DestroyBall(GameObject ball)
+    {
+        CmdDestroyBall(ball);
     }
 
     public void AddItem(GameObject item)
@@ -519,8 +498,10 @@ public class PlayerController : NetworkBehaviour
 
     public void InWindArea(float strength, Vector3 direction)
     {
+        //Debug.Log("InWindArea1");
         if (isLocalPlayer)
         {
+            //Debug.Log("InWindArea2");
             CmdWindArea(strength, direction);
         }
     }
@@ -570,7 +551,9 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdWindArea(float strength, Vector3 direction)
     {
+        //Debug.Log("CmdWindArea");
         ballPhysN.AddForce(direction * strength);
+        ballPhysN.isBouncingOnFloor = true;
     }
 
     [Command]
