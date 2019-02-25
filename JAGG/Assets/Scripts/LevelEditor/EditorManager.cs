@@ -183,7 +183,7 @@ public class EditorManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            //DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -772,31 +772,41 @@ public class EditorManager : MonoBehaviour
                                 }
                                 else
                                 {
-                                    string pName = piece.name.Split(' ')[0];
-                                    while (piece.transform.parent != null && pName != "Hole")
+                                    if (!piece.CompareTag("Plane"))
                                     {
-                                        pName = piece.transform.parent.gameObject.name.Split(' ')[0];
-                                        if (pName != "Hole")
-                                            piece = piece.transform.parent.gameObject;
-                                    }
-
-                                    if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
-                                    {
-                                        if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
+                                        string pName = piece.name.Split(' ')[0];
+                                        while (piece.transform.parent != null && pName != "Hole")
                                         {
-                                            if (selectedPiecesInPlace.Count > 1) // Shift-clicking on the only selected piece will do nothing (as it should)
+                                            pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                                            if (pName != "Hole")
+                                                piece = piece.transform.parent.gameObject;
+                                        }
+
+                                        if (Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift))
+                                        {
+                                            if (selectedPiecesInPlace.Find(x => x.Equals(piece)))
                                             {
-                                                currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                                if (selectedPiecesInPlace.Count > 1) // Shift-clicking on the only selected piece will do nothing (as it should)
+                                                {
+                                                    currParams = undoRedoStack.Do(new DeselectSinglePieceCommand(piece), currParams);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
                                             }
                                         }
                                         else
                                         {
-                                            currParams = undoRedoStack.Do(new SelectPieceCommand(piece), currParams);
+                                            currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
                                         }
                                     }
                                     else
                                     {
-                                        currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
+                                        gizmoRotate.gameObject.SetActive(false);
+                                        gizmoScale.gameObject.SetActive(false);
+                                        gizmoTranslate.gameObject.SetActive(false);
+                                        currParams = undoRedoStack.Do(new DeselectAllPiecesCommand(), currParams);
                                     }
                                 }
                             }
@@ -906,23 +916,25 @@ public class EditorManager : MonoBehaviour
                             {
                                 //Debug.Log("Hit a piece : " + rayHitPiece.transform.gameObject.name);
                                 GameObject piece = rayHitPiece.transform.gameObject;
-
-                                // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
-                                //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
-                                //{
-                                string pName = piece.name.Split(' ')[0];
-                                while (piece.transform.parent != null && pName != "Hole")
+                                if (!piece.CompareTag("Plane"))
                                 {
-                                    pName = piece.transform.parent.gameObject.name.Split(' ')[0];
-                                    if (pName != "Hole")
-                                        piece = piece.transform.parent.gameObject;
+                                    // Holding ctrl allows to select a specific part of the prefab while a simple click will select the parent prefab GameObject
+                                    //if (!(Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.LeftControl)))
+                                    //{
+                                    string pName = piece.name.Split(' ')[0];
+                                    while (piece.transform.parent != null && pName != "Hole")
+                                    {
+                                        pName = piece.transform.parent.gameObject.name.Split(' ')[0];
+                                        if (pName != "Hole")
+                                            piece = piece.transform.parent.gameObject;
+                                    }
+                                    //}
+
+                                    // Debug.Log(piece.name);
+
+                                    // We highlight the selected piece
+                                    currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
                                 }
-                                //}
-
-                                // Debug.Log(piece.name);
-
-                                // We highlight the selected piece
-                                currParams = undoRedoStack.Do(new SelectSinglePieceCommand(piece), currParams);
                             }
                         }
                         isBoxSelection = false;
