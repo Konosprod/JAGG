@@ -76,9 +76,22 @@ public class AuthenticationManager : MonoBehaviour {
         {
             Debug.Log(request.error);
             Debug.Log(request.responseCode);
+            if (nbRetry < maxRetry)
+            {
+                loadingOverlay.messageText.text = "Error, retrying in 3 secs" + nbRetry.ToString() + "/" + maxRetry.ToString();
+                nbRetry++;
+                yield return new WaitForSeconds(3);
+                StartCoroutine(GetAuthentication(callback));
+            }
+            else
+            {
+                loadingOverlay.messageText.text = "Error, contact us at : jagg@konosprod.fr";
+                loadingOverlay.messageText.enabled = true;
+            }
         }
         else
         {
+            nbRetry = 0;
             JSONNode node = JSON.Parse(request.downloadHandler.text);
             isAuthenticated = node["auth"].AsBool;
 
@@ -159,6 +172,13 @@ public class AuthenticationManager : MonoBehaviour {
             }
         }
 
+    }
+
+    public void CancelAuth()
+    {
+        isAuthenticated = false;
+        loadingOverlay.StopAnimation();
+        loadingOverlay.gameObject.SetActive(false);
     }
 
     public string ByteArrayToString(byte[] ba)
