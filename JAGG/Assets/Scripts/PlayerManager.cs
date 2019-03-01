@@ -10,6 +10,8 @@ using UnityEngine.Networking;
 
 public class PlayerManager : NetworkBehaviour
 {
+    [SyncVar]
+    public int currentHole = 1;
 
     public UIManager ui;
     private Dictionary<int, GameObject> players;
@@ -21,7 +23,7 @@ public class PlayerManager : NetworkBehaviour
 
     private SyncListString playersNames = new SyncListString();
 
-    private static PlayerManager _instance;
+    public static PlayerManager _instance;
 
     [SyncVar]
     private int nbPlayers = 0;
@@ -221,9 +223,11 @@ public class PlayerManager : NetworkBehaviour
 
     public void MovePlayersTo(Transform nextPosition)
     {
+        Debug.Log("MovePlayersTo");
         foreach (GameObject o in players.Values)
         {
             PlayerController pc = o.GetComponent<PlayerController>();
+            pc.replayObj.StartHoleReplay(currentHole);
             pc.RpcResetCameraTarget();
             pc.ForcedMoveTo(nextPosition.position);
             pc.EnablePlayer();
@@ -254,6 +258,12 @@ public class PlayerManager : NetworkBehaviour
         players[connId] = o;
         string name = o.GetComponent<PlayerController>().playerName;
         playersNames.Add(name);
+
+        PlayerController pc = o.GetComponent<PlayerController>();
+        pc.replayObj.SetupReplay();
+        pc.replayObj.steamName = pc.playerName;
+        pc.replayObj.trailColor = pc.trailColor;
+        ReplayManager._instance.AddReplayObject(pc.replayObj);
 
         nbPlayers++;
     }
@@ -545,4 +555,81 @@ public class PlayerManager : NetworkBehaviour
         yield return new WaitForSeconds(time);
         callback.Invoke();
     }
+
+    public void StartPlayersReplay()
+    {
+        ReplayManager._instance.StartGameplay(true, LobbyManager._instance.customMapFile, true);
+        /*foreach (GameObject o in players.Values)
+        {
+            PlayerController pc = o.GetComponent<PlayerController>();
+            pc.replayObj.SetupReplay();
+            pc.replayObj.steamName = pc.playerName;
+            pc.replayObj.trailColor = pc.trailColor;
+            ReplayManager._instance.AddReplayObject(pc.replayObj);
+        }*/
+    }
+
+    public void AddPlayersScoresReplay()
+    {
+        foreach (GameObject o in players.Values)
+        {
+            PlayerController pc = o.GetComponent<PlayerController>();
+            int i = 0;
+            foreach(int s in pc.score)
+            {
+                pc.replayObj.scores[i] = s;
+                Debug.Log("AddScoreToReplay : " + pc.playerName + " hole " + (i+1) + " : " + s);
+                i++;
+            }
+        }
+    }
+
+
+
+
+    /*public class MyMsgType
+    {
+        public static short FileInformation = MsgType.Highest + 1;
+        public static short FileChunk = MsgType.Highest + 2;
+    };
+    public class ReplayChunk : MessageBase
+    {
+        public byte[] replayData;
+    }
+
+    [Server]
+    private void SendReplayToClients()
+    {
+        foreach(int clientId in players.Keys)
+        {
+            SendReplayRoutine(null, clientId);
+        }
+    }
+
+    [Server]
+    IEnumerator SendReplayRoutine(byte[] data, int clientId)
+    {
+        int bufferSize = 1024;
+        int dataLeft = data.Length;
+
+        while(0 < dataLeft)
+        {
+            int remaining = dataLeft - bufferSize;
+            if(remaining < 0)
+            {
+                bufferSize = dataLeft;
+            }
+
+            byte[] buffer = new byte[bufferSize];
+            System.Array.Copy(data, data.Length - dataLeft, buffer, 0, bufferSize);
+
+            //send the chunk
+            ReplayChunk msg = new ReplayChunk();
+            msg.replayData = buffer;
+            NetworkServer.SendToClient(clientId, MyMsgType.FileChunk, msg);
+            dataLeft -= bufferSize;
+
+            yield return null;
+        }
+    }*/
 }

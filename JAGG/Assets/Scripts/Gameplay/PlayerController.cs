@@ -78,11 +78,15 @@ public class PlayerController : NetworkBehaviour
 
     private GameSettings settings;
 
+    [HideInInspector]
+    public ReplayObject replayObj;
+
     private void Awake()
     {
         ui = FindObjectOfType<UIManager>();
 
         settings = SettingsManager._instance.gameSettings;
+        replayObj = GetComponent<ReplayObject>();
     }
 
     private void Start()
@@ -308,7 +312,7 @@ public class PlayerController : NetworkBehaviour
         RaycastHit oobHit;
         if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall))
         {
-            if (oobHit.collider.gameObject.CompareTag("Hole " + lobbyManager.currentHole))
+            if (oobHit.collider.gameObject.CompareTag("Hole " + PlayerManager._instance.currentHole))
             {
                 isOOB = false;
             }
@@ -627,6 +631,7 @@ public class PlayerController : NetworkBehaviour
     {
         //rb.AddForce(dir * sliderVal * 10f); // Linear scaling of the force
         ballPhysN.AddForce(dir * Mathf.Pow(sliderVal, 1.4f) * 2f); // Quadratic scaling of the force
+        replayObj.AddInput(dir, sliderVal, transform.position);
         shots++;
     }
 
@@ -649,6 +654,7 @@ public class PlayerController : NetworkBehaviour
         int type = -1;
         canShoot = false;
         ballPhysN.StopBall();
+        replayObj.AddInput(Vector3.zero, -1f, transform.position);
 
         int par = lobbyManager.GetPar();
 
@@ -730,6 +736,7 @@ public class PlayerController : NetworkBehaviour
     {
         ballPhysN.StopBall();
         transform.position = lastPos;
+        replayObj.AddInput(Vector3.zero, -2f, lastPos);
         RpcForceUpdatePosition(lastPos);
     }
 

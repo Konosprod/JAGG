@@ -32,9 +32,6 @@ public class LobbyManager : NetworkLobbyManager
     [HideInInspector]
     public GameObject hole;
     
-
-    public int currentHole = 1;
-
     private GameTimer gameTimer;
 
     private bool setUi = false;
@@ -114,12 +111,16 @@ public class LobbyManager : NetworkLobbyManager
 
         if (nextPosition.position != EndOfGamePos.position)
         {
-            disableAllBallsCollisions();
+            DisableAllBallsCollisions();
 
             playerManager.MovePlayersTo(nextPosition);
 
-            currentHole++;
-            hole = GameObject.Find("Hole " + currentHole.ToString());
+            ReplayManager._instance.StartGameplay(true);
+            MovingPieceManager._instance.ResetAllMVPs();
+            MovingPieceManager._instance.ResetAllRTPs();
+
+            playerManager.currentHole++;
+            hole = GameObject.Find("Hole " + playerManager.currentHole.ToString());
 
             gameTimer.StartTimer(GetMaxTime());
         }
@@ -145,7 +146,7 @@ public class LobbyManager : NetworkLobbyManager
         if (ruleSet.holes.Count == 0)
             return hole.GetComponentInChildren<LevelProperties>().maxShot;
         else
-            return ruleSet.holes[currentHole-1].properties.maxShot;
+            return ruleSet.holes[playerManager.currentHole -1].properties.maxShot;
     }
 
     public float GetMaxTime()
@@ -153,17 +154,20 @@ public class LobbyManager : NetworkLobbyManager
         if (ruleSet.holes != null && ruleSet.holes.Count == 0)
             return hole.GetComponentInChildren<LevelProperties>().maxTime;
         else
-            return ruleSet.holes[currentHole-1].properties.maxTime;
+            return ruleSet.holes[playerManager.currentHole -1].properties.maxTime;
     }
 
     private void EndOfGame()
     {
         MovingPieceManager._instance.ClearRotatePieces();
         MovingPieceManager._instance.ClearMovingPieces();
+        ReplayManager._instance.StartGameplay(false);
+        playerManager.AddPlayersScoresReplay();
+        ReplayManager._instance.SaveInFile();
         playerManager.isStarted = false;
         isStarted = false;
         gameTimer.StopTimer();
-        currentHole = 1;
+        playerManager.currentHole = 1;
         setUi = false;
         layers = new bool[4];
 
@@ -192,11 +196,14 @@ public class LobbyManager : NetworkLobbyManager
 
         if (sceneName != lobbyScene && sceneName != "Victory")
         {
+            //Debug.Log("Starting map");
             playerManager.isStarted = true;
+            ReplayManager._instance.ResetReplayObjects();
+            playerManager.StartPlayersReplay();
             isStarted = true;
             gameTimer = GameObject.Find("GameTimer").GetComponent<GameTimer>();
 
-            hole = GameObject.Find("Hole " + currentHole.ToString());
+            hole = GameObject.Find("Hole " + playerManager.currentHole.ToString());
 
             gameTimer.StartTimer(GetMaxTime());
 
@@ -289,9 +296,9 @@ public class LobbyManager : NetworkLobbyManager
 
     public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
     {
-        hole = GameObject.Find("Hole " + currentHole.ToString());
+        hole = GameObject.Find("Hole " + playerManager.currentHole.ToString());
 
-        gamePlayer.layer = getNextLayer();
+        gamePlayer.layer = GetNextLayer();
         gamePlayer.GetComponent<PlayerController>().playerName = lobbyPlayer.GetComponent<LobbyPlayer>().playerName;
         gamePlayer.GetComponent<BallPhysicsNetwork>().gravityType = gravity;
         playerManager.AddPlayer(gamePlayer, lobbyPlayer.GetComponent<NetworkIdentity>().connectionToClient.connectionId);
@@ -393,7 +400,7 @@ public class LobbyManager : NetworkLobbyManager
         joinPanel.Connecting();
     }
 
-    private int getNextLayer()
+    private int GetNextLayer()
     {
         int l;
         for (l = FirstLayer; layers[l-FirstLayer] && l-FirstLayer<4; l++) ;
@@ -405,7 +412,7 @@ public class LobbyManager : NetworkLobbyManager
         return l;
     }
 
-    private void disableAllBallsCollisions()
+    private void DisableAllBallsCollisions()
     {
         Physics.IgnoreLayerCollision(FirstLayer, FirstLayer + 1, true);
         Physics.IgnoreLayerCollision(FirstLayer, FirstLayer + 2, true);

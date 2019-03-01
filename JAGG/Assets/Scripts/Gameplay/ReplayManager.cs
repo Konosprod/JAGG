@@ -7,22 +7,97 @@ using UnityEngine;
 
 public class ReplayManager : MonoBehaviour
 {
+    public enum HighlightType
+    {
+        HoleInOne,                  // Self-explanatory
+        LongestShotOnTarget,        // Same
+        DenyShotOnTarget,           // A shot where you deny another player from getting into the hole AND you get into the hole
+        FriendshipShotOnTarget,     // A shot where you get another player into the hole AND yourself at the same time
+        DenyShot,                   // A shot where you deny another player from getting into the hole
+        FriendshipShot,             // A shot where you get another player into the hole
+
+
+
+
+        LAST_HIGHLIGHT_TYPE_PLUS_ONE    // YES (for static array)
+    }
+
+
+    [System.Serializable]
+    public class Highlight : ISerializable
+    {
+        public int replayObjectIndex;
+        public int replayHoleIndex;
+        public int replayInputIndex;
+        public HighlightType highlightType;
+
+        protected Highlight(SerializationInfo info, StreamingContext context)
+        {
+            replayObjectIndex = info.GetInt32("roIndex");
+            replayHoleIndex = info.GetInt32("rhIndex");
+            replayInputIndex = info.GetInt32("riIndex");
+            highlightType = (HighlightType)info.GetValue("highlightType", typeof(HighlightType));
+        }
+
+        //[SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("roIndex", replayObjectIndex);
+            info.AddValue("rhIndex", replayHoleIndex);
+            info.AddValue("riIndex", replayInputIndex);
+            info.AddValue("highlightType", highlightType);
+        }
+    }
+
+
+
+    [System.Serializable]
+    private class Replay
+    {
+        public string customMapPath;
+        public List<ReplayObject> replayObjects;
+        public List<Highlight>[] highlights = new List<Highlight>[(int)HighlightType.LAST_HIGHLIGHT_TYPE_PLUS_ONE];
+
+        public Replay()
+        {
+            customMapPath = "";
+            replayObjects = new List<ReplayObject>();
+        }
+
+        // Serialization implementation
+        protected Replay(SerializationInfo info, StreamingContext context)
+        {
+            customMapPath = info.GetString("customMap");
+            replayObjects = (List<ReplayObject>)info.GetValue("replayObjects", typeof(List<ReplayObject>));
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("customMap", customMapPath);
+            info.AddValue("replayObjects", replayObjects);
+        }
+    }
+
 
     public static ReplayManager _instance;
 
-    public List<ReplayObject> replayObjects = new List<ReplayObject>();
+    private Replay replay;
+
+    //public List<ReplayObject> replayObjects = new List<ReplayObject>();
     public bool isReplayActive = false;
     public bool isReplayPlaying = false;
 
     private int replayFrame = 0;
-
     public long fixedFrameCount = 0;
+
+    public bool isGameplayStarted = false;
 
     void Awake()
     {
         if (_instance == null)
         {
             _instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -33,13 +108,13 @@ public class ReplayManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
+        replay = new Replay();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isReplayActive)
+        /*if (isReplayActive)
         {
             if (Input.GetKeyDown(KeyCode.P))
             {
@@ -65,12 +140,12 @@ public class ReplayManager : MonoBehaviour
             LevelEditorMovingPieceManager._instance.ResetAllRTPs();
 
             Debug.Log("Replay start at frame : " + fixedFrameCount);
-        }
+        }*/
     }
 
     void FixedUpdate()
     {
-        if (isReplayPlaying)
+        /*if (isReplayPlaying)
         {
             foreach (ReplayObject ro in replayObjects)
             {
@@ -102,27 +177,27 @@ public class ReplayManager : MonoBehaviour
                         ro.transform.position = inp.pos;
                         ro.physics.velocityCapped = Vector3.zero;
                     }
-                    /*else if (inp.sliderValue == -3f)
-                    {
-                        // -3f is RotatePiece must start coroutine
-                        Debug.Log("Replay rotation at : " + fixedFrameCount);
-                        ro.rtp.isRotation = true;
-                        ro.rtp.coroutine = StartCoroutine(ro.rtp.RotateMe(Vector3.up * ro.rtp.rotationAngle, ro.rtp.spinTime));
-                    }
-                    else if (inp.sliderValue == -4f)
-                    {
-                        // -4f is MovingPiece must start coroutine (forwardMove true)
-                        Debug.Log("Replay moving forward at : " + fixedFrameCount);
-                        ro.mvp.isMoving = true;
-                        ro.mvp.coroutine = StartCoroutine(ro.mvp.MoveMe(ro.mvp.initPos, ro.mvp.destPos, ro.mvp.travelTime));
-                    }
-                    else if (inp.sliderValue == -5f)
-                    {
-                        // -5f is MovingPiece must start coroutine (forwardMove false)
-                        Debug.Log("Replay moving backward at : " + fixedFrameCount);
-                        ro.mvp.isMoving = true;
-                        ro.mvp.coroutine = StartCoroutine(ro.mvp.MoveMe(ro.mvp.destPos, ro.mvp.initPos, ro.mvp.travelTime));
-                    }*/
+                    //else if (inp.sliderValue == -3f)
+                    //{
+                    //    // -3f is RotatePiece must start coroutine
+                    //    Debug.Log("Replay rotation at : " + fixedFrameCount);
+                    //    ro.rtp.isRotation = true;
+                    //    ro.rtp.coroutine = StartCoroutine(ro.rtp.RotateMe(Vector3.up * ro.rtp.rotationAngle, ro.rtp.spinTime));
+                    //}
+                    //else if (inp.sliderValue == -4f)
+                    //{
+                    //    // -4f is MovingPiece must start coroutine (forwardMove true)
+                    //    Debug.Log("Replay moving forward at : " + fixedFrameCount);
+                    //    ro.mvp.isMoving = true;
+                    //    ro.mvp.coroutine = StartCoroutine(ro.mvp.MoveMe(ro.mvp.initPos, ro.mvp.destPos, ro.mvp.travelTime));
+                    //}
+                    //else if (inp.sliderValue == -5f)
+                    //{
+                    //    // -5f is MovingPiece must start coroutine (forwardMove false)
+                    //    Debug.Log("Replay moving backward at : " + fixedFrameCount);
+                    //    ro.mvp.isMoving = true;
+                    //    ro.mvp.coroutine = StartCoroutine(ro.mvp.MoveMe(ro.mvp.destPos, ro.mvp.initPos, ro.mvp.travelTime));
+                    //}
 
                     ro.inputs.RemoveAt(0);
                 }
@@ -130,9 +205,10 @@ public class ReplayManager : MonoBehaviour
             }
 
             replayFrame++;
-        }
+        }*/
 
-        fixedFrameCount++;
+        if (isGameplayStarted)
+            fixedFrameCount++;
     }
 
     public void StartReplay()
@@ -159,21 +235,46 @@ public class ReplayManager : MonoBehaviour
     }
 
 
-    public void AddReplayObject(ReplayObject ro)
+    public void StartGameplay(bool start, string customMap = "", bool startOfGame = false)
     {
-        replayObjects.Add(ro);
+        if (startOfGame)
+        {
+            replay = new Replay();
+            replay.customMapPath = customMap;
+        }
+        isGameplayStarted = start;
+        fixedFrameCount = 0;
     }
 
-
-    public void SaveInFile(string filePath)
+    public void ResetReplayObjects()
     {
+        replay.replayObjects.Clear();
+    }
+
+    public void AddReplayObject(ReplayObject ro)
+    {
+        replay.replayObjects.Add(ro);
+    }
+
+    public void SaveInFile()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "replays");
+
+        if (!Directory.Exists(filePath))
+        {
+            Directory.CreateDirectory(filePath);
+        }
+
+        Debug.Log(filePath);
+        filePath += "/" + replay.customMapPath + "_" + System.DateTime.Now.ToString("ddMMyyyyHHmm");
+
         using (Stream stream = File.Open(filePath, FileMode.Create))
         {
             IFormatter formatter = new BinaryFormatter();
             try
             {
                 // Serialize the InputInfos into the stream
-                formatter.Serialize(stream, replayObjects);
+                formatter.Serialize(stream, replay);
             }
             catch (SerializationException e)
             {
@@ -191,12 +292,13 @@ public class ReplayManager : MonoBehaviour
             try
             {
                 // Deserialize the InputInfos from the stream
-                List<ReplayObject> replayObjs = (List<ReplayObject>)formatter.Deserialize(stream);
+                Replay rep = (Replay)formatter.Deserialize(stream);
 
-                replayObjects = replayObjs;
+                replay = rep;
 
                 // Verify that it all worked.
-                foreach (ReplayObject ro in replayObjs)
+                Debug.Log("CustomMapPath : " + rep.customMapPath);
+                foreach (ReplayObject ro in rep.replayObjects)
                     Debug.Log(ro);
             }
             catch (SerializationException e)
@@ -225,7 +327,7 @@ public class ReplayManager : MonoBehaviour
             try
             {
                 // Serialize the InputInfos into the stream
-                formatter.Serialize(stream, replayObjects);
+                formatter.Serialize(stream, replay);
             }
             catch (SerializationException e)
             {

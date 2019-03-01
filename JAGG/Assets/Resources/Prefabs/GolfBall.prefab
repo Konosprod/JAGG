@@ -5086,6 +5086,7 @@ GameObject:
   - component: {fileID: 114277472616525290}
   - component: {fileID: 114288062548389386}
   - component: {fileID: 114598792409951644}
+  - component: {fileID: 8715812997242585183}
   m_Layer: 0
   m_Name: GolfBall
   m_TagString: Player
@@ -5211,6 +5212,7 @@ MonoBehaviour:
   playerNameText: {fileID: 114097390829951948}
   ballMesh: {fileID: 1547594615980996}
   failSign: {fileID: 1770767686008722}
+  isOnRtpMvp: 0
 --- !u!114 &114288062548389386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5245,6 +5247,26 @@ MonoBehaviour:
   isBouncingOnFloor: 0
   velocityTrue: {x: 0, y: 0, z: 0}
   velocityCapped: {x: 0, y: 0, z: 0}
+--- !u!114 &8715812997242585183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696014211341154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18a0a16ea468e4a4dab1f2e364752c97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputs: []
+  rb: {fileID: 0}
+  rtp: {fileID: 0}
+  mvp: {fileID: 0}
+  physics: {fileID: 0}
+  currentHole: 
+  steamName: 
+  trailColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1770767686008722
 GameObject:
   m_ObjectHideFlags: 0

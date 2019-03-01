@@ -54,22 +54,29 @@ public class ReplayObject : MonoBehaviour, ISerializable
     }
 
 
-    public List<InputInfo> inputs;
+    public List<InputInfo>[] inputs;
     public Rigidbody rb;
-    public RotatePiece rtp;
-    public MovingPiece mvp;
-    public BallPhysicsTest physics;
+    //public RotatePiece rtp;
+    //public MovingPiece mvp;
+    public BallPhysicsNetwork physics;
 
     private string goName;
+    public int currentHole = -1;
+    public string steamName;
+    public Color trailColor;
+    public int[] scores;
+    public float[] times;
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
-        inputs = new List<InputInfo>();
+        inputs = new List<InputInfo>[18];
         rb = gameObject.GetComponent<Rigidbody>();
-        rtp = gameObject.GetComponent<RotatePiece>();
-        mvp = gameObject.GetComponent<MovingPiece>();
-        physics = GetComponent<BallPhysicsTest>();
+        //rtp = gameObject.GetComponent<RotatePiece>();
+        //mvp = gameObject.GetComponent<MovingPiece>();
+        physics = GetComponent<BallPhysicsNetwork>();
+        scores = new int[18];
+        times = new float[18];
         if (ReplayManager._instance != null)
         {
             ReplayManager._instance.AddReplayObject(this);
@@ -85,30 +92,59 @@ public class ReplayObject : MonoBehaviour, ISerializable
     }
        
 
-    public void Reset()
+    public void ResetInputs()
     {
-        inputs.Clear();
+        foreach (List<InputInfo> inps in inputs)
+        {
+            if(inps != null)
+                inps.Clear();
+        }
     }
 
+    public void SetupReplay()
+    {
+        ResetInputs();
+        StartHoleReplay(0);
+    }
+
+    public void StartHoleReplay(int hole)
+    {
+        currentHole = hole;
+        inputs[currentHole] = new List<InputInfo>();
+    }
+
+    public void SetScoreTime(int hole, int score, float time)
+    {
+        scores[hole] = score;
+        times[hole] = time;
+    }
 
     public void AddInput(Vector3 dir, float sliderValue, Vector3 pos)
     {
-        //Debug.Log("Add input : frame=" + Time.frameCount + ", dir=" + dir + ", sliderValue=" + sliderValue + ", pos=" + pos);
-        inputs.Add(new InputInfo(ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount, dir, sliderValue, pos));
+        Debug.Log("Add input : frame=" + (ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount) + ", dir=" + dir + ", sliderValue=" + sliderValue + ", pos=" + pos);
+        inputs[currentHole].Add(new InputInfo(ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount, dir, sliderValue, pos));
     }
 
          
     // Serialization implementation
     protected ReplayObject(SerializationInfo info, StreamingContext context)
     {
-        inputs = (List<InputInfo>)info.GetValue("inputs", typeof(List<InputInfo>));
+        inputs = (List<InputInfo>[])info.GetValue("inputs", typeof(List<InputInfo>[]));
         goName = info.GetString("goName");
+        //currentHole = info.GetInt32("currentHole");
+        steamName = info.GetString("steamName");
+        trailColor = new Color(float.Parse(info.GetString("r")), float.Parse(info.GetString("g")), float.Parse(info.GetString("b")) , float.Parse(info.GetString("a")));
     }
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         info.AddValue("inputs", inputs);
         info.AddValue("goName", goName);
+        info.AddValue("steamName", steamName);
+        info.AddValue("r", trailColor.r);
+        info.AddValue("g", trailColor.g);
+        info.AddValue("b", trailColor.b);
+        info.AddValue("a", trailColor.a);
     }
 
        
@@ -116,10 +152,16 @@ public class ReplayObject : MonoBehaviour, ISerializable
     {
         string res = goName + " replay" + '\n';
         int k = 1;
-        foreach (InputInfo i in inputs)
+        foreach(List<InputInfo> inps in inputs)
         {
-            res += "Input n°" + k + " : " + i.ToString() + '\n';
-            k++;
+            if (inps != null)
+            {
+                foreach (InputInfo i in inps)
+                {
+                    res += "Input n°" + k + " : " + i.ToString() + '\n';
+                    k++;
+                }
+            }
         }
         return res;
     }

@@ -575,6 +575,11 @@ public class BallPhysicsNetwork : NetworkBehaviour {
                 StartCoroutine(HitABall(physicsOther, other.transform.position));
                 //Debug.Break();
             }
+            else if (velocityCapped.magnitude == velOther.magnitude && velocityCapped.magnitude != 0f && gameObject.layer < collided.layer)
+            {
+                // Very unlikely that 2 balls go at the exact same speed but we'll still handle it, lower layer is higher priority (host is favored then join order)
+                StartCoroutine(HitABall(physicsOther, other.transform.position));
+            }
         }
 
         // Hole trigger, we are inside the hole
