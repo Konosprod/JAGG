@@ -77,10 +77,10 @@ public class ReplayObject : MonoBehaviour, ISerializable
         physics = GetComponent<BallPhysicsNetwork>();
         scores = new int[18];
         times = new float[18];
-        if (ReplayManager._instance != null)
+        /*if (ReplayManager._instance != null)
         {
             ReplayManager._instance.AddReplayObject(this);
-        }
+        }*/
         goName = gameObject.name;
         //Debug.Log("ReplayObject start : " + gameObject.name);
     }

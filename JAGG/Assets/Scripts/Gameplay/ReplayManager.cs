@@ -31,6 +31,15 @@ public class ReplayManager : MonoBehaviour
         public int replayInputIndex;
         public HighlightType highlightType;
 
+
+        public Highlight(int roi, int rhi, int rii, HighlightType ht)
+        {
+            replayObjectIndex = roi;
+            replayHoleIndex = rhi;
+            replayInputIndex = rii;
+            highlightType = ht;
+        }
+
         protected Highlight(SerializationInfo info, StreamingContext context)
         {
             replayObjectIndex = info.GetInt32("roIndex");
@@ -62,6 +71,10 @@ public class ReplayManager : MonoBehaviour
         {
             customMapPath = "";
             replayObjects = new List<ReplayObject>();
+            for(int i=0; i<(int)HighlightType.LAST_HIGHLIGHT_TYPE_PLUS_ONE; i++)
+            {
+                highlights[i] = new List<Highlight>();
+            }
         }
 
         // Serialization implementation
@@ -248,12 +261,35 @@ public class ReplayManager : MonoBehaviour
 
     public void ResetReplayObjects()
     {
+        Debug.Log("ResetReplayObjects");
         replay.replayObjects.Clear();
     }
 
     public void AddReplayObject(ReplayObject ro)
     {
+        //Debug.Log("AddReplayObject : " + ro.name + " " + ro.steamName);
         replay.replayObjects.Add(ro);
+    }
+
+    public void AddHighlight(HighlightType ht, ReplayObject ro)
+    {
+        switch(ht)
+        {
+            case HighlightType.HoleInOne:
+                {
+                    Debug.Log(ro.name + " " + ro.steamName);
+                    Debug.Log(replay.replayObjects.Count);
+                    Debug.Log(replay.replayObjects[0].name + " " + replay.replayObjects[0].steamName);
+                    Debug.Log("Add highlight : " + ht.ToString() + ", roi : " + replay.replayObjects.IndexOf(ro) + ", rhi : " + ro.currentHole + ", rii : " +  0);
+                    replay.highlights[(int)HighlightType.HoleInOne].Add(new Highlight(replay.replayObjects.IndexOf(ro), ro.currentHole, 0, ht));
+                    break;
+                }
+            default:
+                {
+
+                    break;
+                }
+        }
     }
 
     public void SaveInFile()
@@ -299,52 +335,6 @@ public class ReplayManager : MonoBehaviour
                 // Verify that it all worked.
                 Debug.Log("CustomMapPath : " + rep.customMapPath);
                 foreach (ReplayObject ro in rep.replayObjects)
-                    Debug.Log(ro);
-            }
-            catch (SerializationException e)
-            {
-                Debug.Log("Deserialization failed : " + e.Message);
-                throw;
-            }
-        }
-    }
-
-    // Serialization test placeholder for future file saving
-    public void TestSerialization()
-    {
-        IFormatter formatter = new BinaryFormatter();
-
-        // Create a MemoryStream that the object will be serialized into and deserialized from.
-        using (Stream stream = new MemoryStream())
-        {
-            /*SurrogateSelector ss = new SurrogateSelector();
-            ss.AddSurrogate(typeof(ReplayObject),
-            new StreamingContext(StreamingContextStates.All),
-            new ReplayObject.ReplayObjectSerializationSurrogate());
-            // Associate the SurrogateSelector with the BinaryFormatter.
-            formatter.SurrogateSelector = ss;*/
-
-            try
-            {
-                // Serialize the InputInfos into the stream
-                formatter.Serialize(stream, replay);
-            }
-            catch (SerializationException e)
-            {
-                Debug.Log("Serialization failed : " + e.Message);
-                throw;
-            }
-
-            // Rewind the MemoryStream.
-            stream.Position = 0;
-
-            try
-            {
-                // Deserialize the InputInfos from the stream
-                List<ReplayObject> replayObjs = (List<ReplayObject>)formatter.Deserialize(stream);
-
-                // Verify that it all worked.
-                foreach (ReplayObject ro in replayObjs)
                     Debug.Log(ro);
             }
             catch (SerializationException e)

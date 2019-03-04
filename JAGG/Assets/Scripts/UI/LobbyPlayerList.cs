@@ -55,6 +55,11 @@ public class LobbyPlayerList : MonoBehaviour
         _players.Clear();
     }
 
+    public int GetNbPlayers()
+    {
+        return _players.Count;
+    }
+
     public void UpdateSelectedMap(string levelname)
     {
         foreach(LobbyPlayer lp in _players)

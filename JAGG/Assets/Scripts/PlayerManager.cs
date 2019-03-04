@@ -256,10 +256,10 @@ public class PlayerManager : NetworkBehaviour
             connId = o.GetComponent<NetworkIdentity>().connectionToClient.connectionId;
 
         players[connId] = o;
-        string name = o.GetComponent<PlayerController>().playerName;
+        PlayerController pc = o.GetComponent<PlayerController>();
+        string name = pc.playerName;
         playersNames.Add(name);
 
-        PlayerController pc = o.GetComponent<PlayerController>();
         pc.replayObj.SetupReplay();
         pc.replayObj.steamName = pc.playerName;
         pc.replayObj.trailColor = pc.trailColor;
@@ -556,18 +556,18 @@ public class PlayerManager : NetworkBehaviour
         callback.Invoke();
     }
 
-    public void StartPlayersReplay()
+    /*public void StartPlayersReplay()
     {
         ReplayManager._instance.StartGameplay(true, LobbyManager._instance.customMapFile, true);
-        /*foreach (GameObject o in players.Values)
+        foreach (GameObject o in players.Values)
         {
             PlayerController pc = o.GetComponent<PlayerController>();
             pc.replayObj.SetupReplay();
             pc.replayObj.steamName = pc.playerName;
             pc.replayObj.trailColor = pc.trailColor;
             ReplayManager._instance.AddReplayObject(pc.replayObj);
-        }*/
-    }
+        }
+    }*/
 
     public void AddPlayersScoresReplay()
     {

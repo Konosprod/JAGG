@@ -661,6 +661,7 @@ public class PlayerController : NetworkBehaviour
         if (shots == 1)
         {
             type = 0;
+            ReplayManager._instance.AddHighlight(ReplayManager.HighlightType.HoleInOne, replayObj);
         }
         else
         {
