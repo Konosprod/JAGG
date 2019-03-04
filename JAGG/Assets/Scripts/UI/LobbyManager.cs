@@ -107,8 +107,6 @@ public class LobbyManager : NetworkLobbyManager
 
     public void SpawnNextPoint()
     {
-        Debug.Log("SpawnNextPoint");
-
         Transform nextPosition = hole.GetComponentInChildren<LevelProperties>().nextSpawnPoint;
 
         if (nextPosition.position != EndOfGamePos.position)
@@ -195,11 +193,9 @@ public class LobbyManager : NetworkLobbyManager
     // All players are ready to go, we can start the replay
     public override void OnLobbyServerPlayersReady()
     {
-        Debug.Log("OnLobbyServerPlayersReady");
-
         ReplayManager._instance.StartGameplay(true, LobbyManager._instance.customMapFile, true);
 
-        base.OnLobbyServerPlayersReady();
+        base.OnLobbyServerPlayersReady(); // Will load the scene
     }
 
 
@@ -207,8 +203,6 @@ public class LobbyManager : NetworkLobbyManager
     public override void OnLobbyServerSceneChanged(string sceneName)
     {
         base.OnLobbyServerSceneChanged(sceneName);
-
-        Debug.Log("OnLobbyServerSceneChanged");
 
         if (sceneName != lobbyScene && sceneName != "Victory")
         {
@@ -281,8 +275,6 @@ public class LobbyManager : NetworkLobbyManager
     {
         base.OnLobbyClientSceneChanged(conn);
 
-        Debug.Log("OnLobbyClientSceneChanged");
-
         if (SceneManager.GetSceneAt(0).name == lobbyScene)
         {
             Cursor.lockState = CursorLockMode.Confined;
@@ -315,8 +307,6 @@ public class LobbyManager : NetworkLobbyManager
 
     public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
     {
-        Debug.Log("OnLobbyServerSceneLoadedForPlayer : " + gamePlayer.transform.position);
-
         hole = GameObject.Find("Hole " + playerManager.currentHole.ToString());
 
         gamePlayer.layer = GetNextLayer();

@@ -223,7 +223,6 @@ public class PlayerManager : NetworkBehaviour
 
     public void MovePlayersTo(Transform nextPosition)
     {
-        Debug.Log("MovePlayersTo");
         foreach (GameObject o in players.Values)
         {
             PlayerController pc = o.GetComponent<PlayerController>();
@@ -262,7 +261,6 @@ public class PlayerManager : NetworkBehaviour
 
         pc.replayObj.SetupReplay();
         pc.replayObj.steamName = pc.playerName;
-        pc.replayObj.trailColor = pc.trailColor;
         ReplayManager._instance.AddReplayObject(pc.replayObj);
 
         nbPlayers++;
@@ -556,18 +554,6 @@ public class PlayerManager : NetworkBehaviour
         callback.Invoke();
     }
 
-    /*public void StartPlayersReplay()
-    {
-        ReplayManager._instance.StartGameplay(true, LobbyManager._instance.customMapFile, true);
-        foreach (GameObject o in players.Values)
-        {
-            PlayerController pc = o.GetComponent<PlayerController>();
-            pc.replayObj.SetupReplay();
-            pc.replayObj.steamName = pc.playerName;
-            pc.replayObj.trailColor = pc.trailColor;
-            ReplayManager._instance.AddReplayObject(pc.replayObj);
-        }
-    }*/
 
     public void AddPlayersScoresReplay()
     {

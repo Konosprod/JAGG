@@ -277,10 +277,7 @@ public class ReplayManager : MonoBehaviour
         {
             case HighlightType.HoleInOne:
                 {
-                    Debug.Log(ro.name + " " + ro.steamName);
-                    Debug.Log(replay.replayObjects.Count);
-                    Debug.Log(replay.replayObjects[0].name + " " + replay.replayObjects[0].steamName);
-                    Debug.Log("Add highlight : " + ht.ToString() + ", roi : " + replay.replayObjects.IndexOf(ro) + ", rhi : " + ro.currentHole + ", rii : " +  0);
+                    //Debug.Log("Add highlight : " + ht.ToString() + ", roi : " + replay.replayObjects.IndexOf(ro) + ", rhi : " + ro.currentHole + ", rii : " +  0);
                     replay.highlights[(int)HighlightType.HoleInOne].Add(new Highlight(replay.replayObjects.IndexOf(ro), ro.currentHole, 0, ht));
                     break;
                 }
@@ -301,7 +298,7 @@ public class ReplayManager : MonoBehaviour
             Directory.CreateDirectory(filePath);
         }
 
-        Debug.Log(filePath);
+        //Debug.Log(filePath);
         filePath += "/" + replay.customMapPath + "_" + System.DateTime.Now.ToString("ddMMyyyyHHmm");
 
         using (Stream stream = File.Open(filePath, FileMode.Create))

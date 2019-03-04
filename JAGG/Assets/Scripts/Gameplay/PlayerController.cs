@@ -379,7 +379,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            Debug.Log("ResetCamera");
+            //Debug.Log("ResetCamera");
             isSpectating = false;
             tSpectate = null;
             guiCam.GetComponent<BallCamera>().target = transform;
@@ -527,6 +527,7 @@ public class PlayerController : NetworkBehaviour
     {
         //Debug.Log("Hook");
         trailColor = newColor;
+        replayObj.trailColor = newColor;
         trail.GetComponent<Renderer>().material.SetColor("_TintColor", trailColor);
     }
 

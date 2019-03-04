@@ -121,7 +121,7 @@ public class ReplayObject : MonoBehaviour, ISerializable
 
     public void AddInput(Vector3 dir, float sliderValue, Vector3 pos)
     {
-        Debug.Log("Add input : frame=" + (ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount) + ", dir=" + dir + ", sliderValue=" + sliderValue + ", pos=" + pos);
+        //Debug.Log("Add input : frame=" + (ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount) + ", dir=" + dir + ", sliderValue=" + sliderValue + ", pos=" + pos);
         inputs[currentHole].Add(new InputInfo(ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount, dir, sliderValue, pos));
     }
 
