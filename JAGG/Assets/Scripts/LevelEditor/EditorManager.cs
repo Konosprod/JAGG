@@ -407,6 +407,10 @@ public class EditorManager : MonoBehaviour
                                 pos = rayHitPlane.point;
                             }
 
+                            pos = new Vector3(pos.x, pos.y - 0.1f, pos.z);
+
+                            //Debug.Log("pos : " + pos);
+
                             currentPiece.transform.eulerAngles = new Vector3(0f, currentPiece.transform.eulerAngles.y, 0f);
                             currentPiece.transform.position = pos;
 
