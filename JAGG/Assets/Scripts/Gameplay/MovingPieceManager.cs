@@ -66,6 +66,9 @@ public class MovingPieceManager : NetworkBehaviour {
 
     public void ResetAllRTPs()
     {
+        if (isServer)
+            RpcResetAllRTPs();
+
         foreach (RotatePiece rtp in rotatePieces)
         {
             if (rtp.enabled)
@@ -76,6 +79,9 @@ public class MovingPieceManager : NetworkBehaviour {
     }
     public void ResetAllMVPs()
     {
+        if (isServer)
+            RpcResetAllMVPs();
+
         foreach (MovingPiece mvp in movingPieces)
         {
             if (mvp.enabled)
@@ -189,7 +195,7 @@ public class MovingPieceManager : NetworkBehaviour {
 
 
                                 //Debug.Log("Start : " + start + ", end : " + end + ", movement.x : " + movement.x + ", movement.y : " + movement.y + ", movement.z : " + movement.z);
-                                movement = checkMovementBoundariesExceded(ball.transform.position, movement, end, mvp.transform.position);
+                                movement = CheckMovementBoundariesExceded(ball.transform.position, movement, end, mvp.transform.position);
                                 ball.transform.position += movement;
                             }
                         }
@@ -202,7 +208,7 @@ public class MovingPieceManager : NetworkBehaviour {
 
     // Checks if the movement added to the ball will make it overshoot the endGoal postion
     // Should help avoiding some of the collision issues
-    private Vector3 checkMovementBoundariesExceded(Vector3 ballPos, Vector3 movement, Vector3 endGoal, Vector3 piecePos)
+    private Vector3 CheckMovementBoundariesExceded(Vector3 ballPos, Vector3 movement, Vector3 endGoal, Vector3 piecePos)
     {
         Vector3 res = movement;
 
@@ -262,5 +268,18 @@ public class MovingPieceManager : NetworkBehaviour {
                                                       (fwdMove) ? mvp.destPos : mvp.initPos,
                                                       mvp.travelTime));
         }
+    }
+
+    [ClientRpc]
+    private void RpcResetAllRTPs()
+    {
+        if(!isServer)
+            ResetAllRTPs();
+    }
+    [ClientRpc]
+    private void RpcResetAllMVPs()
+    {
+        if(!isServer)
+            ResetAllMVPs();
     }
 }
