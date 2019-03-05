@@ -358,7 +358,7 @@ public class EditorManager : MonoBehaviour
                                 currentPiece.transform.position = pos;
 
                                 // If you left-click and the position is free, place the piece
-                                if (Input.GetMouseButtonDown(0) && IsPositionValid(pos, currentPiece))
+                                if (Input.GetMouseButtonDown(0) /*&& IsPositionValid(pos, currentPiece)*/)
                                 {
                                     //Debug.Log("Putting piece : " + currentPiece.name);
                                     currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
@@ -472,7 +472,7 @@ public class EditorManager : MonoBehaviour
 
 
                                 // If you left-click and the position is free, place the piece
-                                if (Input.GetMouseButtonDown(0) && IsPositionValid(pos, currentPiece))
+                                if (Input.GetMouseButtonDown(0) /*&& IsPositionValid(pos, currentPiece)*/)
                                 {
                                     currParams = undoRedoStack.Do(new AddPieceCommand(currentPiece, pos, currentPiece.transform.rotation), currParams);
                                     currParams.result.transform.parent = rayHit.transform.parent;
@@ -975,7 +975,7 @@ public class EditorManager : MonoBehaviour
     }
 
     // Returns true if the piece can be placed on the specific position
-    private bool IsPositionValid(Vector3 pos, GameObject piece = null)
+    /*private bool IsPositionValid(Vector3 pos, GameObject piece = null)
     {
         bool res = true;
 
@@ -984,16 +984,19 @@ public class EditorManager : MonoBehaviour
         if (piece.layer != layerOverlay && piece.layer != layerWall)
         {
             RaycastHit rayHitPiece;
-            Ray rayPiece = Camera.main.ScreenPointToRay(pos);
+            Ray rayPiece = Camera.main.ScreenPointToRay(Camera.main.WorldToScreenPoint(pos));
+            Debug.Log("Position aimed : " + pos.ToString("F6"));
+            Debug.DrawRay(rayPiece.origin, rayPiece.direction * 50f, Color.red, 3f);
             if (Physics.Raycast(rayPiece, out rayHitPiece, Mathf.Infinity, layerMaskPieceSelection) && rayHitPiece.transform.gameObject.name != "Plane_Decor")
             {
                 res = false;
                 Debug.Log("Cannot put the piece because of : " + rayHitPiece.transform.gameObject.name + ", parent : " + rayHitPiece.transform.parent.gameObject.name);
+                Debug.Break();
             }
         }
 
         return res;
-    }
+    }*/
 
     public void ClickOnPiece(string pieceName)
     {
