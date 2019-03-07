@@ -15,6 +15,9 @@ public class UIManager : MonoBehaviour {
     public Text notificationText;
     public GameObject notificationPanel;
 
+    [Header("Loading")]
+    public GameObject loadingScreen;
+
     [Header("Slider")]
     public Slider slider;
     public int sliderSpeed = 1;
@@ -55,6 +58,11 @@ public class UIManager : MonoBehaviour {
     void Update()
     {
 
+    }
+
+    public void HideLoading()
+    {
+        loadingScreen.SetActive(false);
     }
 
     public void UpdateSlider()

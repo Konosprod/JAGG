@@ -208,6 +208,10 @@ public class LobbyPlayer : NetworkLobbyPlayer {
                 }
             }
         }
+        else
+        {
+            SendNotReadyToBeginMessage();
+        }
     }
 
     IEnumerator CheckTimestamp(string levelId, long localTime, bool isReady)

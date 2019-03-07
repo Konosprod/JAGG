@@ -103,7 +103,6 @@ public class PlayerController : NetworkBehaviour
 
         //layerDecor = LayerMask.NameToLayer("Decor");
 
-
         if (isLocalPlayer)
         {
             playerNameText.gameObject.SetActive(false);
@@ -113,12 +112,17 @@ public class PlayerController : NetworkBehaviour
 
             if (gameObject.layer == 0)
                 CmdGetLayer();
+
+            CmdSceneLoaded();
         }
 
     }
 
     private void Update()
     {
+        if(ui.loadingScreen.activeSelf)
+            CmdSceneLoaded();
+
         if (Input.GetKeyUp(settings.Keys[KeyAction.Pause]))
         {
             if (!isPaused)
@@ -373,7 +377,6 @@ public class PlayerController : NetworkBehaviour
 
         CmdChangeColorTrail(SettingsManager._instance.gameSettings.colorTrail);
     }
-
 
     public void ResetCameraTarget()
     {
@@ -835,9 +838,23 @@ public class PlayerController : NetworkBehaviour
         lobbyManager.playerManager.ChangeSpectate(this.netId.Value, currSpectate);
     }
 
+    [Command]
+    private void CmdSceneLoaded()
+    {
+        LobbyManager._instance.playerManager.SetPlayerReady(connectionToClient.connectionId);
+    }
+
     #endregion
 
     #region ClientRpc
+    [ClientRpc]
+    public void RpcStartGame()
+    {
+        Debug.Log("starting game");
+        if (isServer)
+            Debug.Log("here");
+        ui.HideLoading();
+    }
 
     [ClientRpc]
     public void RpcInvertCamera(bool invert)

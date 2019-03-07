@@ -214,7 +214,7 @@ public class LobbyManager : NetworkLobbyManager
 
             hole = GameObject.Find("Hole " + playerManager.currentHole.ToString());
 
-            gameTimer.StartTimer(GetMaxTime());
+            //gameTimer.StartTimer(GetMaxTime());
 
             MovingPieceManager._instance.GrabAllRotatePieces();
             MovingPieceManager._instance.GrabAllMovingPieces();

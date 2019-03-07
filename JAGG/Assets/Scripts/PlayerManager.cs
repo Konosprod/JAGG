@@ -15,6 +15,8 @@ public class PlayerManager : NetworkBehaviour
 
     public UIManager ui;
     private Dictionary<int, GameObject> players;
+    //Client loading statuses
+    private Dictionary<int, bool> states;
 
     private SyncListInt scoreP1 = new SyncListInt();
     private SyncListInt scoreP2 = new SyncListInt();
@@ -49,6 +51,7 @@ public class PlayerManager : NetworkBehaviour
     void Start()
     {
         players = new Dictionary<int, GameObject>();
+        states = new Dictionary<int, bool>();
     }
 
     void Update()
@@ -240,6 +243,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void ClearPlayers()
     {
+        states.Clear();
         players.Clear();
         scoreP1.Clear();
         scoreP2.Clear();
@@ -274,6 +278,40 @@ public class PlayerManager : NetworkBehaviour
             players.Remove(connId);
             playersNames.Remove(o.GetComponent<PlayerController>().playerName);
         }
+    }
+
+    public void StartGame()
+    {
+        foreach(GameObject player in players.Values)
+        {
+            player.GetComponent<PlayerController>().RpcStartGame();
+        }
+    }
+
+    public void SetPlayerReady(int connId = -1)
+    {
+        states[connId] = true;
+
+        if(AllPlayerLoaded())
+        {
+            StartGame();
+        }
+    }
+
+    public bool AllPlayerLoaded()
+    {
+        if (nbPlayers == players.Count())
+        {
+            foreach(bool state in states.Values)
+            {
+                if (!state)
+                    return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public bool AllPlayersDone()
