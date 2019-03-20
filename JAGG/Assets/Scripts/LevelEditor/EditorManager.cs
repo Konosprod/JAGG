@@ -1374,8 +1374,13 @@ public class EditorManager : MonoBehaviour
                     _inputAddFactorBP.gameObject.SetActive(true);
                     _inputMultFactorBP.gameObject.SetActive(true);
 
+                    Debug.Log(bp.multFactor);
+                    Debug.Log(bp.addFactor.ToString("F"));
+
                     _inputMultFactorBP.text = bp.multFactor.ToString("F");
                     _inputAddFactorBP.text = bp.addFactor.ToString("F");
+
+                    Debug.Log(_inputAddFactorBP.text);
                 }
 
                 if (scriptType == typeof(WindArea))

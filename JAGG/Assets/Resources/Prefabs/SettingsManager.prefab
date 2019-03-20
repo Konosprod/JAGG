@@ -7447,6 +7447,7 @@ GameObject:
   - component: {fileID: 224128666858274870}
   - component: {fileID: 222733426781672346}
   - component: {fileID: 114298736587477508}
+  - component: {fileID: 6495787285365298524}
   m_Layer: 5
   m_Name: OptionsPanel
   m_TagString: Untagged
@@ -7514,6 +7515,20 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
+--- !u!114 &6495787285365298524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1455265184664624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eae84b44f375bba41b3c1e3be473b3e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleTargeted: 1
+  startingScale: 0.3
 --- !u!1 &1497294004880752
 GameObject:
   m_ObjectHideFlags: 0
@@ -8602,6 +8617,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224367420650734316}
   - component: {fileID: 114621436117940450}
+  - component: {fileID: 3734563601351111525}
   m_Layer: 5
   m_Name: Toggle
   m_TagString: Untagged
@@ -8676,6 +8692,22 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
+--- !u!114 &3734563601351111525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1605528200578540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8953ee24ac0162546aa8c17875e9ee31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleXEnter: 1.03
+  scaleYEnter: 1.2
+  scaleXExit: 1
+  scaleYExit: 1
 --- !u!1 &1608549670756026
 GameObject:
   m_ObjectHideFlags: 0
