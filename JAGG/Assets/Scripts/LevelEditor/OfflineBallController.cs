@@ -199,6 +199,7 @@ public class OfflineBallController : MonoBehaviour
 
     public void OnBoosterPad(Vector3 dir, float multFactor, float addFactor)
     {
+        //Debug.Log("OnBoosterPad : mult = " + multFactor + ", add = " + addFactor);
         float angle = Vector3.Angle(physics.velocityCapped, dir);
         physics.MultiplySpeed(multFactor * (angle > 90f ? -0.1f : 1f));
         physics.AddForce(dir * addFactor);

@@ -52,7 +52,7 @@ public class SimpleBallController : MonoBehaviour
     void Start()
     {
         initialPos = transform.position;
-        replay = gameObject.AddComponent<ReplayObject>();
+        replay = new ReplayObject(gameObject);
         physics = GetComponent<BallPhysicsTest>();
     }
 

@@ -141,6 +141,14 @@ public class UIManager : MonoBehaviour {
         panelScore.SetActive(true);
     }
 
+    public IEnumerator ShowScoresRoutine()
+    {
+        UpdateScore();
+        ShowScores();
+        yield return new WaitForSeconds(5f);
+        HideScores();
+    }
+
     public void HidePauseMenu()
     {
         Cursor.lockState = CursorLockMode.Locked;

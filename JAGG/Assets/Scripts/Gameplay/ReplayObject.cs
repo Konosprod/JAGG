@@ -7,9 +7,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 [System.Serializable]
-public class ReplayObject : MonoBehaviour, ISerializable
+public class ReplayObject : ISerializable
 {
-
     [System.Serializable]
     public class InputInfo : ISerializable
     {
@@ -67,30 +66,12 @@ public class ReplayObject : MonoBehaviour, ISerializable
     public int[] scores;
     public float[] times;
 
-    // Use this for initialization
-    void Awake()
-    {
-        inputs = new List<InputInfo>[18];
-        rb = gameObject.GetComponent<Rigidbody>();
-        //rtp = gameObject.GetComponent<RotatePiece>();
-        //mvp = gameObject.GetComponent<MovingPiece>();
-        physics = GetComponent<BallPhysicsNetwork>();
-        scores = new int[18];
-        times = new float[18];
-        /*if (ReplayManager._instance != null)
-        {
-            ReplayManager._instance.AddReplayObject(this);
-        }*/
-        goName = gameObject.name;
-        //Debug.Log("ReplayObject start : " + gameObject.name);
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
+    // Longest Shot highlight
+    public float longestShotDist = -1f;
+    public int longestShotHoleIndex = -1;
+    public int longestShotInputIndex = -1;
 
-    }
-       
 
     public void ResetInputs()
     {
@@ -101,7 +82,7 @@ public class ReplayObject : MonoBehaviour, ISerializable
         }
     }
 
-    public void SetupReplay()
+    public void SetupReplay(GameObject gameObject)
     {
         ResetInputs();
         StartHoleReplay(0);
@@ -125,6 +106,18 @@ public class ReplayObject : MonoBehaviour, ISerializable
         inputs[currentHole].Add(new InputInfo(ReplayManager._instance != null ? ReplayManager._instance.fixedFrameCount : Time.frameCount, dir, sliderValue, pos));
     }
 
+    public void CheckForLongestShot(float newDist)
+    {
+        if(newDist > longestShotDist)
+        {
+            longestShotDist = newDist;
+            longestShotHoleIndex = currentHole;
+            longestShotInputIndex = inputs[currentHole].Count - 1;
+
+            //Debug.Log("Longest shot : dist = " + longestShotDist + ", hole index : " + longestShotHoleIndex + ", input index : " + longestShotInputIndex);
+        }
+    }
+
          
     // Serialization implementation
     protected ReplayObject(SerializationInfo info, StreamingContext context)
@@ -134,6 +127,23 @@ public class ReplayObject : MonoBehaviour, ISerializable
         //currentHole = info.GetInt32("currentHole");
         steamName = info.GetString("steamName");
         trailColor = new Color(float.Parse(info.GetString("r")), float.Parse(info.GetString("g")), float.Parse(info.GetString("b")) , float.Parse(info.GetString("a")));
+    }
+
+    public ReplayObject(GameObject gameObject)
+    {
+        inputs = new List<InputInfo>[18];
+        rb = gameObject.GetComponent<Rigidbody>();
+        //rtp = gameObject.GetComponent<RotatePiece>();
+        //mvp = gameObject.GetComponent<MovingPiece>();
+        physics = gameObject.GetComponent<BallPhysicsNetwork>();
+        scores = new int[18];
+        times = new float[18];
+        /*if (ReplayManager._instance != null)
+        {
+            ReplayManager._instance.AddReplayObject(this);
+        }*/
+        goName = gameObject.name;
+        //Debug.Log("ReplayObject start : " + gameObject.name);
     }
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -151,17 +161,20 @@ public class ReplayObject : MonoBehaviour, ISerializable
     public override string ToString()
     {
         string res = goName + " replay" + '\n';
-        int k = 1;
+        int hole = 1;
         foreach(List<InputInfo> inps in inputs)
         {
+            int k = 1;
             if (inps != null)
             {
+                res += "Hole n°" + hole + '\n';
                 foreach (InputInfo i in inps)
                 {
                     res += "Input n°" + k + " : " + i.ToString() + '\n';
                     k++;
                 }
             }
+            hole++;
         }
         return res;
     }

@@ -102,8 +102,8 @@ public class MovingPieceManager : NetworkBehaviour {
             StopCoroutine(mvp.coroutine);
     }
 
-    // Update is called once per frame
-    void Update()
+
+    void FixedUpdate()
     {
         if (!isServer)
             return;
@@ -116,7 +116,7 @@ public class MovingPieceManager : NetworkBehaviour {
             {
                 if (!rtp.flagStopRotation)
                 {
-                    rtp.timer += Time.deltaTime;
+                    rtp.timer += Time.fixedDeltaTime;
 
                     if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
                     {
@@ -141,7 +141,7 @@ public class MovingPieceManager : NetworkBehaviour {
 
                                 Quaternion fromAngle = Quaternion.Euler(rtp.goalAngle.eulerAngles - new Vector3(0f, rtp.rotationAngle, 0f));
                                 Quaternion toAngle = rtp.goalAngle;
-                                Quaternion step = Quaternion.Inverse(fromAngle) * Quaternion.Slerp(fromAngle, toAngle, Time.deltaTime / rtp.spinTime);
+                                Quaternion step = Quaternion.Inverse(fromAngle) * Quaternion.Slerp(fromAngle, toAngle, Time.fixedDeltaTime / rtp.spinTime);
 
 
                                 Vector3 currentOffset = ballPos - piecePos;
@@ -165,7 +165,7 @@ public class MovingPieceManager : NetworkBehaviour {
             {
                 if (!mvp.flagStopMove)
                 {
-                    mvp.timer += Time.deltaTime;
+                    mvp.timer += Time.fixedDeltaTime;
 
                     if ((mvp.isMoving && mvp.timer > mvp.travelTime) || (!mvp.isMoving && mvp.timer > mvp.pauseTime))
                     {
@@ -190,7 +190,7 @@ public class MovingPieceManager : NetworkBehaviour {
                             {
                                 Vector3 start = (mvp.forwardMove) ? mvp.initPos : mvp.destPos;
                                 Vector3 end = (mvp.forwardMove) ? mvp.destPos : mvp.initPos;
-                                float lerpFactor = Time.deltaTime * (1.0f / mvp.travelTime);
+                                float lerpFactor = Time.fixedDeltaTime * (1.0f / mvp.travelTime);
                                 Vector3 movement = Vector3.Lerp(start, end, lerpFactor) - start;
 
 
@@ -201,6 +201,131 @@ public class MovingPieceManager : NetworkBehaviour {
                         }
                     }
                 }
+            }
+        }
+    }
+
+
+    // Used for highlights instead of fixedUpdate (which isn't called when manually updating the physics)
+    public void Step()
+    {
+        // Handle all RotatePiece
+        foreach (RotatePiece rtp in rotatePieces)
+        {
+            if (rtp.enabled)
+            {
+                if (!rtp.flagStopRotation)
+                {
+                    rtp.timer += Time.fixedDeltaTime;
+
+                    if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    {
+                        rtp.isRotation = !rtp.isRotation;
+                        rtp.timer = 0f;
+                        if (rtp.isRotation)
+                        {
+                            rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+                        }
+                    }
+
+
+                    if (rtp.isRotation)
+                    {
+                        if (rtp.ballsOnTop.Count > 0)
+                        {
+                            foreach (GameObject ball in rtp.ballsOnTop)
+                            {
+                                Vector3 ballPos = ball.transform.position;
+                                Vector3 piecePos = rtp.transform.position;
+
+                                Quaternion fromAngle = Quaternion.Euler(rtp.goalAngle.eulerAngles - new Vector3(0f, rtp.rotationAngle, 0f));
+                                Quaternion toAngle = rtp.goalAngle;
+                                Quaternion step = Quaternion.Inverse(fromAngle) * Quaternion.Slerp(fromAngle, toAngle, Time.fixedDeltaTime / rtp.spinTime);
+
+
+                                Vector3 currentOffset = ballPos - piecePos;
+                                Vector3 nextStepOffset = step * currentOffset;
+                                Vector3 movement = nextStepOffset - currentOffset;
+
+                                //Debug.Log("BallPos : " + ballPos + ", piecePos : " + piecePos + ", fromAngle : " + fromAngle.eulerAngles + ", toAngle : " + toAngle.eulerAngles + ", step : " + step.eulerAngles + ", currentOffset : " + currentOffset + ", nextStepOffset : " + nextStepOffset + ", movement : " + movement);
+
+                                ball.transform.position += movement;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Handle all moving pieces
+        foreach (MovingPiece mvp in movingPieces)
+        {
+            if (mvp.enabled)
+            {
+                if (!mvp.flagStopMove)
+                {
+                    mvp.timer += Time.fixedDeltaTime;
+
+                    if ((mvp.isMoving && mvp.timer > mvp.travelTime) || (!mvp.isMoving && mvp.timer > mvp.pauseTime))
+                    {
+                        mvp.isMoving = !mvp.isMoving;
+                        mvp.timer = 0f;
+                        if (mvp.isMoving)
+                        {
+                            mvp.forwardMove = !mvp.forwardMove;
+                            mvp.coroutine = StartCoroutine(mvp.MoveMe((mvp.forwardMove) ? mvp.initPos : mvp.destPos,
+                                                                       (mvp.forwardMove) ? mvp.destPos : mvp.initPos,
+                                                                       mvp.travelTime));
+                        }
+                    }
+
+                    // Move the balls on top of the piece while it is moving
+                    if (mvp.isMoving)
+                    {
+                        if (mvp.ballsOnTop.Count > 0)
+                        {
+                            foreach (GameObject ball in mvp.ballsOnTop)
+                            {
+                                Vector3 start = (mvp.forwardMove) ? mvp.initPos : mvp.destPos;
+                                Vector3 end = (mvp.forwardMove) ? mvp.destPos : mvp.initPos;
+                                float lerpFactor = Time.fixedDeltaTime * (1.0f / mvp.travelTime);
+                                Vector3 movement = Vector3.Lerp(start, end, lerpFactor) - start;
+
+
+                                //Debug.Log("Start : " + start + ", end : " + end + ", movement.x : " + movement.x + ", movement.y : " + movement.y + ", movement.z : " + movement.z);
+                                movement = CheckMovementBoundariesExceded(ball.transform.position, movement, end, mvp.transform.position);
+                                ball.transform.position += movement;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    public void ReplayReset()
+    {
+        ReplayResetAllMVPs();
+        ReplayResetAllRTPs();
+    }
+    private void ReplayResetAllRTPs()
+    {
+        foreach (RotatePiece rtp in rotatePieces)
+        {
+            if (rtp.enabled)
+            {
+                rtp.Reset();
+            }
+        }
+    }
+    private void ReplayResetAllMVPs()
+    {
+        foreach (MovingPiece mvp in movingPieces)
+        {
+            if (mvp.enabled)
+            {
+                mvp.Reset();
             }
         }
     }

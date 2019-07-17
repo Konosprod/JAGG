@@ -81,12 +81,15 @@ public class PlayerController : NetworkBehaviour
     [HideInInspector]
     public ReplayObject replayObj;
 
+    private Vector3 lastFramePos = Vector3.zero;
+    private float currentShotLength = 0f;
+
     private void Awake()
     {
         ui = FindObjectOfType<UIManager>();
 
         settings = SettingsManager._instance.gameSettings;
-        replayObj = GetComponent<ReplayObject>();
+        replayObj = new ReplayObject(gameObject);
     }
 
     private void Start()
@@ -120,7 +123,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if(ui.loadingScreen.activeSelf)
+        if (ui.loadingScreen.activeSelf)
             CmdSceneLoaded();
 
         if (Input.GetKeyUp(settings.Keys[KeyAction.Pause]))
@@ -179,6 +182,19 @@ public class PlayerController : NetworkBehaviour
                 {
                     CmdOutOfStrokes();
                 }
+
+                if (lastFramePos != Vector3.zero)
+                {
+                    //Debug.Log("Reset current shot length : " + currentShotLength);
+                    currentShotLength = 0f;
+                    lastFramePos = Vector3.zero;
+                }
+            }
+            else
+            {
+                //Debug.Log("Add to current shot length : " + currentShotLength);
+                currentShotLength += Vector3.Distance(transform.position, lastFramePos);
+                lastFramePos = transform.position;
             }
         }
 
@@ -258,16 +274,8 @@ public class PlayerController : NetworkBehaviour
 
         if (!isMoving)
         {
-            // Enable collision with other players only after the end of the first shot
-            if (shots == 1 && !firstShotLayerActivated)
-            {
-                // Debug.Log("Enabling collisions for " + LayerMask.LayerToName(gameObject.layer));
-                firstShotLayerActivated = true;
-                CmdEnableMyCollisionLayers();
-            }
-
             // Update the last position where the ball stopped
-            if(!isOOB)
+            if (!isOOB)
                 lastStopPos = transform.position;
 
             Vector3 dir = transform.position - Camera.main.transform.position;
@@ -311,40 +319,82 @@ public class PlayerController : NetworkBehaviour
                 CmdResetPosition(lastStopPos);
             }
         }
+    }
 
-        // Handle oob
-        RaycastHit oobHit;
-        if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall))
+
+    private void FixedUpdate()
+    {
+        if (isServer)
         {
-            if (oobHit.collider.gameObject.CompareTag("Hole " + PlayerManager._instance.currentHole))
+            if (!firstShotLayerActivated && ballPhysN.velocityCapped.magnitude < 0.001f)
             {
-                isOOB = false;
-            }
-            else
-            {
-                if (isOOB)
+                // Enable collision with other players only after the end of the first shot
+                if (shots == 1 && !firstShotLayerActivated)
                 {
-                    //Debug.Log(oobActualResetTimer);
-                    oobActualResetTimer -= Time.deltaTime;
-                    if (oobActualResetTimer < 0f)
-                    {
-                        isOOB = false;
-                        CmdResetPosition(lastStopPos);
-                    }
+                    // Debug.Log("Enabling collisions for " + LayerMask.LayerToName(gameObject.layer));
+                    firstShotLayerActivated = true;
+                    CmdEnableMyCollisionLayers();
+                }
+            }
+
+
+            // Handle oob in FixedUpdate and on the server
+            RaycastHit oobHit;
+            if (Physics.Raycast(transform.position, Vector3.down, out oobHit, Mathf.Infinity, 1 << BallPhysicsNetwork.layerFloor | 1 << BallPhysicsNetwork.layerWall))
+            {
+                if (oobHit.collider.gameObject.CompareTag("Hole " + PlayerManager._instance.currentHole))
+                {
+                    isOOB = false;
                 }
                 else
                 {
-                    isOOB = true;
-                    oobActualResetTimer = oobInitialResetTimer;
+                    if (isOOB)
+                    {
+                        Debug.Log("OOB : " + oobActualResetTimer);
+                        oobActualResetTimer -= Time.fixedDeltaTime;
+                        if (oobActualResetTimer < 0f)
+                        {
+                            isOOB = false;
+                            CmdResetPosition(lastStopPos);
+                        }
+                    }
+                    else
+                    {
+                        isOOB = true;
+                        oobActualResetTimer = oobInitialResetTimer;
+                    }
                 }
             }
+            else
+            {
+                isOOB = true;
+                Debug.LogError("Void below us, is it ok ?");
+            }
         }
-        else
+
+
+        if (!isServer)
         {
-            isOOB = true;
-            Debug.LogError("Void below us, is it ok ?");
+            if ((transform.position - serverPos).magnitude < 0.1f && serverPositions.Count > 0)
+            {
+                serverPos = serverPositions.Dequeue();
+            }
+
+            float lerpRate = 0.5f;
+
+            if (serverPos != Vector3.zero)
+            {
+                transform.position = Vector3.Lerp(transform.position, serverPos, lerpRate);
+            }
+        }
+
+        if (isLocalPlayer)
+        {
+            if (isShooting)
+                ui.UpdateSlider();
         }
     }
+
 
     private void OnApplicationFocus(bool focus)
     {
@@ -401,29 +451,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    private void FixedUpdate()
-    {
-        if (!isServer)
-        {
-            if ((transform.position - serverPos).magnitude < 0.1f && serverPositions.Count > 0)
-            {
-                serverPos = serverPositions.Dequeue();
-            }
-
-            float lerpRate = 0.5f;
-
-            if (serverPos != Vector3.zero)
-            {
-                transform.position = Vector3.Lerp(transform.position, serverPos, lerpRate);
-            }
-        }
-
-        if (isLocalPlayer)
-        {
-            if (isShooting)
-                ui.UpdateSlider();
-        }
-    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -622,6 +649,7 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdEnableMyCollisionLayers()
     {
+        replayObj.AddInput(Vector3.zero, -3f, Vector3.zero);
         for (int i = FirstLayer; i < FirstLayer + 4; i++)
         {
             // We check if the player on that specific layer is done or not to avoid enabling collisions on a player already in the hole
@@ -636,6 +664,7 @@ public class PlayerController : NetworkBehaviour
         //rb.AddForce(dir * sliderVal * 10f); // Linear scaling of the force
         ballPhysN.AddForce(dir * Mathf.Pow(sliderVal, 1.4f) * 2f); // Quadratic scaling of the force
         replayObj.AddInput(dir, sliderVal, transform.position);
+        lastFramePos = transform.position;
         shots++;
     }
 
@@ -658,7 +687,12 @@ public class PlayerController : NetworkBehaviour
         int type = -1;
         canShoot = false;
         ballPhysN.StopBall();
+
+        //Debug.Log("Current Shot length : " + currentShotLength);
+        replayObj.CheckForLongestShot(currentShotLength);
+
         replayObj.AddInput(Vector3.zero, -1f, transform.position);
+
 
         int par = lobbyManager.GetPar();
 
@@ -726,7 +760,7 @@ public class PlayerController : NetworkBehaviour
 
         score.Add(shots + 2);
         shots = 0;
-        RpcDisablePlayerInHole(-2);
+        RpcDisablePlayerInHole(-1);
         RpcChangeFailSignVisibility(true);
     }
 
@@ -865,16 +899,9 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void RpcShowScores()
     {
-        StartCoroutine(ShowScoresRoutine());
+        ui.StartCoroutine(ui.ShowScoresRoutine()); // Coroutine on UI manager so that we avoid problems when disabling the ball at the end of the game
     }
 
-    private IEnumerator ShowScoresRoutine()
-    {
-        ui.UpdateScore();
-        ui.ShowScores();
-        yield return new WaitForSeconds(5);
-        ui.HideScores();
-    }
 
     [ClientRpc]
     void RpcUpdatePosition(Vector3 position)
@@ -917,9 +944,9 @@ public class PlayerController : NetworkBehaviour
                     message = "Out of time";
                     break;*/
 
-                case -2:
+                /*case -2:
                     message = "If at first you don't succeed,\nTry, try, try again.\nOn the next hole that is.";
-                    break;
+                    break;*/
 
                 case -1:
                     message = "Better luck next time.";

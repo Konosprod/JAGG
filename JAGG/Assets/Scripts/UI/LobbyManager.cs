@@ -171,6 +171,17 @@ public class LobbyManager : NetworkLobbyManager
         setUi = false;
         layers = new bool[4];
 
+        /// START HIGHLIGHTS
+        ReplayManager._instance.SelectHighlights();
+        playerManager.SendReplayToClients();
+        playerManager.isHighlight = true;
+
+        
+    }
+
+    public void AfterHighlightEndOfGame()
+    {
+        /// VICTORY SCENE AND LOBBY RETURN => AFTER HIGHLIGHTS 
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
 
@@ -423,7 +434,7 @@ public class LobbyManager : NetworkLobbyManager
         return l;
     }
 
-    private void DisableAllBallsCollisions()
+    public void DisableAllBallsCollisions()
     {
         Physics.IgnoreLayerCollision(FirstLayer, FirstLayer + 1, true);
         Physics.IgnoreLayerCollision(FirstLayer, FirstLayer + 2, true);

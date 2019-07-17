@@ -34,6 +34,22 @@ public class PlayerManager : NetworkBehaviour
     [HideInInspector]
     public bool isStarted;
 
+
+
+    // For sending replay
+    // Client only stuff
+    private int receivedSize = 0;
+    private int replaySize = 0;
+    private byte[] clientData;
+
+    // Server only
+    private int replayReceived = 0;
+
+    [HideInInspector]
+    public bool isHighlight = false;
+    private bool highlightStarted = false;
+
+
     void Awake()
     {
         if (_instance == null)
@@ -52,6 +68,11 @@ public class PlayerManager : NetworkBehaviour
     {
         players = new Dictionary<int, GameObject>();
         states = new Dictionary<int, bool>();
+
+        LobbyManager._instance.client.RegisterHandler(MyMsgType.ReplayInfo, OnReplayInfo);
+        LobbyManager._instance.client.RegisterHandler(MyMsgType.ReplayChunk, OnReplayChunk);
+        LobbyManager._instance.client.RegisterHandler(MyMsgType.StartHighlights, OnStartHighlights);
+        NetworkServer.RegisterHandler(MyMsgType.ReplayDone, OnReplayDone);
     }
 
     void Update()
@@ -69,6 +90,30 @@ public class PlayerManager : NetworkBehaviour
                     ShowPlayersScores();
 
                     Invoke("TriggerSpawn", 5);
+                }
+            }
+        }
+
+        if (isServer && isHighlight && !highlightStarted)
+        {
+            if (players.Count - 1 == replayReceived)
+            {
+                highlightStarted = true;
+                ReplayManager._instance.StartHighlights();
+
+                // The balls must be deactivated so that they don't show in the replay
+                foreach (GameObject o in players.Values)
+                {
+                    o.SetActive(false);
+                }
+
+                // Tell the clients to start the highlights as well
+                foreach (int clientId in players.Keys)
+                {
+                    if (clientId != 0) // clientId 0 on server is the server itself
+                    {
+                        NetworkServer.SendToClient(clientId, MyMsgType.StartHighlights, new StartHighlights());
+                    }
                 }
             }
         }
@@ -263,7 +308,7 @@ public class PlayerManager : NetworkBehaviour
         string name = pc.playerName;
         playersNames.Add(name);
 
-        pc.replayObj.SetupReplay();
+        pc.replayObj.SetupReplay(o);
         pc.replayObj.steamName = pc.playerName;
         ReplayManager._instance.AddReplayObject(pc.replayObj);
 
@@ -282,7 +327,10 @@ public class PlayerManager : NetworkBehaviour
 
     public void StartGame()
     {
-        foreach(GameObject player in players.Values)
+        isHighlight = false;
+        highlightStarted = false;
+
+        foreach (GameObject player in players.Values)
         {
             player.GetComponent<PlayerController>().RpcStartGame();
         }
@@ -292,7 +340,7 @@ public class PlayerManager : NetworkBehaviour
     {
         states[connId] = true;
 
-        if(AllPlayerLoaded())
+        if (AllPlayerLoaded())
         {
             StartGame();
         }
@@ -302,7 +350,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if (nbPlayers == players.Count())
         {
-            foreach(bool state in states.Values)
+            foreach (bool state in states.Values)
             {
                 if (!state)
                     return false;
@@ -485,7 +533,7 @@ public class PlayerManager : NetworkBehaviour
         int i = potentialSpectates.IndexOf(currSpectate);
         if (i != -1)
         {
-            spectate = potentialSpectates[(i+1) % potentialSpectates.Count];
+            spectate = potentialSpectates[(i + 1) % potentialSpectates.Count];
         }
         else
         {
@@ -599,34 +647,61 @@ public class PlayerManager : NetworkBehaviour
         {
             PlayerController pc = o.GetComponent<PlayerController>();
             int i = 0;
-            foreach(int s in pc.score)
+            foreach (int s in pc.score)
             {
+                //Debug.Log("AddScoreToReplay : " + pc.playerName + " hole " + (i+1) + " : " + s);
                 pc.replayObj.scores[i] = s;
-                Debug.Log("AddScoreToReplay : " + pc.playerName + " hole " + (i+1) + " : " + s);
                 i++;
             }
+
+            // The game is over so the current longest shot is the longest shot of the game (of that player)
+            ReplayManager._instance.AddHighlight(ReplayManager.HighlightType.LongestShotOnTarget, pc.replayObj);
         }
     }
 
 
 
 
-    /*public class MyMsgType
+    public class MyMsgType
     {
-        public static short FileInformation = MsgType.Highest + 1;
-        public static short FileChunk = MsgType.Highest + 2;
+        public static short ReplayInfo = MsgType.Highest + 1;
+        public static short ReplayChunk = MsgType.Highest + 2;
+        public static short ReplayDone = MsgType.Highest + 3;
+        public static short StartHighlights = MsgType.Highest + 4;
     };
+    public class ReplayInfo : MessageBase
+    {
+        public int replaySize;
+    }
     public class ReplayChunk : MessageBase
     {
         public byte[] replayData;
     }
+    public class ReplayDone : MessageBase
+    {
+
+    }
+    public class StartHighlights : MessageBase
+    {
+
+    }
 
     [Server]
-    private void SendReplayToClients()
+    public void SendReplayToClients()
     {
-        foreach(int clientId in players.Keys)
+        byte[] data = ReplayManager._instance.GetReplayData();
+        foreach (int clientId in players.Keys)
         {
-            SendReplayRoutine(null, clientId);
+            if (clientId != 0) // clientId 0 on server is the server itself
+            {
+                Debug.Log("Send replay to clientId : " + clientId + ", replay size : " + data.Length);
+
+                ReplayInfo msg = new ReplayInfo();
+                msg.replaySize = data.Length;
+                NetworkServer.SendToClient(clientId, MyMsgType.ReplayInfo, msg);
+
+                StartCoroutine(SendReplayRoutine(data, clientId));
+            }
         }
     }
 
@@ -636,10 +711,10 @@ public class PlayerManager : NetworkBehaviour
         int bufferSize = 1024;
         int dataLeft = data.Length;
 
-        while(0 < dataLeft)
+        while (0 < dataLeft)
         {
             int remaining = dataLeft - bufferSize;
-            if(remaining < 0)
+            if (remaining < 0)
             {
                 bufferSize = dataLeft;
             }
@@ -650,10 +725,60 @@ public class PlayerManager : NetworkBehaviour
             //send the chunk
             ReplayChunk msg = new ReplayChunk();
             msg.replayData = buffer;
-            NetworkServer.SendToClient(clientId, MyMsgType.FileChunk, msg);
+            NetworkServer.SendToClient(clientId, MyMsgType.ReplayChunk, msg);
             dataLeft -= bufferSize;
 
             yield return null;
         }
-    }*/
+    }
+
+    // Receive the first message that gives the size of the array
+    public void OnReplayInfo(NetworkMessage netMsg)
+    {
+        ReplayInfo msg = netMsg.ReadMessage<ReplayInfo>();
+        replaySize = msg.replaySize;
+        Debug.Log("Received replay size : " + replaySize);
+        clientData = new byte[replaySize];
+    }
+
+    // Receive the chunks of replay and add them to the array
+    // When everything is received create the replay and save it in a file
+    public void OnReplayChunk(NetworkMessage netMsg)
+    {
+        ReplayChunk msg = netMsg.ReadMessage<ReplayChunk>();
+        byte[] data = msg.replayData;
+
+        System.Array.Copy(data, 0, clientData, receivedSize, data.Length);
+        receivedSize += data.Length;
+
+        Debug.Log("Received size : " + receivedSize + ", replaySize : " + replaySize);
+
+        if (replaySize == receivedSize)
+        {
+            Debug.Log("Received everything");
+            ReplayManager._instance.GetReplayFromData(clientData, replaySize);
+            ReplayManager._instance.SaveInFile();
+
+            LobbyManager._instance.client.Send(MyMsgType.ReplayDone, new ReplayDone());
+        }
+    }
+
+    public void OnReplayDone(NetworkMessage netMsg)
+    {
+        Debug.Log("OnReplayDone");
+        replayReceived++;
+    }
+
+    public void OnStartHighlights(NetworkMessage netMsg)
+    {
+        Debug.Log("OnStartHighlight");
+
+        // The balls must be deactivated so that they don't show in the replay
+        foreach (GameObject o in players.Values)
+        {
+            o.SetActive(false);
+        }
+
+        ReplayManager._instance.StartHighlights();        
+    }
 }
