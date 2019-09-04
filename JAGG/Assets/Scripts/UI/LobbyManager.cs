@@ -159,8 +159,6 @@ public class LobbyManager : NetworkLobbyManager
 
     private void EndOfGame()
     {
-        MovingPieceManager._instance.ClearRotatePieces();
-        MovingPieceManager._instance.ClearMovingPieces();
         ReplayManager._instance.StartGameplay(false);
         playerManager.AddPlayersScoresReplay();
         ReplayManager._instance.SaveInFile();
@@ -174,13 +172,14 @@ public class LobbyManager : NetworkLobbyManager
         /// START HIGHLIGHTS
         ReplayManager._instance.SelectHighlights();
         playerManager.SendReplayToClients();
-        playerManager.isHighlight = true;
-
-        
+        playerManager.isHighlight = true;        
     }
 
     public void AfterHighlightEndOfGame()
     {
+        MovingPieceManager._instance.ClearRotatePieces();
+        MovingPieceManager._instance.ClearMovingPieces();
+
         /// VICTORY SCENE AND LOBBY RETURN => AFTER HIGHLIGHTS 
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = true;
@@ -226,6 +225,8 @@ public class LobbyManager : NetworkLobbyManager
             hole = GameObject.Find("Hole " + playerManager.currentHole.ToString());
 
             //gameTimer.StartTimer(GetMaxTime());
+
+            ReplayManager._instance.StartGameplay(true);
 
             MovingPieceManager._instance.GrabAllRotatePieces();
             MovingPieceManager._instance.GrabAllMovingPieces();

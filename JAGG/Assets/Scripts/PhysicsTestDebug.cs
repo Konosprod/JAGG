@@ -44,11 +44,11 @@ public class PhysicsTestDebug : MonoBehaviour
     public List<RotatePiece> rtps = new List<RotatePiece>();
     public List<MovingPiece> mvps = new List<MovingPiece>();
 
-    public void StopMyCoroutine(RotatePiece rtp)
+    /*public void StopMyCoroutine(RotatePiece rtp)
     {
         if (rtp.coroutine != null)
             StopCoroutine(rtp.coroutine);
-    }
+    }*/
     public void StopMyCoroutine(MovingPiece mvp)
     {
         if (mvp.coroutine != null)
@@ -143,7 +143,7 @@ public class PhysicsTestDebug : MonoBehaviour
                     {*/
                     rtp.timer += Time.fixedDeltaTime;
 
-                    if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    /*if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
                     {
                         if (!rtp.isRotation)
                         {
@@ -152,7 +152,7 @@ public class PhysicsTestDebug : MonoBehaviour
                             rtp.timer = 0f;
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
                         }
-                    }
+                    }*/
                     //}
 
                     // Apply the rotation the balls on top of the piece

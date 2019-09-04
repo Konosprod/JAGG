@@ -75,8 +75,8 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
 
     public void StopMyCoroutine(RotatePiece rtp)
     {
-        if (rtp.coroutine != null)
-            StopCoroutine(rtp.coroutine);
+        /*if (rtp.coroutine != null)
+            StopCoroutine(rtp.coroutine);*/
     }
     public void StopMyCoroutine(MovingPiece mvp)
     {
@@ -96,7 +96,7 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
                 {
                     rtp.timer += Time.fixedDeltaTime;
 
-                    if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    /*if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
                     {
                         if (!rtp.isRotation)
                         {
@@ -105,7 +105,7 @@ public class LevelEditorMovingPieceManager : MonoBehaviour
                             rtp.timer = 0f;
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
                         }
-                    }
+                    }*/ // TODO Replace coroutine
 
 
                     // Apply the rotation the balls on top of the piece

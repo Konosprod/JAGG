@@ -61,7 +61,7 @@ public class BallPhysics : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!Physics.autoSimulation)
+        if (!ReplayManager._instance.physicsDoUpdate)
             return;
 
         grounded = false;

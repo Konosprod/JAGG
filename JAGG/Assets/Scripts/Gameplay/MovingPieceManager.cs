@@ -31,6 +31,7 @@ public class MovingPieceManager : NetworkBehaviour {
 
     public void GrabAllRotatePieces()
     {
+        Debug.Log("GrabAllRTP " + ReplayManager._instance.fixedFrameCount + "f");
         rotatePieces = new List<RotatePiece>(FindObjectsOfType<RotatePiece>());
     }
     public void GrabAllMovingPieces()
@@ -40,10 +41,10 @@ public class MovingPieceManager : NetworkBehaviour {
 
     public void ClearRotatePieces()
     {
-        foreach(RotatePiece rtp in rotatePieces)
+        /*foreach(RotatePiece rtp in rotatePieces)
         {
             StopMyCoroutine(rtp);
-        }
+        }*/
         rotatePieces.Clear();
     }
     public void ClearMovingPieces()
@@ -91,11 +92,11 @@ public class MovingPieceManager : NetworkBehaviour {
         }
     }
 
-    public void StopMyCoroutine(RotatePiece rtp)
+    /*public void StopMyCoroutine(RotatePiece rtp)
     {
         if (rtp.coroutine != null)
             StopCoroutine(rtp.coroutine);
-    }
+    }*/
     public void StopMyCoroutine(MovingPiece mvp)
     {
         if (mvp.coroutine != null)
@@ -105,9 +106,8 @@ public class MovingPieceManager : NetworkBehaviour {
 
     void FixedUpdate()
     {
-        if (!isServer)
+        if (!isServer || ReplayManager._instance.isReplayActive)
             return;
-
 
         // Handle all RotatePiece
         foreach (RotatePiece rtp in rotatePieces)
@@ -116,9 +116,11 @@ public class MovingPieceManager : NetworkBehaviour {
             {
                 if (!rtp.flagStopRotation)
                 {
+                    if(ReplayManager._instance.fixedFrameCount < 10)
+                        Debug.Log("FU : " + ReplayManager._instance.fixedFrameCount + "f, t=" + rtp.timer);
                     rtp.timer += Time.fixedDeltaTime;
 
-                    if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    /*if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
                     {
                         rtp.isRotation = !rtp.isRotation;
                         rtp.timer = 0f;
@@ -126,6 +128,23 @@ public class MovingPieceManager : NetworkBehaviour {
                         {
                             rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
                             RpcStartCoroutineRTP(rotatePieces.FindIndex(x => x == rtp));
+                        }
+                    }*/
+                    if (rtp.isRotation && rtp.timer <= rtp.spinTime)
+                    {
+                        rtp.StepRotate();
+                    }
+                    else if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    {
+                        rtp.isRotation = !rtp.isRotation;
+                        rtp.timer = 0f;
+                        if (rtp.isRotation)
+                        {
+                            rtp.StartRotate(Vector3.up * rtp.rotationAngle, rtp.spinTime);
+                        }
+                        else
+                        {
+                            rtp.EndRotate();
                         }
                     }
 
@@ -216,17 +235,27 @@ public class MovingPieceManager : NetworkBehaviour {
             {
                 if (!rtp.flagStopRotation)
                 {
+                    if(ReplayManager._instance.fixedHighlightFrames < 10)
+                        Debug.Log("Step : " + ReplayManager._instance.fixedHighlightFrames + "f, t=" + rtp.timer);
                     rtp.timer += Time.fixedDeltaTime;
 
-                    if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
+                    if (rtp.isRotation && rtp.timer <= rtp.spinTime)
+                    {
+                        rtp.StepRotate();
+                    }
+                    else if ((rtp.isRotation && rtp.timer > rtp.spinTime) || (!rtp.isRotation && rtp.timer > rtp.pauseTime))
                     {
                         rtp.isRotation = !rtp.isRotation;
                         rtp.timer = 0f;
                         if (rtp.isRotation)
                         {
-                            rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+                            rtp.StartRotate(Vector3.up * rtp.rotationAngle, rtp.spinTime);
                         }
-                    }
+                        else
+                        {
+                            rtp.EndRotate();
+                        }
+                    } 
 
 
                     if (rtp.isRotation)
@@ -377,7 +406,7 @@ public class MovingPieceManager : NetworkBehaviour {
                 GrabAllRotatePieces();
                     
             RotatePiece rtp = rotatePieces[rtpId];
-            rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
+            //rtp.coroutine = StartCoroutine(rtp.RotateMe(Vector3.up * rtp.rotationAngle, rtp.spinTime));
         }
     }
     [ClientRpc]

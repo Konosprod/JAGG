@@ -107,6 +107,19 @@ public class ReplayManager : MonoBehaviour
             info.AddValue("selectedHighlights", selectedHighlights);
         }
 
+
+        public List<string> GetPlayerNames()
+        {
+            List<string> playerNames = new List<string>();
+
+            foreach (ReplayObject ro in replayObjects)
+            {
+                playerNames.Add(ro.steamName);
+            }
+
+            return playerNames;
+        }
+
         public override string ToString()
         {
             string res = "Map : " + customMapPath + '\n' + "ReplayObjects : " + '\n';
@@ -162,7 +175,9 @@ public class ReplayManager : MonoBehaviour
     private int nbPlayersReplay = 0;    // The number of players involved in the replay (1-4)
     private int currentHighlight = 0;   // The index of the highlight we are currently showing
     private Highlight currentHighlightObject = null;    // The highlight object we are currently showing
-    private long fixedHighlightFrames = 0;  // The frames for the replay
+    public/*private TODO*/ long fixedHighlightFrames = 0;  // The frames for the replay
+
+    public bool physicsDoUpdate = true;
 
     private List<Queue<ReplayObject.InputInfo>> allInputs = null; // All the inputs for the highlight (all players)
     private int currentPlayer = -1; // The player who has the next input to play
@@ -290,7 +305,7 @@ public class ReplayManager : MonoBehaviour
             if (!isHighlightReady)
             {
                 Debug.Log("We have " + replay.selectedHighlights.Count + " highlights to show");
-                foreach(KeyValuePair<int, int> _debugSelecHighlight in replay.selectedHighlights)
+                foreach (KeyValuePair<int, int> _debugSelecHighlight in replay.selectedHighlights)
                 {
                     Debug.Log(_debugSelecHighlight);
                 }
@@ -352,7 +367,7 @@ public class ReplayManager : MonoBehaviour
                 foreach (Queue<ReplayObject.InputInfo> inputs in allInputs)
                 {
                     Debug.Log("Inputs for player " + i + " : ");
-                    foreach(ReplayObject.InputInfo _inputDebug in inputs.ToArray())
+                    foreach (ReplayObject.InputInfo _inputDebug in inputs.ToArray())
                     {
                         Debug.Log(_inputDebug);
                     }
@@ -384,7 +399,7 @@ public class ReplayManager : MonoBehaviour
                         // Set the camera on the right replay ball
                         Camera.main.GetComponent<BallCamera>().target = replayBalls[currentHighlightObject.replayObjectIndex].transform;
 
-                        Physics.autoSimulation = true;
+                        physicsDoUpdate = true;
                     }
                     else // It's a later input that is highlighted so we need to get to the right position first
                     {
@@ -509,6 +524,9 @@ public class ReplayManager : MonoBehaviour
                     }
                 }
 
+
+                MovingPieceManager._instance.Step();
+
                 fixedHighlightFrames++;
 
                 if (isHighlightDone)
@@ -521,6 +539,10 @@ public class ReplayManager : MonoBehaviour
                         currentHighlightObject = null;
                         isHighlightReady = false;
                         isHighlightDone = false;
+
+                        physicsDoUpdate = false;
+
+                        MovingPieceManager._instance.ReplayReset();
                     }
                     else
                     {
@@ -575,13 +597,15 @@ public class ReplayManager : MonoBehaviour
             fixedFrameCount++;
     }
 
-
+    // Things to do/clean after the highlights for the game are over
     private void ResetAfterHighlights()
     {
+        isReplayActive = false;
         isHighlight = false;
         currentHighlightObject = null;
         isHighlightReady = false;
         isHighlightDone = false;
+        physicsDoUpdate = true;
 
         // Disable the replay balls
         nbPlayersReplay = 0;
@@ -617,6 +641,7 @@ public class ReplayManager : MonoBehaviour
     }
 
 
+    // Used at the start of the game to create the replay and start counting physics frames from 0
     public void StartGameplay(bool start, string customMap = "", bool startOfGame = false)
     {
         if (startOfGame)
@@ -640,6 +665,7 @@ public class ReplayManager : MonoBehaviour
         replay.replayObjects.Add(ro);
     }
 
+    // Adds the play as the highlight in the replay
     public void AddHighlight(HighlightType ht, ReplayObject ro)
     {
         switch (ht)
@@ -664,7 +690,7 @@ public class ReplayManager : MonoBehaviour
     }
 
 
-    // We start showing the highlights
+    // Setup for all things required for the highlights and we start showing them
     public void StartHighlights()
     {
         Debug.Log("StartHighlights");
@@ -678,11 +704,12 @@ public class ReplayManager : MonoBehaviour
             nbPlayersReplay++;
         }
 
+        isReplayActive = true;
         isHighlight = true;
         isHighlightReady = false;
         currentHighlight = 0;
 
-        Physics.autoSimulation = false;
+        physicsDoUpdate = false;
 
         MovingPieceManager._instance.ReplayReset();
     }
@@ -698,13 +725,13 @@ public class ReplayManager : MonoBehaviour
                 // Don't add the same highlight twice for two different categories
                 bool found = false;
 
-                foreach(KeyValuePair<int, int> pair in replay.selectedHighlights)
+                foreach (KeyValuePair<int, int> pair in replay.selectedHighlights)
                 {
                     if (highlights[i].IsEqual(replay.highlights[pair.Key][pair.Value]))
                         found = true;
                 }
 
-                if(!found) 
+                if (!found)
                     replay.selectedHighlights.Add(new KeyValuePair<int, int>(ht, i));
             }
         }
@@ -734,15 +761,70 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
-
+    // Save the replay to a file
+    // We add the replay to the index file
     public void SaveInFile()
     {
         string filePath = Path.Combine(Application.persistentDataPath, "replays");
 
+        // Create the replay directory
         if (!Directory.Exists(filePath))
         {
             Directory.CreateDirectory(filePath);
         }
+
+        // We update the replay file index
+        string indexPath = filePath + "/replayIndex.rpi";
+        ReplayIndexFile replayIndexFile = new ReplayIndexFile();
+        if (!File.Exists(indexPath))
+        {
+            // First time that a replay is saved, we create the index file
+            replayIndexFile.replayFileCount = 1;
+        }
+        else
+        {
+            // We update the index file
+            using (Stream stream = File.Open(indexPath, FileMode.Open))
+            {
+                IFormatter formatter = new BinaryFormatter();
+                try
+                {
+                    // Deserialize the InputInfos from the stream
+                    ReplayIndexFile rif = (ReplayIndexFile)formatter.Deserialize(stream);
+
+                    replayIndexFile = rif;
+                }
+                catch (SerializationException e)
+                {
+                    Debug.Log("Deserialization failed : " + e.Message);
+                    throw;
+                }
+            }
+
+            replayIndexFile.replayFileCount++;
+        }
+
+        ReplayIndexFile.ReplayFileMetaData rfmd = new ReplayIndexFile.ReplayFileMetaData(replay.customMapPath + "_" + System.DateTime.Now.ToString("ddMMyyyyHHmm"), replay.customMapPath, "TODO", System.DateTime.Now.ToString("dd/MM/yyyy HH:mm"), replay.GetPlayerNames());
+        replayIndexFile.replayInfos.Add(rfmd);
+
+        // Write the index file
+        using (Stream stream = File.Open(indexPath, FileMode.Create))
+        {
+            IFormatter formatter = new BinaryFormatter();
+            try
+            {
+                // Serialize the InputInfos into the stream
+                formatter.Serialize(stream, replayIndexFile);
+            }
+            catch (SerializationException e)
+            {
+                Debug.Log("Serialization failed : " + e.Message);
+                throw;
+            }
+        }
+
+
+        // We save the replay
 
         //Debug.Log(filePath);
         filePath += "/" + replay.customMapPath + "_" + System.DateTime.Now.ToString("ddMMyyyyHHmm") + ".rep";
@@ -763,6 +845,7 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
+    // Open the replay file to watch it
     public void LoadFromFile(string filePath)
     {
         using (Stream stream = File.Open(filePath, FileMode.Open))
@@ -788,14 +871,37 @@ public class ReplayManager : MonoBehaviour
         }
     }
 
+
+    // MainMenu => Show the list of replays that are on the pc
     public void ShowReplayList()
     {
         panelSelectReplay.SetActive(true);
 
-        foreach (string file in Directory.GetFiles(Path.Combine(Application.persistentDataPath, "replays"), "*.rep"))
+        ReplayIndexFile rif;
+
+        using (Stream stream = File.Open(Path.Combine(Application.persistentDataPath, "replays") + "/replayIndex.rpi", FileMode.Open))
+        {
+            IFormatter formatter = new BinaryFormatter();
+            try
+            {
+                // Get the replays metadata from the index file
+                rif = (ReplayIndexFile)formatter.Deserialize(stream);
+            }
+            catch (SerializationException e)
+            {
+                Debug.Log("Deserialization failed : " + e.Message);
+                throw;
+            }
+        }
+
+        for (int i = 0; i < rif.replayFileCount; i++)
         {
             GameObject newEntry = Instantiate(prefabEntry, contentUI);
-
+            ReplayEntry re = newEntry.GetComponent<ReplayEntry>();
+            ReplayIndexFile.ReplayFileMetaData rfmd = rif.replayInfos[i];
+            re.mapName = rfmd.mapName;
+            re.replayName = rfmd.replayName;
+            re.date = rfmd.date;
         }
     }
 }

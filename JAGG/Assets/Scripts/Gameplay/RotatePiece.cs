@@ -48,7 +48,7 @@ public class RotatePiece : CustomScript
     private Transform targetRot;
 
     [HideInInspector]
-    public Coroutine coroutine;
+    //public Coroutine coroutine;
 
 
     private int layerMoveRotate;
@@ -137,20 +137,55 @@ public class RotatePiece : CustomScript
     }
 
 
-    public IEnumerator RotateMe(Vector3 byAngles, float inTime)
+    /*public IEnumerator RotateMe(Vector3 byAngles, float inTime)
     {
         Quaternion fromAngle = transform.rotation;
         goalAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
         for (float t = 0f; t < 1f; t += Time.fixedDeltaTime / inTime)
         {
             transform.rotation = Quaternion.Slerp(fromAngle, goalAngle, t);
+            if(ReplayManager._instance.fixedFrameCount < 100)
+                Debug.Log(ReplayManager._instance.fixedFrameCount + "f, t=" + t);
             yield return new WaitForFixedUpdate();
         }
 
         transform.rotation = goalAngle;
         isRotation = false;
         timer = 0f;
+    }*/
+
+    // For replay purposes (we can't use coroutine during the highlight setup and then we can be in an intermediary situation so it's easier to keep using this system)
+    private float rotateTime;
+    private float currentRotateTime = 0f;
+    private Quaternion startAngle;
+    private Quaternion endAngle;
+
+    public void StartRotate(Vector3 byAngles, float inTime)
+    {
+        Debug.Log("StartRotate : " + (ReplayManager._instance.isReplayActive ? ReplayManager._instance.fixedHighlightFrames : ReplayManager._instance.fixedFrameCount) + "f");
+
+        startAngle = transform.rotation;
+        endAngle = Quaternion.Euler(transform.eulerAngles + byAngles);
+        rotateTime = inTime;
+        currentRotateTime = 0f;
     }
+
+    public void StepRotate()
+    {
+        if (currentRotateTime < 1f)
+        {
+            transform.rotation = Quaternion.Slerp(startAngle, endAngle, currentRotateTime);
+            if((ReplayManager._instance.isReplayActive?ReplayManager._instance.fixedHighlightFrames : ReplayManager._instance.fixedFrameCount) < 200)
+                Debug.Log((ReplayManager._instance.isReplayActive ? ReplayManager._instance.fixedHighlightFrames : ReplayManager._instance.fixedFrameCount) + "f, t=" + currentRotateTime);
+            currentRotateTime += Time.fixedDeltaTime / rotateTime;
+        }
+    }
+
+    public void EndRotate()
+    {
+        transform.rotation = endAngle;
+    }
+
 
     public void UpdateRotations()
     {
@@ -171,13 +206,13 @@ public class RotatePiece : CustomScript
     public void SetFlagStopSpin(bool f)
     {
         flagStopRotation = f;
-        if (coroutine != null)
+        /*if (coroutine != null)
         {
             if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);
-        }
+        }*/
 
 
         transform.eulerAngles = initialRotation;
@@ -186,7 +221,7 @@ public class RotatePiece : CustomScript
 
     public void Reset()
     {
-        if (coroutine != null)
+        /*if (coroutine != null)
         {
             if (SceneManager.GetSceneAt(0).name == "LevelEditor" || SceneManager.GetSceneAt(0).name == "ReplayTest")
                 LevelEditorMovingPieceManager._instance.StopMyCoroutine(this);
@@ -194,7 +229,7 @@ public class RotatePiece : CustomScript
                 ptd.StopMyCoroutine(this);
             else
                 MovingPieceManager._instance.StopMyCoroutine(this);
-        }
+        }*/
 
         transform.eulerAngles = initialRotation;
         timer = -timerOffset;

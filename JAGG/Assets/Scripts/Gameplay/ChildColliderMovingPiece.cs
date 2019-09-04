@@ -45,7 +45,7 @@ public class ChildColliderMovingPiece : MonoBehaviour
                 if (!rtpParent.ballsOnTop.Contains(ball))
                 {
                     rtpParent.ballsOnTop.Add(ball);
-                    if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor") // TODO : Ajouter la scène de Replay finale (quand elle existera)
+                    if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor" && !ReplayManager._instance.isReplayActive) // TODO : Ajouter la scène de Replay finale (quand elle existera)
                         ball.GetComponent<PlayerController>().isOnRtpMvp++;
                 }
             }
@@ -54,7 +54,7 @@ public class ChildColliderMovingPiece : MonoBehaviour
                 if (!mvpParent.ballsOnTop.Contains(ball))
                 {
                     mvpParent.ballsOnTop.Add(ball);
-                    if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor")
+                    if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor" && !ReplayManager._instance.isReplayActive)
                         ball.GetComponent<PlayerController>().isOnRtpMvp++;
                 }
             }
@@ -73,13 +73,13 @@ public class ChildColliderMovingPiece : MonoBehaviour
             if (rtpParent != null)
             {
                 rtpParent.ballsOnTop.Remove(ball);
-                if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor")
+                if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor" && !ReplayManager._instance.isReplayActive)
                     ball.GetComponent<PlayerController>().isOnRtpMvp--;
             }
             if (mvpParent != null)
             {
                 mvpParent.ballsOnTop.Remove(ball);
-                if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor")
+                if (SceneManager.GetSceneAt(0).name != "PhysicsTest" && SceneManager.GetSceneAt(0).name != "LevelEditor" && !ReplayManager._instance.isReplayActive)
                     ball.GetComponent<PlayerController>().isOnRtpMvp--;
             }
 
